@@ -125,6 +125,25 @@ let test_magnitude_of_point _ =
       let _ = Tuple.magnitude a in
       ())
 
+let test_normalize_vector_1 _ =
+  let a = Tuple.vector 4. 0. 0. in
+  let res = Tuple.normalize a in
+  let expected = Tuple.vector 1. 0. 0. in
+  assert_bool "is equal" (Tuple.is_equal expected res)
+
+let test_normalize_vector_2 _ =
+  let a = Tuple.vector 1. 2. 3. in
+  let res = Tuple.normalize a in
+  let mag = Float.sqrt 14. in
+  let expected = Tuple.vector (1. /. mag) (2. /. mag) (3. /. mag) in
+  assert_bool "is equal" (Tuple.is_equal expected res)
+
+let test_normalize_point _ =
+  let a = Tuple.point 1. 2. 3. in
+  assert_raises (Invalid_argument "Cannot normalize point") (fun () ->
+      let _ = Tuple.normalize a in
+      ())
+
 let suite =
   "Tuple tests"
   >::: [
@@ -149,6 +168,9 @@ let suite =
          "Test magnitude of negative vector"
          >:: test_magnitude_of_vector_negative;
          "Test magnitude of point" >:: test_magnitude_of_point;
+          "Test normalize vector 1" >:: test_normalize_vector_1;
+           "Test normalize vector 2" >:: test_normalize_vector_2;
+           "Test normalize point" >:: test_normalize_point;
        ]
 
 let () = run_test_tt_main suite

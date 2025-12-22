@@ -52,19 +52,32 @@ let sub t o =
 let negate t =
   match t.w with
   | Vector -> sub (vector 0. 0. 0.) t
-  | _ -> raise (Invalid_argument "Cannot negate point")
+  | Point -> raise (Invalid_argument "Cannot negate point")
 
 let multiply t n =
   match t.w with
   | Vector -> { x = t.x *. n; y = t.y *. n; z = t.z *. n; w = t.w }
-  | _ -> raise (Invalid_argument "Cannot multiply point")
+  | Point -> raise (Invalid_argument "Cannot multiply point")
 
 let divide t n =
   match t.w with
   | Vector -> { x = t.x /. n; y = t.y /. n; z = t.z /. n; w = t.w }
-  | _ -> raise (Invalid_argument "Cannot divide point")
+  | Point -> raise (Invalid_argument "Cannot divide point")
 
 let magnitude t =
   match t.w with
   | Vector -> Float.sqrt ((t.x *. t.x) +. (t.y *. t.y) +. (t.z *. t.z))
-  | _ -> raise (Invalid_argument "Cannot take magnitude of point")
+  | Point -> raise (Invalid_argument "Cannot take magnitude of point")
+
+let normalize t =
+  match t.w with
+  | Vector -> (
+    let m = magnitude t in
+    {
+      x = t.x /. m;
+      y = t.y /. m;
+      z = t.z /. m;
+      w = t.w;
+    }
+  )
+  | Point -> raise (Invalid_argument "Cannot normalize point")
