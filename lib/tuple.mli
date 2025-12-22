@@ -13,3 +13,6 @@ val is_equal : t -> t -> bool
 val sum : t -> t -> t
 val sub : t -> t -> t
 val negate : t -> t
+val multiply : t -> float -> t
+val divide : t -> float -> t
+val magnitude : t -> float
