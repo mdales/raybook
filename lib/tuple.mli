@@ -18,3 +18,4 @@ val divide : t -> float -> t
 val magnitude : t -> float
 val normalize : t -> t
 val dot : t -> t -> float
+val cross : t -> t -> t

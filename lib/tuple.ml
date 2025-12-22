@@ -82,3 +82,15 @@ let dot t o =
       { x = x1; y = y1; z = z1; w = Vector } ) ->
       (x0 *. x1) +. (y0 *. y1) +. (z0 *. z1)
   | _ -> raise (Invalid_argument "Cannot use points in dot product")
+
+let cross t o =
+  match (t, o) with
+  | ( { x = x0; y = y0; z = z0; w = Vector },
+      { x = x1; y = y1; z = z1; w = Vector } ) ->
+      {
+        x = (y0 *. z1) -. (z0 *. y1);
+        y = (z0 *. x1) -. (x0 *. z1);
+        z = (x0 *. y1) -. (y0 *. x1);
+        w = Vector;
+      }
+  | _ -> raise (Invalid_argument "Cannot use points in cross product")

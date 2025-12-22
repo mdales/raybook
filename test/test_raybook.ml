@@ -178,6 +178,39 @@ let test_dot_point_with_point _ =
       let _ = Tuple.dot a1 a2 in
       ())
 
+let test_cross_vector_with_vector_1 _ =
+  let a1 = Tuple.vector 1. 2. 3. and a2 = Tuple.vector 2. 3. 4. in
+  let res = Tuple.cross a1 a2 in
+  let expected = Tuple.vector (-1.) 2. (-1.) in
+  assert_bool "is equal" (Tuple.is_equal expected res)
+
+let test_cross_vector_with_vector_2 _ =
+  let a1 = Tuple.vector 1. 2. 3. and a2 = Tuple.vector 2. 3. 4. in
+  let res = Tuple.cross a2 a1 in
+  let expected = Tuple.vector 1. (-2.) 1. in
+  assert_bool "is equal" (Tuple.is_equal expected res)
+
+let test_cross_vector_with_point _ =
+  let a1 = Tuple.vector 1. 2. 3. and a2 = Tuple.point 2. 3. 4. in
+  assert_raises (Invalid_argument "Cannot use points in cross product")
+    (fun () ->
+      let _ = Tuple.cross a1 a2 in
+      ())
+
+let test_cross_point_with_vector _ =
+  let a1 = Tuple.point 1. 2. 3. and a2 = Tuple.vector 2. 3. 4. in
+  assert_raises (Invalid_argument "Cannot use points in cross product")
+    (fun () ->
+      let _ = Tuple.cross a1 a2 in
+      ())
+
+let test_cross_point_with_point _ =
+  let a1 = Tuple.point 1. 2. 3. and a2 = Tuple.point 2. 3. 4. in
+  assert_raises (Invalid_argument "Cannot use points in cross product")
+    (fun () ->
+      let _ = Tuple.cross a1 a2 in
+      ())
+
 let suite =
   "Tuple tests"
   >::: [
@@ -211,6 +244,13 @@ let suite =
          "Test dot of vector with point" >:: test_dot_vector_with_point;
          "Test dot of point with vector" >:: test_dot_point_with_vector;
          "Test dot of point with point" >:: test_dot_point_with_point;
+         "Test cross of vector with vector 1"
+         >:: test_cross_vector_with_vector_1;
+         "Test cross of vector with vector 2"
+         >:: test_cross_vector_with_vector_2;
+         "Test cross of vector with point" >:: test_cross_vector_with_point;
+         "Test cross of point with vector" >:: test_cross_point_with_vector;
+         "Test cross of point with point" >:: test_cross_point_with_point;
        ]
 
 let () = run_test_tt_main suite
