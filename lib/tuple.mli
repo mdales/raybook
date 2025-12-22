@@ -10,3 +10,5 @@ val is_vector : t -> bool
 val point : float -> float -> float -> t
 val vector : float -> float -> float -> t
 val is_equal : t -> t -> bool
+val sum : t -> t -> t
+val sub : t -> t -> t

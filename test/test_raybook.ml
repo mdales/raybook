@@ -28,12 +28,62 @@ let test_create_vector _ =
   assert_bool "is point" (not (Tuple.is_point res));
   assert_bool "is vector" (Tuple.is_vector res)
 
+let test_sum_point_and_vector _ =
+  let a1 = Tuple.point 3.0 (-2.0) 5.0 and a2 = Tuple.vector (-2.0) 3.0 1.0 in
+  let res = Tuple.sum a1 a2 in
+  let expected = Tuple.point 1.0 1.0 6.0 in
+  assert_bool "is equal" (Tuple.is_equal expected res)
+
+let test_sum_vector_and_vector _ =
+  let a1 = Tuple.vector 3.0 (-2.0) 5.0 and a2 = Tuple.vector (-2.0) 3.0 1.0 in
+  let res = Tuple.sum a1 a2 in
+  let expected = Tuple.vector 1.0 1.0 6.0 in
+  assert_bool "is equal" (Tuple.is_equal expected res)
+
+let test_sum_point_and_point _ =
+  let a1 = Tuple.point 3.0 (-2.0) 5.0 and a2 = Tuple.point (-2.0) 3.0 1.0 in
+  assert_raises (Invalid_argument "Cannot add two points") (fun () ->
+      let _ = Tuple.sum a1 a2 in
+      ())
+
+let test_sub_point_and_point _ =
+  let a1 = Tuple.point 3. 2. 1. and a2 = Tuple.point 5. 6. 7. in
+  let res = Tuple.sub a1 a2 in
+  let expected = Tuple.vector (-2.) (-4.) (-6.) in
+  assert_bool "is equal" (Tuple.is_equal expected res)
+
+let test_sub_point_and_vector _ =
+  let a1 = Tuple.point 3. 2. 1. and a2 = Tuple.vector 5. 6. 7. in
+  let res = Tuple.sub a1 a2 in
+  let expected = Tuple.point (-2.) (-4.) (-6.) in
+  assert_bool "is equal" (Tuple.is_equal expected res)
+
+let test_sub_vector_and_vector _ =
+  let a1 = Tuple.vector 3. 2. 1. and a2 = Tuple.vector 5. 6. 7. in
+  let res = Tuple.sub a1 a2 in
+  let expected = Tuple.vector (-2.) (-4.) (-6.) in
+  assert_bool "is equal" (Tuple.is_equal expected res)
+
+let test_sub_vector_and_point _ =
+  let a1 = Tuple.vector 3. 2. 1. and a2 = Tuple.point 5. 6. 7. in
+  assert_raises (Invalid_argument "Cannot subtract point from vector")
+    (fun () ->
+      let _ = Tuple.sub a1 a2 in
+      ())
+
 let suite =
   "Tuple tests"
   >::: [
          "Test create tuple" >:: test_create_tuple;
          "Test create point" >:: test_create_point;
          "Test create vector" >:: test_create_vector;
+         "Test point plus vector" >:: test_sum_point_and_vector;
+         "Test vector plus vector" >:: test_sum_vector_and_vector;
+         "Test point plus point" >:: test_sum_point_and_point;
+         "Test point sub point" >:: test_sub_point_and_point;
+         "Test point sub vector" >:: test_sub_point_and_vector;
+         "Test vector sub vector" >:: test_sub_vector_and_vector;
+         "Test vector sub point" >:: test_sub_vector_and_point;
        ]
 
 let () = run_test_tt_main suite

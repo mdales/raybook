@@ -18,12 +18,33 @@ let z t = t.z
 let w t = match t.w with Point -> 1.0 | Vector -> 0.0
 let is_point t = t.w == Point
 let is_vector t = t.w == Vector
-
-let fp_equal a b =
-  abs_float(a -. b) < epsilon_float
+let fp_equal a b = abs_float (a -. b) < epsilon_float
 
 let is_equal t o =
-  (fp_equal t.x o.x) &&
-  (fp_equal t.y o.y) &&
-  (fp_equal t.z o.z) &&
-  (t.w == o.w)
+  fp_equal t.x o.x && fp_equal t.y o.y && fp_equal t.z o.z && t.w == o.w
+
+let sum t o =
+  match (t, o) with
+  | ( { x = x0; y = y0; z = z0; w = Vector },
+      { x = x1; y = y1; z = z1; w = Vector } ) ->
+      vector (x0 +. x1) (y0 +. y1) (z0 +. z1)
+  | ( { x = x0; y = y0; z = z0; w = Point },
+      { x = x1; y = y1; z = z1; w = Vector } ) ->
+      point (x0 +. x1) (y0 +. y1) (z0 +. z1)
+  | ( { x = x0; y = y0; z = z0; w = Vector },
+      { x = x1; y = y1; z = z1; w = Point } ) ->
+      point (x0 +. x1) (y0 +. y1) (z0 +. z1)
+  | _ -> raise (Invalid_argument "Cannot add two points")
+
+let sub t o =
+  match (t, o) with
+  | { x = x0; y = y0; z = z0; w = Point }, { x = x1; y = y1; z = z1; w = Point }
+    ->
+      vector (x0 -. x1) (y0 -. y1) (z0 -. z1)
+  | ( { x = x0; y = y0; z = z0; w = Point },
+      { x = x1; y = y1; z = z1; w = Vector } ) ->
+      point (x0 -. x1) (y0 -. y1) (z0 -. z1)
+  | ( { x = x0; y = y0; z = z0; w = Vector },
+      { x = x1; y = y1; z = z1; w = Vector } ) ->
+      vector (x0 -. x1) (y0 -. y1) (z0 -. z1)
+  | _ -> raise (Invalid_argument "Cannot subtract point from vector")
