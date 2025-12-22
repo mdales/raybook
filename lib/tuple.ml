@@ -71,13 +71,14 @@ let magnitude t =
 
 let normalize t =
   match t.w with
-  | Vector -> (
-    let m = magnitude t in
-    {
-      x = t.x /. m;
-      y = t.y /. m;
-      z = t.z /. m;
-      w = t.w;
-    }
-  )
+  | Vector ->
+      let m = magnitude t in
+      { x = t.x /. m; y = t.y /. m; z = t.z /. m; w = t.w }
   | Point -> raise (Invalid_argument "Cannot normalize point")
+
+let dot t o =
+  match (t, o) with
+  | ( { x = x0; y = y0; z = z0; w = Vector },
+      { x = x1; y = y1; z = z1; w = Vector } ) ->
+      (x0 *. x1) +. (y0 *. y1) +. (z0 *. z1)
+  | _ -> raise (Invalid_argument "Cannot use points in dot product")

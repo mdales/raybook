@@ -17,3 +17,4 @@ val multiply : t -> float -> t
 val divide : t -> float -> t
 val magnitude : t -> float
 val normalize : t -> t
+val dot : t -> t -> float

@@ -1,6 +1,9 @@
 open Raybook
 open OUnit2
 
+let almost_equal a b =
+  assert_bool "is almost equal" (Float.abs (a -. b) < Float.epsilon)
+
 let test_create_tuple _ =
   let res : Tuple.t = Tuple.v 4.3 (-4.2) 3.1 1.0 in
   assert_equal 4.3 (Tuple.x res);
@@ -111,13 +114,13 @@ let test_magnitude_of_vector_positive _ =
   let a = Tuple.vector 1. 2. 3. in
   let res = Tuple.magnitude a in
   let expected = Float.sqrt 14. in
-  assert_bool "is almsot equal" (Float.abs (expected -. res) < Float.epsilon)
+  almost_equal expected res
 
 let test_magnitude_of_vector_negative _ =
   let a = Tuple.vector (-1.) (-2.) (-3.) in
   let res = Tuple.magnitude a in
   let expected = Float.sqrt 14. in
-  assert_bool "is almsot equal" (Float.abs (expected -. res) < Float.epsilon)
+  almost_equal expected res
 
 let test_magnitude_of_point _ =
   let a = Tuple.point 1. 2. 3. in
@@ -144,6 +147,37 @@ let test_normalize_point _ =
       let _ = Tuple.normalize a in
       ())
 
+let test_magnitude_of_normalized_vector _ =
+  let a = Tuple.vector 1. 2. 3. in
+  let norm = Tuple.normalize a in
+  let res = Tuple.magnitude norm in
+  let expected = 1. in
+  almost_equal expected res
+
+let test_dot_vector_with_vector _ =
+  let a1 = Tuple.vector 1. 2. 3. and a2 = Tuple.vector 2. 3. 4. in
+  let res = Tuple.dot a1 a2 in
+  let expected = 20. in
+  almost_equal expected res
+
+let test_dot_vector_with_point _ =
+  let a1 = Tuple.vector 1. 2. 3. and a2 = Tuple.point 2. 3. 4. in
+  assert_raises (Invalid_argument "Cannot use points in dot product") (fun () ->
+      let _ = Tuple.dot a1 a2 in
+      ())
+
+let test_dot_point_with_vector _ =
+  let a1 = Tuple.point 1. 2. 3. and a2 = Tuple.vector 2. 3. 4. in
+  assert_raises (Invalid_argument "Cannot use points in dot product") (fun () ->
+      let _ = Tuple.dot a1 a2 in
+      ())
+
+let test_dot_point_with_point _ =
+  let a1 = Tuple.point 1. 2. 3. and a2 = Tuple.point 2. 3. 4. in
+  assert_raises (Invalid_argument "Cannot use points in dot product") (fun () ->
+      let _ = Tuple.dot a1 a2 in
+      ())
+
 let suite =
   "Tuple tests"
   >::: [
@@ -168,9 +202,15 @@ let suite =
          "Test magnitude of negative vector"
          >:: test_magnitude_of_vector_negative;
          "Test magnitude of point" >:: test_magnitude_of_point;
-          "Test normalize vector 1" >:: test_normalize_vector_1;
-           "Test normalize vector 2" >:: test_normalize_vector_2;
-           "Test normalize point" >:: test_normalize_point;
+         "Test normalize vector 1" >:: test_normalize_vector_1;
+         "Test normalize vector 2" >:: test_normalize_vector_2;
+         "Test normalize point" >:: test_normalize_point;
+         "Test magnitied of normalized vector"
+         >:: test_magnitude_of_normalized_vector;
+         "Test dot of vector with vector" >:: test_dot_vector_with_vector;
+         "Test dot of vector with point" >:: test_dot_vector_with_point;
+         "Test dot of point with vector" >:: test_dot_point_with_vector;
+         "Test dot of point with point" >:: test_dot_point_with_point;
        ]
 
 let () = run_test_tt_main suite
