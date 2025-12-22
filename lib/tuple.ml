@@ -48,3 +48,8 @@ let sub t o =
       { x = x1; y = y1; z = z1; w = Vector } ) ->
       vector (x0 -. x1) (y0 -. y1) (z0 -. z1)
   | _ -> raise (Invalid_argument "Cannot subtract point from vector")
+
+let negate t =
+  match t.w with
+  | Vector -> sub (vector 0. 0. 0.) t
+  | _ -> raise (Invalid_argument "Cannot negate point")

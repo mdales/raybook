@@ -71,6 +71,19 @@ let test_sub_vector_and_point _ =
       let _ = Tuple.sub a1 a2 in
       ())
 
+let test_negate_vector _ =
+  let a = Tuple.vector (-1.) 2. (-3.) in
+  let res = Tuple.negate a in
+  let expected = Tuple.vector 1. (-2.) 3. in
+  assert_bool "is equal" (Tuple.is_equal expected res)
+
+let test_negate_point _ =
+  let a = Tuple.point (-1.) 2. (-3.) in
+  assert_raises (Invalid_argument "Cannot negate point")
+    (fun () ->
+      let _ = Tuple.negate a in
+      ())
+
 let suite =
   "Tuple tests"
   >::: [
@@ -84,6 +97,8 @@ let suite =
          "Test point sub vector" >:: test_sub_point_and_vector;
          "Test vector sub vector" >:: test_sub_vector_and_vector;
          "Test vector sub point" >:: test_sub_vector_and_point;
+         "Test negate vector" >:: test_negate_vector;
+         "Test negate point" >:: test_negate_point;
        ]
 
 let () = run_test_tt_main suite

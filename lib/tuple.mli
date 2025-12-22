@@ -12,3 +12,4 @@ val vector : float -> float -> float -> t
 val is_equal : t -> t -> bool
 val sum : t -> t -> t
 val sub : t -> t -> t
+val negate : t -> t
