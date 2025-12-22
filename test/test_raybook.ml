@@ -11,16 +11,20 @@ let test_create_tuple _ =
   assert_bool "is vector" (not (Tuple.is_vector res))
 
 let test_create_point _ =
-  let res : Tuple.t = Tuple.point 4.3 (-4.2) 3.1 in
-  let expected = Tuple.v 4.3 (-4.2) 3.1 1.0 in
-  assert_equal expected res;
+  (* Note the weirdness around 0.3 and 0.1 +. 0.2 is to
+  trigger a failure when just using == on floating point. *)
+  let res : Tuple.t = Tuple.point 4.3 (-4.2) 0.3 in
+  let expected = Tuple.v 4.3 (-4.2) (0.1 +. 0.2) 1.0 in
+  assert_bool "is equal" (Tuple.is_equal expected res);
   assert_bool "is point" (Tuple.is_point res);
   assert_bool "is vector" (not (Tuple.is_vector res))
 
 let test_create_vector _ =
-  let res : Tuple.t = Tuple.vector 4.3 (-4.2) 3.1 in
-  let expected = Tuple.v 4.3 (-4.2) 3.1 0.0 in
-  assert_equal expected res;
+  (* Note the weirdness around 0.3 and 0.1 +. 0.2 is to
+  trigger a failure when just using == on floating point. *)
+  let res : Tuple.t = Tuple.vector 4.3 (-4.2) 0.3 in
+  let expected = Tuple.v 4.3 (-4.2) (0.1 +. 0.2) 0.0 in
+  assert_bool "is equal" (Tuple.is_equal expected res);
   assert_bool "is point" (not (Tuple.is_point res));
   assert_bool "is vector" (Tuple.is_vector res)
 

@@ -18,3 +18,12 @@ let z t = t.z
 let w t = match t.w with Point -> 1.0 | Vector -> 0.0
 let is_point t = t.w == Point
 let is_vector t = t.w == Vector
+
+let fp_equal a b =
+  abs_float(a -. b) < epsilon_float
+
+let is_equal t o =
+  (fp_equal t.x o.x) &&
+  (fp_equal t.y o.y) &&
+  (fp_equal t.z o.z) &&
+  (t.w == o.w)
