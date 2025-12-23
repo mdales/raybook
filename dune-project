@@ -19,7 +19,7 @@
  (name raybook)
  (synopsis "A short synopsis")
  (description "A longer description")
- (depends ocaml (ounit2 :with-test))
+ (depends ocaml (ounit2 :with-test) (tsdl (>= 1.1.0)))
  (tags
   ("add topics" "to describe" your project)))
 

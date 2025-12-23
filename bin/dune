@@ -1,4 +1,4 @@
 (executable
  (public_name raybook)
  (name main)
- (libraries raybook))
+ (libraries raybook tsdl))
