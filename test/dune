@@ -1,3 +1,6 @@
-(test
- (name test_raybook)
+(tests
+ (names
+    test_tuple
+    test_colour
+    )
  (libraries raybook ounit2))
