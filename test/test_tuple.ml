@@ -33,37 +33,37 @@ let test_create_vector _ =
 
 let test_sum_point_and_vector _ =
   let a1 = Tuple.point 3.0 (-2.0) 5.0 and a2 = Tuple.vector (-2.0) 3.0 1.0 in
-  let res = Tuple.sum a1 a2 in
+  let res = Tuple.add a1 a2 in
   let expected = Tuple.point 1.0 1.0 6.0 in
   assert_bool "is equal" (Tuple.is_equal expected res)
 
 let test_sum_vector_and_vector _ =
   let a1 = Tuple.vector 3.0 (-2.0) 5.0 and a2 = Tuple.vector (-2.0) 3.0 1.0 in
-  let res = Tuple.sum a1 a2 in
+  let res = Tuple.add a1 a2 in
   let expected = Tuple.vector 1.0 1.0 6.0 in
   assert_bool "is equal" (Tuple.is_equal expected res)
 
 let test_sum_point_and_point _ =
   let a1 = Tuple.point 3.0 (-2.0) 5.0 and a2 = Tuple.point (-2.0) 3.0 1.0 in
   assert_raises (Invalid_argument "Cannot add two points") (fun () ->
-      let _ = Tuple.sum a1 a2 in
+      let _ = Tuple.add a1 a2 in
       ())
 
 let test_sub_point_and_point _ =
   let a1 = Tuple.point 3. 2. 1. and a2 = Tuple.point 5. 6. 7. in
-  let res = Tuple.sub a1 a2 in
+  let res = Tuple.subtract a1 a2 in
   let expected = Tuple.vector (-2.) (-4.) (-6.) in
   assert_bool "is equal" (Tuple.is_equal expected res)
 
 let test_sub_point_and_vector _ =
   let a1 = Tuple.point 3. 2. 1. and a2 = Tuple.vector 5. 6. 7. in
-  let res = Tuple.sub a1 a2 in
+  let res = Tuple.subtract a1 a2 in
   let expected = Tuple.point (-2.) (-4.) (-6.) in
   assert_bool "is equal" (Tuple.is_equal expected res)
 
 let test_sub_vector_and_vector _ =
   let a1 = Tuple.vector 3. 2. 1. and a2 = Tuple.vector 5. 6. 7. in
-  let res = Tuple.sub a1 a2 in
+  let res = Tuple.subtract a1 a2 in
   let expected = Tuple.vector (-2.) (-4.) (-6.) in
   assert_bool "is equal" (Tuple.is_equal expected res)
 
@@ -71,7 +71,7 @@ let test_sub_vector_and_point _ =
   let a1 = Tuple.vector 3. 2. 1. and a2 = Tuple.point 5. 6. 7. in
   assert_raises (Invalid_argument "Cannot subtract point from vector")
     (fun () ->
-      let _ = Tuple.sub a1 a2 in
+      let _ = Tuple.subtract a1 a2 in
       ())
 
 let test_negate_vector _ =

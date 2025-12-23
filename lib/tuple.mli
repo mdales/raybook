@@ -10,8 +10,8 @@ val is_vector : t -> bool
 val point : float -> float -> float -> t
 val vector : float -> float -> float -> t
 val is_equal : t -> t -> bool
-val sum : t -> t -> t
-val sub : t -> t -> t
+val add : t -> t -> t
+val subtract : t -> t -> t
 val negate : t -> t
 val multiply : t -> float -> t
 val divide : t -> float -> t

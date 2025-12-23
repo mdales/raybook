@@ -23,7 +23,7 @@ let fp_equal a b = abs_float (a -. b) < epsilon_float
 let is_equal t o =
   fp_equal t.x o.x && fp_equal t.y o.y && fp_equal t.z o.z && t.w == o.w
 
-let sum t o =
+let add t o =
   match (t, o) with
   | ( { x = x0; y = y0; z = z0; w = Vector },
       { x = x1; y = y1; z = z1; w = Vector } ) ->
@@ -36,7 +36,7 @@ let sum t o =
       point (x0 +. x1) (y0 +. y1) (z0 +. z1)
   | _ -> raise (Invalid_argument "Cannot add two points")
 
-let sub t o =
+let subtract t o =
   match (t, o) with
   | { x = x0; y = y0; z = z0; w = Point }, { x = x1; y = y1; z = z1; w = Point }
     ->
@@ -51,7 +51,7 @@ let sub t o =
 
 let negate t =
   match t.w with
-  | Vector -> sub (vector 0. 0. 0.) t
+  | Vector -> subtract (vector 0. 0. 0.) t
   | Point -> raise (Invalid_argument "Cannot negate point")
 
 let multiply t n =
