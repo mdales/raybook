@@ -20,35 +20,35 @@ let render_texture r texture dimensions bitmap =
   let ow, oh = Result.get_ok (Sdl.get_renderer_output_size r) in
   let dst =
     Sdl.Rect.create
-      ~x:((ow - (width)) / 2)
-      ~y:((oh - (height)) / 2)
-      ~w:(width) ~h:(height)
+      ~x:((ow - width) / 2)
+      ~y:((oh - height) / 2)
+      ~w:width ~h:height
   in
   Sdl.render_copy ~dst r texture >|= fun () -> Sdl.render_present r
 
-
 let canvas_to_bitmap canvas bitmap dimensions =
   let width, height = dimensions in
-  for y = 0 to (height - 1) do
-    for x = 0 to (width - 1) do
+  for y = 0 to height - 1 do
+    for x = 0 to width - 1 do
       let c = Canvas.read_pixel canvas (x, y) in
       let rgb = Colour.rgb c in
       bitmap.{x + (y * width)} <- rgb
     done
   done
 
+let tick c =
+  let width, height = Canvas.dimensions c in
+  let x = Random.int width and y = Random.int height in
 
-let tick _c =
+  Canvas.write_pixel c (x, y) (Colour.v 1. 1. 1.);
+
   true
-
-
 
 let () =
   let width = 500 and height = 500 in
 
   let bitmap =
-    Bigarray.Array1.create Bigarray.int32 Bigarray.c_layout
-      (width * height)
+    Bigarray.Array1.create Bigarray.int32 Bigarray.c_layout (width * height)
   in
   let canvas = Canvas.v (width, height) in
 
@@ -65,29 +65,25 @@ let () =
           Sdl.log "Texture error: %s" e;
           exit 1
       | Ok texture ->
-
           let rec loop () =
-
             let e = Sdl.Event.create () in
-            let should_quit = match Sdl.poll_event (Some e) with
-            | true -> (
-                match Sdl.Event.(enum (get e typ)) with
-                | `Quit -> true
-                | _ -> false
-            )
-            | false -> false in
+            let should_quit =
+              match Sdl.poll_event (Some e) with
+              | true -> (
+                  match Sdl.Event.(enum (get e typ)) with
+                  | `Quit -> true
+                  | _ -> false)
+              | false -> false
+            in
 
             match tick canvas with
             | false -> ()
             | true -> (
-              canvas_to_bitmap canvas bitmap (width, height);
-              (match render_texture r texture (width, height) bitmap with
-              | Error (`Msg e) -> Sdl.log "Render error: %s" e
-              | Ok () -> ());
-              match should_quit with
-              | true -> ()
-              | false -> loop ()
-            )
+                canvas_to_bitmap canvas bitmap (width, height);
+                (match render_texture r texture (width, height) bitmap with
+                | Error (`Msg e) -> Sdl.log "Render error: %s" e
+                | Ok () -> ());
+                match should_quit with true -> () | false -> loop ())
           in
           loop ();
 

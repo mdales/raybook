@@ -31,6 +31,22 @@ let test_multiply_colours _ =
   let expected = Colour.v 0.9 0.2 0.04 in
   assert_bool "is equal" (Colour.is_equal expected res)
 
+let test_rgb_of_colour_1 _ =
+  let a1 = Colour.v 1. 1. 1. in
+  let res = Colour.rgb a1 in
+  let expected = Int32.of_int 0xFFFFFF in
+  assert_equal
+    ~printer:(fun x -> Printf.sprintf "%d" (Int32.to_int x))
+    expected res
+
+let test_rgb_of_colour_2 _ =
+  let a1 = Colour.v 2. 3. 4. in
+  let res = Colour.rgb a1 in
+  let expected = Int32.of_int 0xFFFFFF in
+  assert_equal
+    ~printer:(fun x -> Printf.sprintf "%d" (Int32.to_int x))
+    expected res
+
 let suite =
   "Tuple tests"
   >::: [
@@ -39,6 +55,8 @@ let suite =
          "Test subtract colours" >:: test_subract_colours;
          "Test multiply colour by value" >:: test_multiply_colour_by_value;
          "Test multiply colours" >:: test_multiply_colours;
+         "Test RGB of colour 1" >:: test_rgb_of_colour_1;
+         "Test RGB of colour 2" >:: test_rgb_of_colour_2;
        ]
 
 let () = run_test_tt_main suite

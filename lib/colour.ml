@@ -23,13 +23,12 @@ let is_equal t o =
   fp_equal t.red o.red && fp_equal t.green o.green && fp_equal t.blue o.blue
 
 let channel_to_byte f =
-  let scaled = int_of_float(f *. 255.) in
-  if scaled < 0 then 0
-  else if scaled > 255 then 255 else scaled
+  let scaled = int_of_float (f *. 255.) in
+  if scaled < 0 then 0 else if scaled > 255 then 255 else scaled
 
 let rgb t =
   let red = channel_to_byte t.red
   and green = channel_to_byte t.green
   and blue = channel_to_byte t.blue in
-  let res = (red land (green lsl 8)) land (blue lsl 16) in
-  Int32.of_int(res)
+  let res = red lor (green lsl 8) lor (blue lsl 16) in
+  Int32.of_int res
