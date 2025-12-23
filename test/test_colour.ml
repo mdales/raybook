@@ -47,6 +47,14 @@ let test_rgb_of_colour_2 _ =
     ~printer:(fun x -> Printf.sprintf "%d" (Int32.to_int x))
     expected res
 
+let test_rgb_of_colour_3 _ =
+  let a1 = Colour.v (-2.) 3. (-4.) in
+  let res = Colour.rgb a1 in
+  let expected = Int32.of_int 0x00FF00 in
+  assert_equal
+    ~printer:(fun x -> Printf.sprintf "%d" (Int32.to_int x))
+    expected res
+
 let suite =
   "Tuple tests"
   >::: [
@@ -57,6 +65,7 @@ let suite =
          "Test multiply colours" >:: test_multiply_colours;
          "Test RGB of colour 1" >:: test_rgb_of_colour_1;
          "Test RGB of colour 2" >:: test_rgb_of_colour_2;
+         "Test RGB of colour 3" >:: test_rgb_of_colour_3;
        ]
 
 let () = run_test_tt_main suite
