@@ -31,7 +31,7 @@ let canvas_to_bitmap canvas bitmap dimensions =
   for y = 0 to height - 1 do
     for x = 0 to width - 1 do
       let c = Canvas.read_pixel canvas (x, y) in
-      let rgb = Colour.rgb c in
+      let rgb = Colour.to_rgb c in
       bitmap.{x + (y * width)} <- rgb
     done
   done

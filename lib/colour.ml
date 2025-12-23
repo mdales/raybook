@@ -26,9 +26,20 @@ let channel_to_byte f =
   let scaled = int_of_float (f *. 255.) in
   if scaled < 0 then 0 else if scaled > 255 then 255 else scaled
 
-let rgb t =
+let to_rgb t =
   let red = channel_to_byte t.red
   and green = channel_to_byte t.green
   and blue = channel_to_byte t.blue in
-  let res = red lor (green lsl 8) lor (blue lsl 16) in
+  let res = (red lsl 16) lor (green lsl 8) lor blue in
   Int32.of_int res
+
+let of_rgb x =
+  let res = Int32.to_int x in
+  let red = (res lsr 16) land 0xFF
+  and green = (res lsr 8) land 0xFF
+  and blue = res land 0xFF in
+  {
+    red = Float.of_int red /. 255.;
+    green = Float.of_int green /. 255.;
+    blue = Float.of_int blue /. 255.;
+  }

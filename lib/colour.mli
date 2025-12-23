@@ -9,4 +9,5 @@ val subtract : t -> t -> t
 val fmultiply : t -> float -> t
 val multiply : t -> t -> t
 val is_equal : t -> t -> bool
-val rgb : t -> int32
+val to_rgb : t -> int32
+val of_rgb : int32 -> t
