@@ -63,3 +63,9 @@ let multiply a b =
             loop (a_width - 1) 0.))
   in
   v results
+
+let identity s =
+  match s with
+  | 0 -> raise (Invalid_argument "Matrix size must be greater than 0")
+  | _ ->
+      Array.init s (fun j -> Array.init s (fun i -> if i = j then 1. else 0.))
