@@ -212,6 +212,88 @@ let test_transpose_indentity _ =
   let res = Matrix.transpose expected in
   assert_bool "is equal" (Matrix.is_equal expected res)
 
+let test_determinant_2x2 _ =
+  let data = [| [| 1.; 5. |]; [| -3.; 2. |] |] in
+  let a1 = Matrix.v data in
+  let res = Matrix.determinant a1 in
+  almost_equal 17. res
+
+let test_submatrix_3x3 _ =
+  let data = [| [| 1.; 5.; 0. |]; [| -3.; 2.; 7. |]; [| 0.; 6.; -3. |] |] in
+  let a1 = Matrix.v data in
+  let res = Matrix.submatrix a1 (0, 2) in
+  let expected_data = [| [| -3.; 2. |]; [| 0.; 6. |] |] in
+  let expected = Matrix.v expected_data in
+  assert_bool "is equal" (Matrix.is_equal expected res)
+
+let test_submatrix_4x4 _ =
+  let data =
+    [|
+      [| -6.; 1.; 1.; 6. |];
+      [| -8.; 5.; 8.; 6. |];
+      [| -1.; 0.; 8.; 2. |];
+      [| -7.; 1.; -1.; 1. |];
+    |]
+  in
+  let a1 = Matrix.v data in
+  let res = Matrix.submatrix a1 (2, 1) in
+  let expected_data =
+    [| [| -6.; 1.; 6. |]; [| -8.; 8.; 6. |]; [| -7.; -1.; 1. |] |]
+  in
+  let expected = Matrix.v expected_data in
+  assert_bool "is equal" (Matrix.is_equal expected res)
+
+let test_minor_3x3 _ =
+  let data = [| [| 3.; 5.; 0. |]; [| 2.; -1.; -7. |]; [| 6.; -1.; 5. |] |] in
+  let a1 = Matrix.v data in
+  let res = Matrix.minor a1 in
+  for j = 0 to 2 do
+    for i = 0 to 2 do
+      let s = Matrix.submatrix a1 (j, i) in
+      let d = Matrix.determinant s in
+      let r = Matrix.cell res (j, i) in
+      almost_equal d r
+    done
+  done
+
+let test_cofactor_3x3 _ =
+  let data = [| [| 3.; 5.; 0. |]; [| 2.; -1.; -7. |]; [| 6.; -1.; 5. |] |] in
+  let a1 = Matrix.v data in
+  let resm = Matrix.minor a1 in
+  let resc = Matrix.cofactor a1 in
+  almost_equal (-12.) (Matrix.cell resm (0, 0));
+  almost_equal (-12.) (Matrix.cell resc (0, 0));
+  almost_equal 25. (Matrix.cell resm (1, 0));
+  almost_equal (-25.) (Matrix.cell resc (1, 0))
+
+let test_determinant_3x3 _ =
+  let data = [| [| 1.; 2.; 6. |]; [| -5.; 8.; -4. |]; [| 2.; 6.; 4. |] |] in
+  let a1 = Matrix.v data in
+  let resc = Matrix.cofactor a1 in
+  let resd = Matrix.determinant a1 in
+  almost_equal 56. (Matrix.cell resc (0, 0));
+  almost_equal 12. (Matrix.cell resc (0, 1));
+  almost_equal (-46.) (Matrix.cell resc (0, 2));
+  almost_equal (-196.) resd
+
+let test_determinant_4x4 _ =
+  let data =
+    [|
+      [| -2.; -8.; 3.; 5. |];
+      [| -3.; 1.; 7.; 3. |];
+      [| 1.; 2.; -9.; 6. |];
+      [| -6.; 7.; 7.; -9. |];
+    |]
+  in
+  let a1 = Matrix.v data in
+  let resc = Matrix.cofactor a1 in
+  let resd = Matrix.determinant a1 in
+  almost_equal 690. (Matrix.cell resc (0, 0));
+  almost_equal 447. (Matrix.cell resc (0, 1));
+  almost_equal 210. (Matrix.cell resc (0, 2));
+  almost_equal 51. (Matrix.cell resc (0, 3));
+  almost_equal (-4071.) resd
+
 let suite =
   "Matrix tests"
   >::: [
@@ -232,6 +314,13 @@ let suite =
          "Test multiply id by tuple" >:: test_multiply_identity_by_tuple;
          "Test transpose matrix" >:: test_transpose_matrix;
          "Test transpose identity" >:: test_transpose_indentity;
+         "Test determinant 2x2" >:: test_determinant_2x2;
+         "Test submatrix 4x4" >:: test_submatrix_4x4;
+         "Test submatrix 3x3" >:: test_submatrix_3x3;
+         "Test minor 3x3" >:: test_minor_3x3;
+         "Test cofactor 3x3" >:: test_cofactor_3x3;
+         "Test determinant 3x3" >:: test_determinant_3x3;
+         "Test determinant 4x4" >:: test_determinant_4x4;
        ]
 
 let () = run_test_tt_main suite

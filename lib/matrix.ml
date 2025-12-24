@@ -73,3 +73,52 @@ let identity s =
 let transpose t =
   let h, w = dimensions t in
   Array.init w (fun i -> Array.init h (fun j -> t.(j).(i)))
+
+let submatrix t (r, c) =
+  let h, w = dimensions t in
+  if h < 2 || w < 2 then raise (Invalid_argument "Cannot make a submatrix");
+  if r >= h || c >= w || r < 0 || c < 0 then
+    raise (Invalid_argument "row and/or column out of bounds");
+  Array.init (h - 1) (fun j ->
+      Array.init (w - 1) (fun i ->
+          let y = if j < r then j else j + 1
+          and x = if i < c then i else i + 1 in
+          t.(y).(x)))
+
+let rec determinant t =
+  let h, w = dimensions t in
+  if h <> w then
+    raise (Invalid_argument "Can only calculate determinant on square matrices");
+  match h with
+  | 0 -> raise (Invalid_argument "Matrix too small")
+  | 1 -> t.(0).(0)
+  | 2 -> (t.(0).(0) *. t.(1).(1)) -. (t.(1).(0) *. t.(0).(1))
+  | _ ->
+      let c = cofactor t in
+      let top_row = t.(0) in
+      let rec loop acc idx =
+        let acc = acc +. (top_row.(idx) *. cell c (0, idx)) in
+        match idx with 0 -> acc | _ -> loop acc (idx - 1)
+      in
+      loop 0. (w - 1)
+
+and cofactor t =
+  let h, w = dimensions t in
+  if h <> w then
+    raise (Invalid_argument "Can only calculate minor on square matrices");
+  if h < 2 || w < 2 then raise (Invalid_argument "Matrix too small");
+  Array.init h (fun j ->
+      Array.init w (fun i ->
+          let s = submatrix t (j, i) in
+          let d = determinant s in
+          if (i + j) mod 2 = 0 then d else -1. *. d))
+
+let minor t =
+  let h, w = dimensions t in
+  if h <> w then
+    raise (Invalid_argument "Can only calculate minor on square matrices");
+  if h < 2 || w < 2 then raise (Invalid_argument "Matrix too small");
+  Array.init h (fun j ->
+      Array.init w (fun i ->
+          let s = submatrix t (j, i) in
+          determinant s))

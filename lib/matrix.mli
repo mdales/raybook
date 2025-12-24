@@ -7,3 +7,7 @@ val is_equal : t -> t -> bool
 val multiply : t -> t -> t
 val identity : int -> t
 val transpose : t -> t
+val determinant : t -> float
+val submatrix : t -> int * int -> t
+val minor : t -> t
+val cofactor : t -> t
