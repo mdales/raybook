@@ -195,6 +195,23 @@ let test_multiply_identity_by_tuple _ =
   let rest = Tuple.of_matrix resm in
   assert_equal t rest
 
+let test_transpose_matrix _ =
+  let data1 =
+    [| [| 1.; 2.; 3.; 4. |]; [| 2.; 4.; 4.; 2. |]; [| 8.; 6.; 4.; 1. |] |]
+  in
+  let a1 = Matrix.v data1 in
+  let data2 =
+    [| [| 1.; 2.; 8. |]; [| 2.; 4.; 6. |]; [| 3.; 4.; 4. |]; [| 4.; 2.; 1. |] |]
+  in
+  let expected = Matrix.v data2 in
+  let res = Matrix.transpose a1 in
+  assert_bool "is equal" (Matrix.is_equal expected res)
+
+let test_transpose_indentity _ =
+  let expected = Matrix.identity 4 in
+  let res = Matrix.transpose expected in
+  assert_bool "is equal" (Matrix.is_equal expected res)
+
 let suite =
   "Matrix tests"
   >::: [
@@ -213,6 +230,8 @@ let suite =
          "Test identity" >:: test_identity;
          "Test multiply by identity" >:: test_multiply_matrix_with_identity;
          "Test multiply id by tuple" >:: test_multiply_identity_by_tuple;
+         "Test transpose matrix" >:: test_transpose_matrix;
+         "Test transpose identity" >:: test_transpose_indentity;
        ]
 
 let () = run_test_tt_main suite

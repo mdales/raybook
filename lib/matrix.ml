@@ -69,3 +69,7 @@ let identity s =
   | 0 -> raise (Invalid_argument "Matrix size must be greater than 0")
   | _ ->
       Array.init s (fun j -> Array.init s (fun i -> if i = j then 1. else 0.))
+
+let transpose t =
+  let h, w = dimensions t in
+  Array.init w (fun i -> Array.init h (fun j -> t.(j).(i)))
