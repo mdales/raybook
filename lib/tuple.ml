@@ -94,3 +94,30 @@ let cross t o =
         w = Vector;
       }
   | _ -> raise (Invalid_argument "Cannot use points in cross product")
+
+let to_matrix t =
+  let data =
+    [|
+      [| t.x |];
+      [| t.y |];
+      [| t.z |];
+      [| (match t.w with Vector -> 0. | Point -> 1.) |];
+    |]
+  in
+  Matrix.v data
+
+let of_matrix m =
+  let dims = Matrix.dimensions m in
+  match dims with
+  | 4, 1 ->
+      let x = Matrix.cell m (0, 0)
+      and y = Matrix.cell m (1, 0)
+      and z = Matrix.cell m (2, 0)
+      and raw_w = Matrix.cell m (3, 0) in
+      let w =
+        if fp_equal raw_w 0. then Vector
+        else if fp_equal raw_w 1. then Point
+        else raise (Invalid_argument "W should be 0. or 1. for Vector or Point")
+      in
+      { x; y; z; w }
+  | _ -> raise (Invalid_argument "Matrix expected to have 4x1 dimensions")

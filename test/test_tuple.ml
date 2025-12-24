@@ -211,6 +211,36 @@ let test_cross_point_with_point _ =
       let _ = Tuple.cross a1 a2 in
       ())
 
+let test_vector_of_matrix _ =
+  let data = [| [| 1. |]; [| 2. |]; [| 3. |]; [| 0. |] |] in
+  let m = Matrix.v data in
+  let res = Tuple.of_matrix m in
+  let expected = Tuple.vector 1. 2. 3. in
+  assert_equal expected res
+
+let test_point_of_matrix _ =
+  let data = [| [| 1. |]; [| 2. |]; [| 3. |]; [| 1. |] |] in
+  let m = Matrix.v data in
+  let res = Tuple.of_matrix m in
+  let expected = Tuple.point 1. 2. 3. in
+  assert_equal expected res
+
+let test_tuple_of_invalid_w_matrix _ =
+  let data = [| [| 1. |]; [| 2. |]; [| 3. |]; [| 3. |] |] in
+  let m = Matrix.v data in
+  assert_raises (Invalid_argument "W should be 0. or 1. for Vector or Point")
+    (fun () ->
+      let _ = Tuple.of_matrix m in
+      ())
+
+let test_tuple_of_invalid_size_matrix _ =
+  let data = [| [| 1. |]; [| 2. |]; [| 3. |] |] in
+  let m = Matrix.v data in
+  assert_raises (Invalid_argument "Matrix expected to have 4x1 dimensions")
+    (fun () ->
+      let _ = Tuple.of_matrix m in
+      ())
+
 let suite =
   "Tuple tests"
   >::: [
@@ -251,6 +281,11 @@ let suite =
          "Test cross of vector with point" >:: test_cross_vector_with_point;
          "Test cross of point with vector" >:: test_cross_point_with_vector;
          "Test cross of point with point" >:: test_cross_point_with_point;
+         "Test vector of matrix" >:: test_vector_of_matrix;
+         "Test point of matrix" >:: test_point_of_matrix;
+         "Test tuple of matrix invalid w" >:: test_tuple_of_invalid_w_matrix;
+         "Test tuple of matrix invalid size"
+         >:: test_tuple_of_invalid_size_matrix;
        ]
 
 let () = run_test_tt_main suite

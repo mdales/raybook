@@ -149,6 +149,23 @@ let test_multiply_1 _ =
   let res = Matrix.multiply a1 a2 in
   assert_bool "is equal" (Matrix.is_equal expected res)
 
+let test_multiply_by_tuple _ =
+  let data1 =
+    [|
+      [| 1.; 2.; 3.; 4. |];
+      [| 2.; 4.; 4.; 2. |];
+      [| 8.; 6.; 4.; 1. |];
+      [| 0.; 0.; 0.; 1. |];
+    |]
+  in
+  let a1 = Matrix.v data1 in
+  let t = Tuple.point 1. 2. 3. in
+  let a2 = Tuple.to_matrix t in
+  let resm = Matrix.multiply a1 a2 in
+  let rest = Tuple.of_matrix resm in
+  let expected = Tuple.point 18. 24. 33. in
+  assert_equal expected rest
+
 let suite =
   "Matrix tests"
   >::: [
@@ -163,6 +180,7 @@ let suite =
          "Test matrix equality 3" >:: test_matrix_equality_3;
          "Test matrix equality 4" >:: test_matrix_equality_4;
          "Test matrix multiply 1" >:: test_multiply_1;
+         "Test multiply matrix by tuple" >:: test_multiply_by_tuple;
        ]
 
 let () = run_test_tt_main suite
