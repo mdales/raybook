@@ -118,19 +118,51 @@ let test_matrix_equality_4 _ =
   let res = Matrix.is_equal a1 a2 in
   assert_equal false res
 
+let test_multiply_1 _ =
+  let data1 =
+    [|
+      [| 1.; 2.; 3.; 4. |];
+      [| 5.; 6.; 7.; 8. |];
+      [| 9.; 8.; 7.; 6. |];
+      [| 5.; 4.; 3.; 2. |];
+    |]
+  in
+  let a1 = Matrix.v data1 in
+  let data2 =
+    [|
+      [| -2.; 1.; 2.; 3. |];
+      [| 3.; 2.; 1.; -1. |];
+      [| 4.; 3.; 6.; 5. |];
+      [| 1.; 2.; 7.; 8. |];
+    |]
+  in
+  let a2 = Matrix.v data2 in
+  let data_expected =
+    [|
+      [| 20.; 22.; 50.; 48. |];
+      [| 44.; 54.; 114.; 108. |];
+      [| 40.; 58.; 110.; 102. |];
+      [| 16.; 26.; 46.; 42. |];
+    |]
+  in
+  let expected = Matrix.v data_expected in
+  let res = Matrix.multiply a1 a2 in
+  assert_bool "is equal" (Matrix.is_equal expected res)
+
 let suite =
   "Matrix tests"
   >::: [
          "Test create matrix 4x4" >:: test_create_matrix_4x4;
-         "Test create matrix 4x4" >:: test_create_matrix_3x3;
-         "Test create matrix 4x4" >:: test_create_matrix_2x2;
+         "Test create matrix 3x3" >:: test_create_matrix_3x3;
+         "Test create matrix 2x2" >:: test_create_matrix_2x2;
          "Test create invalid matrix 1" >:: test_create_invalid_matrix_1;
          "Test create invalid matrix 2" >:: test_create_invalid_matrix_2;
          "Test create invalid matrix 3" >:: test_create_invalid_matrix_3;
          "Test matrix equality 1" >:: test_matrix_equality_1;
-         "Test matrix equality 1" >:: test_matrix_equality_2;
-         "Test matrix equality 1" >:: test_matrix_equality_3;
-         "Test matrix equality 1" >:: test_matrix_equality_4;
+         "Test matrix equality 2" >:: test_matrix_equality_2;
+         "Test matrix equality 3" >:: test_matrix_equality_3;
+         "Test matrix equality 4" >:: test_matrix_equality_4;
+         "Test matrix multiply 1" >:: test_multiply_1;
        ]
 
 let () = run_test_tt_main suite

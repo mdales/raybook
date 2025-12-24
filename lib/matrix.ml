@@ -23,7 +23,7 @@ let cell t (y, x) =
   if y < 0 then raise (Invalid_argument "Invalid y");
   let h, w = dimensions t in
   if x >= w then raise (Invalid_argument "Invalid x");
-  if y >= h then raise (Invalid_argument "Invalud y");
+  if y >= h then raise (Invalid_argument "Invalid y");
   t.(y).(x)
 
 let is_equal t o =
@@ -46,3 +46,20 @@ let is_equal t o =
         | true -> ( match j with 0 -> true | _ -> outer (j - 1))
       in
       outer (h - 1)
+
+let multiply a b =
+  let a_height, a_width = dimensions a and b_height, b_width = dimensions b in
+  if a_width != b_height then
+    raise (Invalid_argument "Matrix sizes not compatible");
+  let results =
+    Array.init a_height (fun j ->
+        let row = a.(j) in
+        Array.init b_width (fun i ->
+            let rec loop index acc =
+              let v1 = row.(index) and v2 = b.(index).(i) in
+              let acc = acc +. (v1 *. v2) in
+              match index with 0 -> acc | _ -> loop (index - 1) acc
+            in
+            loop (a_width - 1) 0.))
+  in
+  v results
