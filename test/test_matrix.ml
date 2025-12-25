@@ -294,6 +294,129 @@ let test_determinant_4x4 _ =
   almost_equal 51. (Matrix.cell resc (0, 3));
   almost_equal (-4071.) resd
 
+let test_invertible_true _ =
+  let data =
+    [|
+      [| 6.; 4.; 4.; 4. |];
+      [| 5.; 5.; 7.; 6. |];
+      [| 4.; -9.; 3.; -7. |];
+      [| 9.; 1.; 7.; -6. |];
+    |]
+  in
+  let a1 = Matrix.v data in
+  let resd = Matrix.determinant a1 in
+  let resi = Matrix.invertible a1 in
+  almost_equal (-2120.) resd;
+  assert_equal true resi
+
+let test_invertible_false _ =
+  let data =
+    [|
+      [| 4.; 2.; -2.; -3. |];
+      [| 9.; 6.; 2.; 6. |];
+      [| 0.; -5.; 1.; -5. |];
+      [| 0.; 0.; 0.; 0. |];
+    |]
+  in
+  let a1 = Matrix.v data in
+  let resd = Matrix.determinant a1 in
+  let resi = Matrix.invertible a1 in
+  almost_equal 0. resd;
+  assert_equal false resi
+
+let test_inverse_4x4_1 _ =
+  let data =
+    [|
+      [| -5.; 2.; 6.; -8. |];
+      [| 1.; -5.; 1.; 8. |];
+      [| 7.; 7.; -6.; -7. |];
+      [| 1.; -3.; 7.; 4. |];
+    |]
+  in
+  let a = Matrix.v data in
+  let b = Matrix.inverse a in
+  let c = Matrix.cofactor a in
+  almost_equal 532. (Matrix.determinant a);
+  almost_equal (-160.) (Matrix.cell c (2, 3));
+  almost_equal (-160. /. 532.) (Matrix.cell b (3, 2));
+  almost_equal 105. (Matrix.cell c (3, 2));
+  almost_equal (105. /. 532.) (Matrix.cell b (2, 3));
+  let expected_data =
+    [|
+      [| 0.21805; 0.45113; 0.24060; -0.04511 |];
+      [| -0.80827; -1.45677; -0.44361; 0.52068 |];
+      [| -0.07895; -0.22368; -0.05263; 0.19737 |];
+      [| -0.52256; -0.81391; -0.30075; 0.30639 |];
+    |]
+  in
+  (* Weak comparison due to above numbers coming from a book *)
+  (* let expected = Matrix.v expected_data in
+  assert_bool "is equal" (Matrix.is_equal expected b) *)
+  for j = 0 to 3 do
+    for i = 0 to 3 do
+      let e = expected_data.(j).(i) in
+      let r = Matrix.cell b (j, i) in
+      let diff = Float.abs (e -. r) < 0.00001 in
+      assert_bool "" diff
+    done
+  done
+
+let test_inverse_4x4_2 _ =
+  let data =
+    [|
+      [| 8.; -5.; 9.; 2. |];
+      [| 7.; 5.; 6.; 1. |];
+      [| -6.; 0.; 9.; 6. |];
+      [| -3.; 0.; -9.; -4. |];
+    |]
+  in
+  let a = Matrix.v data in
+  let b = Matrix.inverse a in
+  let expected_data =
+    [|
+      [| -0.15385; -0.15385; -0.28205; -0.53846 |];
+      [| -0.07692; 0.12308; 0.02564; 0.03077 |];
+      [| 0.35897; 0.35897; 0.43590; 0.92308 |];
+      [| -0.69231; -0.69231; -0.76923; -1.92308 |];
+    |]
+  in
+  for j = 0 to 3 do
+    for i = 0 to 3 do
+      let e = expected_data.(j).(i) in
+      let r = Matrix.cell b (j, i) in
+      let diff = Float.abs (e -. r) < 0.00001 in
+      assert_bool (Printf.sprintf "%f v %f" e r) diff
+    done
+  done
+
+let test_inverse_4x4_3 _ =
+  let data =
+    [|
+      [| 9.; 3.; 0.; 9. |];
+      [| -5.; -2.; -6.; -3. |];
+      [| -4.; 9.; 6.; 4. |];
+      [| -7.; 6.; 6.; 2. |];
+    |]
+  in
+  let a = Matrix.v data in
+  let b = Matrix.inverse a in
+  let expected_data =
+    [|
+      [| -0.04074; -0.07778; 0.14444; -0.22222 |];
+      [| -0.07778; 0.03333; 0.36667; -0.33333 |];
+      [| -0.02901; -0.14630; -0.10926; 0.12963 |];
+      [| 0.17778; 0.06667; -0.26667; 0.33333 |];
+    |]
+  in
+  for j = 0 to 3 do
+    for i = 0 to 3 do
+      let e = expected_data.(j).(i) in
+      let r = Matrix.cell b (j, i) in
+      let diff = Float.abs (e -. r) < 0.00001 in
+      assert_bool (Printf.sprintf "%f v %f" e r) diff
+    done
+  done
+
 let suite =
   "Matrix tests"
   >::: [
@@ -321,6 +444,11 @@ let suite =
          "Test cofactor 3x3" >:: test_cofactor_3x3;
          "Test determinant 3x3" >:: test_determinant_3x3;
          "Test determinant 4x4" >:: test_determinant_4x4;
+         "Test invertible true" >:: test_invertible_true;
+         "Test invertible false" >:: test_invertible_false;
+         "Test inverse 4x4 1" >:: test_inverse_4x4_1;
+         "Test inverse 4x4 2" >:: test_inverse_4x4_2;
+         "Test inverse 4x4 3" >:: test_inverse_4x4_3;
        ]
 
 let () = run_test_tt_main suite

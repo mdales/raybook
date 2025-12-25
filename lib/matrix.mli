@@ -11,3 +11,5 @@ val determinant : t -> float
 val submatrix : t -> int * int -> t
 val minor : t -> t
 val cofactor : t -> t
+val invertible : t -> bool
+val inverse : t -> t

@@ -122,3 +122,14 @@ let minor t =
       Array.init w (fun i ->
           let s = submatrix t (j, i) in
           determinant s))
+
+let invertible t = not (Float.abs (determinant t) < Float.epsilon)
+
+let inverse t =
+  if not (invertible t) then raise (Invalid_argument "Matrix not invertible");
+  let h, w = dimensions t in
+  if h <> w then
+    raise (Invalid_argument "Can only calculate inverse on square matrices");
+  let c = cofactor t in
+  let d = determinant t in
+  Array.init h (fun j -> Array.init w (fun i -> cell c (i, j) /. d))
