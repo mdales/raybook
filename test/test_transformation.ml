@@ -120,6 +120,60 @@ let test_rotate_point_on_z _ =
   assert_bool "is equal" (Tuple.is_equal half_expected half_rest);
   assert_bool "is equal" (Tuple.is_equal full_expected full_rest)
 
+let test_shearing_x_by_y _ =
+  let t = Transformation.shearing 1. 0. 0. 0. 0. 0. in
+  let p = Tuple.point 2. 3. 4. in
+  let pm = Tuple.to_matrix p in
+  let resm = Matrix.multiply t pm in
+  let rest = Tuple.of_matrix resm in
+  let expected = Tuple.point 5. 3. 4. in
+  assert_bool "is equal" (Tuple.is_equal expected rest)
+
+let test_shearing_x_by_z _ =
+  let t = Transformation.shearing 0. 1. 0. 0. 0. 0. in
+  let p = Tuple.point 2. 3. 4. in
+  let pm = Tuple.to_matrix p in
+  let resm = Matrix.multiply t pm in
+  let rest = Tuple.of_matrix resm in
+  let expected = Tuple.point 6. 3. 4. in
+  assert_bool "is equal" (Tuple.is_equal expected rest)
+
+let test_shearing_y_by_x _ =
+  let t = Transformation.shearing 0. 0. 1. 0. 0. 0. in
+  let p = Tuple.point 2. 3. 4. in
+  let pm = Tuple.to_matrix p in
+  let resm = Matrix.multiply t pm in
+  let rest = Tuple.of_matrix resm in
+  let expected = Tuple.point 2. 5. 4. in
+  assert_bool "is equal" (Tuple.is_equal expected rest)
+
+let test_shearing_y_by_z _ =
+  let t = Transformation.shearing 0. 0. 0. 1. 0. 0. in
+  let p = Tuple.point 2. 3. 4. in
+  let pm = Tuple.to_matrix p in
+  let resm = Matrix.multiply t pm in
+  let rest = Tuple.of_matrix resm in
+  let expected = Tuple.point 2. 7. 4. in
+  assert_bool "is equal" (Tuple.is_equal expected rest)
+
+let test_shearing_z_by_x _ =
+  let t = Transformation.shearing 0. 0. 0. 0. 1. 0. in
+  let p = Tuple.point 2. 3. 4. in
+  let pm = Tuple.to_matrix p in
+  let resm = Matrix.multiply t pm in
+  let rest = Tuple.of_matrix resm in
+  let expected = Tuple.point 2. 3. 6. in
+  assert_bool "is equal" (Tuple.is_equal expected rest)
+
+let test_shearing_z_by_y _ =
+  let t = Transformation.shearing 0. 0. 0. 0. 0. 1. in
+  let p = Tuple.point 2. 3. 4. in
+  let pm = Tuple.to_matrix p in
+  let resm = Matrix.multiply t pm in
+  let rest = Tuple.of_matrix resm in
+  let expected = Tuple.point 2. 3. 7. in
+  assert_bool "is equal" (Tuple.is_equal expected rest)
+
 let suite =
   "Transformation tests"
   >::: [
@@ -134,6 +188,12 @@ let suite =
          "Test inverse rotate point on x" >:: test_inverse_rotate_point_on_x;
          "Test rotate point on y" >:: test_rotate_point_on_y;
          "Test rotate point on z" >:: test_rotate_point_on_z;
+         "Test shearing x by y" >:: test_shearing_x_by_y;
+         "Test shearing x by z" >:: test_shearing_x_by_z;
+         "Test shearing y by x" >:: test_shearing_y_by_x;
+         "Test shearing y by z" >:: test_shearing_y_by_z;
+         "Test shearing z by x" >:: test_shearing_z_by_x;
+         "Test shearing z by y" >:: test_shearing_z_by_y;
        ]
 
 let () = run_test_tt_main suite

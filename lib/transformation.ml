@@ -52,3 +52,14 @@ let rotate_z r =
     |]
   in
   Matrix.v data
+
+let shearing xy xz yx yz zx zy =
+  let data =
+    [|
+      [| 1.; xy; xz; 0. |];
+      [| yx; 1.; yz; 0. |];
+      [| zx; zy; 1.; 0. |];
+      [| 0.; 0.; 0.; 1. |];
+    |]
+  in
+  Matrix.v data
