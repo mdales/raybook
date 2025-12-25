@@ -35,7 +35,10 @@ let is_equal t o =
       let rec outer j =
         let rec inner i =
           let tv = cell t (j, i) and ov = cell o (j, i) in
-          let r = Float.abs (tv -. ov) < Float.epsilon in
+          (* The x10 here is gross, but epsilon itself is too close
+          when we want to do a == (a * b) * inverse(b)
+          *)
+          let r = Float.abs (tv -. ov) < Float.epsilon *. 10. in
           match r with
           | false -> false
           | true -> ( match i with 0 -> true | _ -> inner (i - 1))

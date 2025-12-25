@@ -417,6 +417,30 @@ let test_inverse_4x4_3 _ =
     done
   done
 
+let test_multiply_by_inverse _ =
+  let data1 =
+    [|
+      [| 3.; -9.; 7.; 3. |];
+      [| 3.; -8.; 2.; -9. |];
+      [| -4.; 4.; 4.; 1. |];
+      [| -6.; 5.; -1.; 1. |];
+    |]
+  in
+  let a = Matrix.v data1 in
+  let data2 =
+    [|
+      [| 8.; 2.; 2.; 2. |];
+      [| 3.; -1.; 7.; 0. |];
+      [| 7.; 0.; 5.; 4. |];
+      [| 6.; -2.; 0.; 5. |];
+    |]
+  in
+  let b = Matrix.v data2 in
+  let c = Matrix.multiply a b in
+  let ib = Matrix.inverse b in
+  let res = Matrix.multiply c ib in
+  assert_bool "is equal" (Matrix.is_equal res a)
+
 let suite =
   "Matrix tests"
   >::: [
@@ -449,6 +473,7 @@ let suite =
          "Test inverse 4x4 1" >:: test_inverse_4x4_1;
          "Test inverse 4x4 2" >:: test_inverse_4x4_2;
          "Test inverse 4x4 3" >:: test_inverse_4x4_3;
+         "Test multiply by inverse" >:: test_multiply_by_inverse;
        ]
 
 let () = run_test_tt_main suite
