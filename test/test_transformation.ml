@@ -174,6 +174,37 @@ let test_shearing_z_by_y _ =
   let expected = Tuple.point 2. 3. 7. in
   assert_bool "is equal" (Tuple.is_equal expected rest)
 
+let test_sequence_transformations_1 _ =
+  let p = Tuple.point 1. 0. 1. in
+  let pm = Tuple.to_matrix p in
+  let a = Transformation.rotate_x (Float.pi /. 2.)
+  and b = Transformation.scaling 5. 5. 5.
+  and c = Transformation.translation 10. 5. 7. in
+  let pm2 = Matrix.multiply a pm in
+  let p2 = Tuple.of_matrix pm2 in
+  let expected2 = Tuple.point 1. (-1.) 0. in
+  assert_bool "is equal 1" (Tuple.is_equal expected2 p2);
+  let pm3 = Matrix.multiply b pm2 in
+  let p3 = Tuple.of_matrix pm3 in
+  let expected3 = Tuple.point 5. (-5.) 0. in
+  assert_bool "is equal 2" (Tuple.is_equal expected3 p3);
+  let pm4 = Matrix.multiply c pm3 in
+  let p4 = Tuple.of_matrix pm4 in
+  let expected4 = Tuple.point 15. 0. 7. in
+  assert_bool "is equal 3" (Tuple.is_equal expected4 p4)
+
+let test_sequence_transformations_2 _ =
+  let p = Tuple.point 1. 0. 1. in
+  let pm = Tuple.to_matrix p in
+  let a = Transformation.rotate_x (Float.pi /. 2.)
+  and b = Transformation.scaling 5. 5. 5.
+  and c = Transformation.translation 10. 5. 7. in
+  let t = Matrix.multiply (Matrix.multiply c b) a in
+  let resm = Matrix.multiply t pm in
+  let rest = Tuple.of_matrix resm in
+  let expected = Tuple.point 15. 0. 7. in
+  assert_bool "is equal" (Tuple.is_equal expected rest)
+
 let suite =
   "Transformation tests"
   >::: [
@@ -194,6 +225,8 @@ let suite =
          "Test shearing y by z" >:: test_shearing_y_by_z;
          "Test shearing z by x" >:: test_shearing_z_by_x;
          "Test shearing z by y" >:: test_shearing_z_by_y;
+          "Test sequence of transformations 1" >:: test_sequence_transformations_1;
+           "Test sequence of transformations 2" >:: test_sequence_transformations_2;
        ]
 
 let () = run_test_tt_main suite
