@@ -19,3 +19,36 @@ let scaling x y z =
     |]
   in
   Matrix.v data
+
+let rotate_x r =
+  let data =
+    [|
+      [| 1.; 0.; 0.; 0. |];
+      [| 0.; cos r; 0. -. sin r; 0. |];
+      [| 0.; sin r; cos r; 0. |];
+      [| 0.; 0.; 0.; 1. |];
+    |]
+  in
+  Matrix.v data
+
+let rotate_y r =
+  let data =
+    [|
+      [| cos r; 0.; sin r; 0. |];
+      [| 0.; 1.; 0.; 0. |];
+      [| 0. -. sin r; 0.; cos r; 0. |];
+      [| 0.; 0.; 0.; 1. |];
+    |]
+  in
+  Matrix.v data
+
+let rotate_z r =
+  let data =
+    [|
+      [| cos r; 0. -. sin r; 0.; 0. |];
+      [| sin r; cos r; 0.; 0. |];
+      [| 0.; 0.; 1.; 0. |];
+      [| 0.; 0.; 0.; 1. |];
+    |]
+  in
+  Matrix.v data
