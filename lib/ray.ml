@@ -9,3 +9,4 @@ let v origin direction =
 
 let origin t = t.origin
 let direction t = t.direction
+let position t x = Tuple.add t.origin (Tuple.multiply t.direction x)
