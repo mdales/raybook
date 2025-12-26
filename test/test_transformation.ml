@@ -225,8 +225,10 @@ let suite =
          "Test shearing y by z" >:: test_shearing_y_by_z;
          "Test shearing z by x" >:: test_shearing_z_by_x;
          "Test shearing z by y" >:: test_shearing_z_by_y;
-          "Test sequence of transformations 1" >:: test_sequence_transformations_1;
-           "Test sequence of transformations 2" >:: test_sequence_transformations_2;
+         "Test sequence of transformations 1"
+         >:: test_sequence_transformations_1;
+         "Test sequence of transformations 2"
+         >:: test_sequence_transformations_2;
        ]
 
 let () = run_test_tt_main suite

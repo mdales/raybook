@@ -40,7 +40,7 @@ let tick t c =
   let width, height = Canvas.dimensions c in
 
   let p = Tuple.point 0. 0. 0. in
-  let angle = ((Float.of_int t) /. 720.) *. Float.pi in
+  let angle = Float.of_int t /. 720. *. Float.pi in
   let r = Transformation.rotate_z angle in
   let scale = Transformation.translation 0. 100. 0. in
   let t = Matrix.multiply r scale in
@@ -50,7 +50,9 @@ let tick t c =
   let xpos = Int.of_float (Tuple.x finalp)
   and ypos = Int.of_float (Tuple.y finalp) in
 
-  Canvas.write_pixel c ((width / 2) + xpos, (height / 2) + ypos) (Colour.v 1. 1. 1.);
+  Canvas.write_pixel c
+    ((width / 2) + xpos, (height / 2) + ypos)
+    (Colour.v 1. 1. 1.);
 
   true
 

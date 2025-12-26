@@ -1,3 +1,9 @@
 (tests
- (names test_tuple test_colour test_canvas test_matrix test_transformation)
+ (names
+  test_tuple
+  test_colour
+  test_canvas
+  test_matrix
+  test_transformation
+  test_ray)
  (libraries raybook ounit2))
