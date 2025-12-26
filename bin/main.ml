@@ -36,11 +36,21 @@ let canvas_to_bitmap canvas bitmap dimensions =
     done
   done
 
-let tick c =
+let tick t c =
   let width, height = Canvas.dimensions c in
-  let x = Random.int width and y = Random.int height in
 
-  Canvas.write_pixel c (x, y) (Colour.v 1. 1. 1.);
+  let p = Tuple.point 0. 0. 0. in
+  let angle = ((Float.of_int t) /. 720.) *. Float.pi in
+  let r = Transformation.rotate_z angle in
+  let scale = Transformation.translation 0. 100. 0. in
+  let t = Matrix.multiply r scale in
+  let final = Matrix.multiply t (Tuple.to_matrix p) in
+  let finalp = Tuple.of_matrix final in
+
+  let xpos = Int.of_float (Tuple.x finalp)
+  and ypos = Int.of_float (Tuple.y finalp) in
+
+  Canvas.write_pixel c ((width / 2) + xpos, (height / 2) + ypos) (Colour.v 1. 1. 1.);
 
   true
 
@@ -65,7 +75,7 @@ let () =
           Sdl.log "Texture error: %s" e;
           exit 1
       | Ok texture ->
-          let rec loop () =
+          let rec loop counter =
             let e = Sdl.Event.create () in
             let should_quit =
               match Sdl.poll_event (Some e) with
@@ -76,16 +86,16 @@ let () =
               | false -> false
             in
 
-            match tick canvas with
+            match tick counter canvas with
             | false -> ()
             | true -> (
                 canvas_to_bitmap canvas bitmap (width, height);
                 (match render_texture r texture (width, height) bitmap with
                 | Error (`Msg e) -> Sdl.log "Render error: %s" e
                 | Ok () -> ());
-                match should_quit with true -> () | false -> loop ())
+                match should_quit with true -> () | false -> loop (counter + 1))
           in
-          loop ();
+          loop 0;
 
           Sdl.destroy_texture texture;
           Sdl.destroy_renderer r;
