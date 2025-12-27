@@ -26,7 +26,7 @@ let render_texture r texture dimensions bitmap =
   in
   Sdl.render_copy ~dst r texture >|= fun () -> Sdl.render_present r
 
-let canvas_to_bitmap canvas bitmap dimensions =
+let _canvas_to_bitmap canvas bitmap dimensions =
   let width, height = dimensions in
   for y = 0 to height - 1 do
     for x = 0 to width - 1 do
@@ -36,7 +36,7 @@ let canvas_to_bitmap canvas bitmap dimensions =
     done
   done
 
-let tick t c =
+let tick t c b =
   let width, height = Canvas.dimensions c in
 
   let space_width = 4.0 and space_height = 4.0 in
@@ -44,21 +44,25 @@ let tick t c =
   and y_skip = space_height /. Float.of_int height in
 
   let t = t mod (width * height) in
-  let x_tick = t mod width and y_tick = t / width in
+  let y_tick = t mod height in
 
-  let x_pos = (Float.of_int x_tick *. x_skip) -. (space_width /. 2.)
-  and y_pos = (Float.of_int y_tick *. y_skip) -. (space_height /. 2.) in
+  for x_tick = 0 to width - 1 do
+    let x_pos = (Float.of_int x_tick *. x_skip) -. (space_width /. 2.)
+    and y_pos = (Float.of_int y_tick *. y_skip) -. (space_height /. 2.) in
 
-  let r = Ray.v (Tuple.point x_pos y_pos (-5.)) (Tuple.vector 0. 0. 1.) in
-  let s = Sphere.v 42 in
+    let r = Ray.v (Tuple.point x_pos y_pos (-5.)) (Tuple.vector 0. 0. 1.) in
+    let s = Sphere.v 42 in
 
-  let il = Intersection.intersects (Intersection.Sphere s) r in
-  let h = Intersection.hit il in
-  let col =
-    match h with None -> Colour.v 0. 0. 1. | Some _ -> Colour.v 1. 0. 0.
-  in
+    let il = Intersection.intersects (Intersection.Sphere s) r in
+    let h = Intersection.hit il in
+    let col =
+      match h with None -> Colour.v 0. 0. 1. | Some _ -> Colour.v 1. 0. 0.
+    in
 
-  Canvas.write_pixel c (x_tick, y_tick) col;
+    let rgb = Colour.to_rgb col in
+    b.{x_tick + (y_tick * width)} <- rgb
+    (* Canvas.write_pixel c (x_tick, y_tick) col; *)
+  done;
 
   true
 
@@ -94,10 +98,10 @@ let () =
               | false -> false
             in
 
-            match tick counter canvas with
+            match tick counter canvas bitmap with
             | false -> ()
             | true -> (
-                canvas_to_bitmap canvas bitmap (width, height);
+                (* canvas_to_bitmap canvas bitmap (width, height); *)
                 (match render_texture r texture (width, height) bitmap with
                 | Error (`Msg e) -> Sdl.log "Render error: %s" e
                 | Ok () -> ());
