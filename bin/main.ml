@@ -39,20 +39,26 @@ let canvas_to_bitmap canvas bitmap dimensions =
 let tick t c =
   let width, height = Canvas.dimensions c in
 
-  let p = Tuple.point 0. 0. 0. in
-  let angle = Float.of_int t /. 720. *. Float.pi in
-  let r = Transformation.rotate_z angle in
-  let scale = Transformation.translation 0. 100. 0. in
-  let t = Matrix.multiply r scale in
-  let final = Matrix.multiply t (Tuple.to_matrix p) in
-  let finalp = Tuple.of_matrix final in
+  let space_width = 4.0 and space_height = 4.0 in
+  let x_skip = space_width /. Float.of_int width
+  and y_skip = space_height /. Float.of_int height in
 
-  let xpos = Int.of_float (Tuple.x finalp)
-  and ypos = Int.of_float (Tuple.y finalp) in
+  let t = t mod (width * height) in
+  let x_tick = t mod width and y_tick = t / width in
 
-  Canvas.write_pixel c
-    ((width / 2) + xpos, (height / 2) + ypos)
-    (Colour.v 1. 1. 1.);
+  let x_pos = (Float.of_int x_tick *. x_skip) -. (space_width /. 2.)
+  and y_pos = (Float.of_int y_tick *. y_skip) -. (space_height /. 2.) in
+
+  let r = Ray.v (Tuple.point x_pos y_pos (-5.)) (Tuple.vector 0. 0. 1.) in
+  let s = Sphere.v 42 in
+
+  let il = Intersection.intersects (Intersection.Sphere s) r in
+  let h = Intersection.hit il in
+  let col =
+    match h with None -> Colour.v 0. 0. 1. | Some _ -> Colour.v 1. 0. 0.
+  in
+
+  Canvas.write_pixel c (x_tick, y_tick) col;
 
   true
 
