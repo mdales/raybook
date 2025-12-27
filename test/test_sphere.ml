@@ -65,6 +65,24 @@ let test_set_transform _ =
   let res = Sphere.transform updated in
   assert_bool "is equal" (Matrix.is_equal t res)
 
+let test_scaled_sphere_intersection _ =
+  let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
+  let t = Transformation.scaling 2. 2. 2. in
+  let s = Sphere.set_transform (Sphere.v 42) t in
+  let xs = Intersection.intersects (Intersection.Sphere s) r in
+  match xs with
+  | [ t1; t2 ] ->
+      almost_equal 3. (Intersection.distance t1);
+      almost_equal 7. (Intersection.distance t2)
+  | _ -> assert_bool "no intersects" false
+
+let test_translated_sphere_intersection _ =
+  let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
+  let t = Transformation.translation 5. 0. 0. in
+  let s = Sphere.set_transform (Sphere.v 42) t in
+  let xs = Intersection.intersects (Intersection.Sphere s) r in
+  match xs with [] -> () | _ -> assert_bool "expected no answer" false
+
 let suite =
   "Sphere tests"
   >::: [
@@ -75,6 +93,8 @@ let suite =
          "Test ray behind spehere" >:: test_ray_behind_sphere;
          "Test default transform" >:: test_default_transform;
          "Test set transform" >:: test_set_transform;
+         "Test scaled intersection" >:: test_scaled_sphere_intersection;
+         "Test translated intersection" >:: test_translated_sphere_intersection;
        ]
 
 let () = run_test_tt_main suite

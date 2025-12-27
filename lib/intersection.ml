@@ -6,6 +6,8 @@ let distance t = t.distance
 let shape t = t.shape
 
 let sphere_intersects s r =
+  let transform = Matrix.inverse (Sphere.transform s) in
+  let r = Ray.transform r transform in
   let sphere_to_ray = Tuple.subtract (Ray.origin r) (Tuple.point 0. 0. 0.) in
   let a = Tuple.dot (Ray.direction r) (Ray.direction r) in
   let b = Tuple.dot (Ray.direction r) sphere_to_ray *. 2. in
