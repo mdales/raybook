@@ -32,7 +32,7 @@ let test_write_pixel _ =
   assert_bool "is equal" (Colour.is_equal red c)
 
 let suite =
-  "Tuple tests"
+  "Canvas tests"
   >::: [
          "Test create canvas" >:: test_create_canvas;
          "Test create canvas width too small"
