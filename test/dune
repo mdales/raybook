@@ -5,6 +5,7 @@
   test_canvas
   test_matrix
   test_transformation
+  test_intersection
   test_ray
   test_sphere)
  (libraries raybook ounit2))
