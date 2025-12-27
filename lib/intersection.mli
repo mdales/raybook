@@ -5,3 +5,4 @@ val v : shape_t -> float -> t
 val distance : t -> float
 val shape : t -> shape_t
 val intersects : shape_t -> Ray.t -> t list
+val hit : t list -> t option

@@ -20,3 +20,20 @@ let sphere_intersects s r =
       ]
 
 let intersects s r = match s with Sphere s -> sphere_intersects s r
+
+let hit tl =
+  match tl with
+  | [] -> None
+  | tl ->
+      (* In future we should just ensure this is sorted always *)
+      let sorted_lt =
+        List.sort (fun a b -> Float.compare a.distance b.distance) tl
+      in
+      let rec loop tl =
+        match tl with
+        | [] -> None
+        | x :: xs ->
+            let d = x.distance in
+            if d >= 0. then Some x else loop xs
+      in
+      loop sorted_lt
