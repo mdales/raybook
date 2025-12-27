@@ -52,6 +52,19 @@ let test_ray_behind_sphere _ =
       almost_equal (-4.) (Intersection.distance t2)
   | _ -> assert_bool "no intersects" false
 
+let test_default_transform _ =
+  let s = Sphere.v 42 in
+  let res = Sphere.transform s in
+  let expected = Matrix.identity 4 in
+  assert_bool "is equal" (Matrix.is_equal expected res)
+
+let test_set_transform _ =
+  let s = Sphere.v 42 in
+  let t = Transformation.translation 2. 3. 4. in
+  let updated = Sphere.set_transform s t in
+  let res = Sphere.transform updated in
+  assert_bool "is equal" (Matrix.is_equal t res)
+
 let suite =
   "Sphere tests"
   >::: [
@@ -60,6 +73,8 @@ let suite =
          "Test no intersect" >:: test_no_intersect;
          "Test ray inside spehere" >:: test_ray_inside_sphere;
          "Test ray behind spehere" >:: test_ray_behind_sphere;
+         "Test default transform" >:: test_default_transform;
+         "Test set transform" >:: test_set_transform;
        ]
 
 let () = run_test_tt_main suite
