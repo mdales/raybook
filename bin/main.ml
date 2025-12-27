@@ -56,7 +56,11 @@ let tick t c b =
     let il = Intersection.intersects (Intersection.Sphere s) r in
     let h = Intersection.hit il in
     let col =
-      match h with None -> Colour.v 0. 0. 1. | Some _ -> Colour.v 1. 0. 0.
+      match h with
+      | None -> Colour.v 0. 0. 1.
+      | Some t ->
+          let v = 10. -. Intersection.distance t in
+          Colour.v (v /. 10.) 0. 0.
     in
 
     let rgb = Colour.to_rgb col in
