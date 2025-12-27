@@ -12,10 +12,11 @@ let sphere_intersects s r =
   let c = Tuple.dot sphere_to_ray sphere_to_ray -. 1. in
   let d = (b *. b) -. (4. *. a *. c) in
   match d < 0.0 with
-  | true -> None
+  | true -> []
   | false ->
-      Some
-        ( v (Sphere s) (((b *. -1.) -. Float.sqrt d) /. (2. *. a)),
-          v (Sphere s) (((b *. -1.) +. Float.sqrt d) /. (2. *. a)) )
+      [
+        v (Sphere s) (((b *. -1.) -. Float.sqrt d) /. (2. *. a));
+        v (Sphere s) (((b *. -1.) +. Float.sqrt d) /. (2. *. a));
+      ]
 
 let intersects s r = match s with Sphere s -> sphere_intersects s r
