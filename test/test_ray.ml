@@ -34,6 +34,24 @@ let test_position _ =
   let e4 = Tuple.point 4.5 3. 4. in
   assert_bool "is equal" (Tuple.is_equal e4 p4)
 
+let test_translate_ray _ =
+  let r = Ray.v (Tuple.point 1. 2. 3.) (Tuple.vector 1. 0. 0.) in
+  let t = Transformation.translation 3. 4. 5. in
+  let res = Ray.transform r t in
+  let expected_origin = Tuple.point 4. 6. 8.
+  and expected_direction = Tuple.vector 1. 0. 0. in
+  assert_bool "is equal" (Tuple.is_equal expected_origin (Ray.origin res));
+  assert_bool "is equal" (Tuple.is_equal expected_direction (Ray.direction res))
+
+let test_scaling_ray _ =
+  let r = Ray.v (Tuple.point 1. 2. 3.) (Tuple.vector 0. 1. 0.) in
+  let t = Transformation.scaling 2. 3. 4. in
+  let res = Ray.transform r t in
+  let expected_origin = Tuple.point 2. 6. 12.
+  and expected_direction = Tuple.vector 0. 3. 0. in
+  assert_bool "is equal" (Tuple.is_equal expected_origin (Ray.origin res));
+  assert_bool "is equal" (Tuple.is_equal expected_direction (Ray.direction res))
+
 let suite =
   "Ray tests"
   >::: [
@@ -42,6 +60,8 @@ let suite =
          "Test create ray with invalid direction"
          >:: test_crete_ray_invalid_directon;
          "Test position" >:: test_position;
+         "Test translate ray" >:: test_translate_ray;
+         "Test scaling ray" >:: test_scaling_ray;
        ]
 
 let () = run_test_tt_main suite
