@@ -59,8 +59,8 @@ let tick t c b =
       match h with
       | None -> Colour.v 0. 0. 1.
       | Some t ->
-          let v = 10. -. Intersection.distance t in
-          Colour.v (v /. 10.) 0. 0.
+          let v = 5. -. Intersection.distance t in
+          Colour.v (v /. 2.) 0. 0.
     in
 
     let rgb = Colour.to_rgb col in

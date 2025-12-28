@@ -39,3 +39,8 @@ let hit tl =
             if d >= 0. then Some x else loop xs
       in
       loop sorted_lt
+
+let sphere_normal_at _s p =
+  Tuple.normalize (Tuple.subtract p (Tuple.point 0. 0. 0.))
+
+let normal_at s p = match s with Sphere s -> sphere_normal_at s p

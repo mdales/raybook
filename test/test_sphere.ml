@@ -83,6 +83,37 @@ let test_translated_sphere_intersection _ =
   let xs = Intersection.intersects (Intersection.Sphere s) r in
   match xs with [] -> () | _ -> assert_bool "expected no answer" false
 
+let test_normal_at_x_axis _ =
+  let s = Sphere.v 42 in
+  let p = Tuple.point 1. 0. 0. in
+  let res = Intersection.normal_at (Intersection.Sphere s) p in
+  let expected = Tuple.vector 1. 0. 0. in
+  assert_bool "is equal" (Tuple.is_equal expected res)
+
+let test_normal_at_y_axis _ =
+  let s = Sphere.v 42 in
+  let p = Tuple.point 0. 1. 0. in
+  let res = Intersection.normal_at (Intersection.Sphere s) p in
+  let expected = Tuple.vector 0. 1. 0. in
+  assert_bool "is equal" (Tuple.is_equal expected res)
+
+let test_normal_at_z_axis _ =
+  let s = Sphere.v 42 in
+  let p = Tuple.point 0. 0. 1. in
+  let res = Intersection.normal_at (Intersection.Sphere s) p in
+  let expected = Tuple.vector 0. 0. 1. in
+  assert_bool "is equal" (Tuple.is_equal expected res)
+
+let test_normal_at_off_axis _ =
+  let v = Float.sqrt 3. /. 3. in
+  let s = Sphere.v 42 in
+  let p = Tuple.point v v v in
+  let res = Intersection.normal_at (Intersection.Sphere s) p in
+  let expected = Tuple.vector v v v in
+  assert_bool "is equal" (Tuple.is_equal expected res);
+  let normal_res = Tuple.normalize res in
+  assert_bool "is equal" (Tuple.is_equal res normal_res)
+
 let suite =
   "Sphere tests"
   >::: [
@@ -95,6 +126,10 @@ let suite =
          "Test set transform" >:: test_set_transform;
          "Test scaled intersection" >:: test_scaled_sphere_intersection;
          "Test translated intersection" >:: test_translated_sphere_intersection;
+         "Test normal at on x axis" >:: test_normal_at_x_axis;
+         "Test normal at on y axis" >:: test_normal_at_y_axis;
+         "Test normal at on z axis" >:: test_normal_at_z_axis;
+         "Test normal at off axis" >:: test_normal_at_off_axis;
        ]
 
 let () = run_test_tt_main suite
