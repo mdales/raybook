@@ -40,7 +40,18 @@ let hit tl =
       in
       loop sorted_lt
 
-let sphere_normal_at _s p =
-  Tuple.normalize (Tuple.subtract p (Tuple.point 0. 0. 0.))
+let sphere_normal_at s p =
+  let pm = Tuple.to_matrix p in
+  let itm = Sphere.inverse_transform s in
+  let object_space_p = Matrix.multiply itm pm in
+  let op = Tuple.of_matrix object_space_p in
+  let object_normal = Tuple.subtract op (Tuple.point 0. 0. 0.) in
+  let titm = Sphere.transpose_inverse_transform s in
+  let world_normal = Matrix.multiply titm (Tuple.to_matrix object_normal) in
+  Tuple.normalize
+    (Tuple.vector
+       (Matrix.cell world_normal (0, 0))
+       (Matrix.cell world_normal (1, 0))
+       (Matrix.cell world_normal (2, 0)))
 
 let normal_at s p = match s with Sphere s -> sphere_normal_at s p

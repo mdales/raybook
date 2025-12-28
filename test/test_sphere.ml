@@ -114,6 +114,28 @@ let test_normal_at_off_axis _ =
   let normal_res = Tuple.normalize res in
   assert_bool "is equal" (Tuple.is_equal res normal_res)
 
+let test_normal_at_on_translated_sphere _ =
+  let t = Transformation.translation 0. 1. 0. in
+  let s = Sphere.set_transform (Sphere.v 42) t in
+  let v = Float.sqrt 2. /. 2. in
+  let p = Tuple.point 0. (1. +. v) (0. -. v) in
+  let res = Intersection.normal_at (Intersection.Sphere s) p in
+  let expected = Tuple.vector 0. v (-1. *. v) in
+  assert_bool "is equal" (Tuple.is_equal expected res)
+
+let test_normal_at_on_tranformed_sphere _ =
+  let st = Transformation.scaling 1. 0.5 1.
+  and rt = Transformation.rotate_z (Float.pi /. 5.) in
+  let t = Matrix.multiply st rt in
+  let s = Sphere.set_transform (Sphere.v 42) t in
+  let v = Float.sqrt 2. /. 2. in
+  let p = Tuple.point 0. v (-1. *. v) in
+  let res = Intersection.normal_at (Intersection.Sphere s) p in
+  let expected =
+    Tuple.vector 0. (4. /. Float.sqrt 17.) (-1. /. Float.sqrt 17.)
+  in
+  assert_bool "is equal" (Tuple.is_equal expected res)
+
 let suite =
   "Sphere tests"
   >::: [
@@ -130,6 +152,10 @@ let suite =
          "Test normal at on y axis" >:: test_normal_at_y_axis;
          "Test normal at on z axis" >:: test_normal_at_z_axis;
          "Test normal at off axis" >:: test_normal_at_off_axis;
+         "Test normal at on translated sphere"
+         >:: test_normal_at_on_translated_sphere;
+         "Test normal at on transformed spehere"
+         >:: test_normal_at_on_tranformed_sphere;
        ]
 
 let () = run_test_tt_main suite
