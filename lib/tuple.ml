@@ -121,3 +121,8 @@ let of_matrix m =
       in
       { x; y; z; w }
   | _ -> raise (Invalid_argument "Matrix expected to have 4x1 dimensions")
+
+let reflect v n =
+  match (v.w, n.w) with
+  | Vector, Vector -> subtract v (multiply n (2. *. dot v n))
+  | _ -> raise (Invalid_argument "Cannot use points in dot product")

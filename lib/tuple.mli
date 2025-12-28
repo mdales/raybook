@@ -21,3 +21,4 @@ val dot : t -> t -> float
 val cross : t -> t -> t
 val to_matrix : t -> Matrix.t
 val of_matrix : Matrix.t -> t
+val reflect : t -> t -> t

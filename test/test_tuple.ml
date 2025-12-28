@@ -241,6 +241,20 @@ let test_tuple_of_invalid_size_matrix _ =
       let _ = Tuple.of_matrix m in
       ())
 
+let test_reflect_45_degrees _ =
+  let v = Tuple.vector 1. (-1.) 0. and n = Tuple.vector 0. 1. 0. in
+  let res = Tuple.reflect v n in
+  let expected = Tuple.vector 1. 1. 0. in
+  assert_bool "is equal" (Tuple.is_equal expected res)
+
+let test_refect_slanted_surface _ =
+  let v = Tuple.vector 0. (-1.) 0. in
+  let x = Float.sqrt 2. /. 2. in
+  let n = Tuple.vector x x 0. in
+  let res = Tuple.reflect v n in
+  let expected = Tuple.vector 1. 0. 0. in
+  assert_bool "is equal" (Tuple.is_equal expected res)
+
 let suite =
   "Tuple tests"
   >::: [
@@ -286,6 +300,8 @@ let suite =
          "Test tuple of matrix invalid w" >:: test_tuple_of_invalid_w_matrix;
          "Test tuple of matrix invalid size"
          >:: test_tuple_of_invalid_size_matrix;
+         "Test reflect tuple at 45 degrees" >:: test_reflect_45_degrees;
+         "Test reflect tuple on slanted surface" >:: test_refect_slanted_surface;
        ]
 
 let () = run_test_tt_main suite
