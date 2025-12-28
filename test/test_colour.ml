@@ -61,7 +61,7 @@ let test_colour_of_rgb _ =
   assert_bool "is equal" (Colour.is_equal expected res)
 
 let suite =
-  "Tuple tests"
+  "Colour tests"
   >::: [
          "Test create colour" >:: test_create_colour;
          "Test add colours" >:: test_add_colours;

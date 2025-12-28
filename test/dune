@@ -4,6 +4,7 @@
   test_colour
   test_canvas
   test_matrix
+  test_light
   test_transformation
   test_intersection
   test_ray
