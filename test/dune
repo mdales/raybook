@@ -1,12 +1,13 @@
 (tests
  (names
-  test_tuple
-  test_colour
   test_canvas
-  test_matrix
-  test_light
-  test_transformation
+  test_colour
   test_intersection
+  test_light
+  test_matrix
+  test_material
   test_ray
-  test_sphere)
+  test_sphere
+  test_transformation
+  test_tuple)
  (libraries raybook ounit2))
