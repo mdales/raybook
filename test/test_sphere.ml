@@ -6,6 +6,21 @@ let almost_equal a b =
     (Printf.sprintf "%f vs %f" a b)
     (Float.abs (a -. b) < Float.epsilon)
 
+let test_create_sphere_default_material _ =
+  let s = Sphere.v 42 in
+  assert_equal 42 (Sphere.id s);
+  let expected_colour = Colour.v 1. 1. 1. in
+  let expected_material = Material.v ~colour:expected_colour () in
+  assert_equal expected_material (Sphere.material s)
+
+let test_create_sphere_with_material _ =
+  let expected_colour = Colour.v 0.1 0.2 0.3 in
+  let material = Material.v ~colour:expected_colour ~ambient:0.4 () in
+  let s = Sphere.v ~material 42 in
+  assert_equal 42 (Sphere.id s);
+  let rm = Sphere.material s in
+  assert_equal rm (Sphere.material s)
+
 let test_intersect_at_two_points _ =
   let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
   let s = Sphere.v 42 in
@@ -139,6 +154,9 @@ let test_normal_at_on_tranformed_sphere _ =
 let suite =
   "Sphere tests"
   >::: [
+         "Test create sphere with defaults"
+         >:: test_create_sphere_default_material;
+         "Test create sphere with material" >:: test_create_sphere_with_material;
          "Test intersect at two points" >:: test_intersect_at_two_points;
          "Test intersect at tangent" >:: test_intersect_at_tangent;
          "Test no intersect" >:: test_no_intersect;
