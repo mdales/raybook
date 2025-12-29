@@ -51,16 +51,25 @@ let tick t c b =
     and y_pos = (Float.of_int y_tick *. y_skip) -. (space_height /. 2.) in
 
     let r = Ray.v (Tuple.point x_pos y_pos (-5.)) (Tuple.vector 0. 0. 1.) in
-    let s = Sphere.v 42 in
+    let c = Colour.v 1. 0.1 1. in
+    let m = Material.v ~colour:c () in
+    let s = Sphere.v ~material:m 42 in
+    let l = Light.v (Tuple.point (-10.) (-10.) (-10.)) (Colour.v 1. 1. 1.) in
 
     let il = Intersection.intersects (Intersection.Sphere s) r in
     let h = Intersection.hit il in
+
     let col =
       match h with
-      | None -> Colour.v 0. 0. 1.
+      | None -> Colour.v 0. 0. 0.
       | Some t ->
-          let v = 5. -. Intersection.distance t in
-          Colour.v (v /. 2.) 0. 0.
+          let point = Ray.position r (Intersection.distance t) in
+          let normal = Intersection.normal_at (Intersection.Sphere s) point in
+          let eye = Tuple.negate (Ray.direction r) in
+
+          Light.lighting ~material:m ~light:l ~point ~normal ~eye ()
+      (* let v = 5. -. Intersection.distance t in
+          Colour.v (v /. 2.) 0. 0. *)
     in
 
     let rgb = Colour.to_rgb col in
