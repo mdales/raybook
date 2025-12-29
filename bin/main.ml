@@ -46,15 +46,32 @@ let tick t c b =
   let t = t mod (width * height) in
   let y_tick = t mod height in
 
+  let frame_key = t / height in
+  let angle = Float.of_int frame_key *. Float.pi /. 8. in
+
+  if y_tick = 0 then
+    for y = 0 to height - 1 do
+      for x = 0 to width - 1 do
+        b.{x + (y * width)} <- Int32.zero
+      done
+    done;
+
+  let c = Colour.v 1. 0.1 1. in
+  let m = Material.v ~colour:c () in
+  let s = Sphere.v ~material:m 42 in
+
+  let light_location = Tuple.point (-10.) (-10.) (-10.) in
+  let t = Transformation.rotate_x angle in
+  let rotated_m = Matrix.multiply t (Tuple.to_matrix light_location) in
+  let rotated_p = Tuple.of_matrix rotated_m in
+
+  let l = Light.v rotated_p (Colour.v 1. 1. 1.) in
+
   for x_tick = 0 to width - 1 do
     let x_pos = (Float.of_int x_tick *. x_skip) -. (space_width /. 2.)
     and y_pos = (Float.of_int y_tick *. y_skip) -. (space_height /. 2.) in
 
     let r = Ray.v (Tuple.point x_pos y_pos (-5.)) (Tuple.vector 0. 0. 1.) in
-    let c = Colour.v 1. 0.1 1. in
-    let m = Material.v ~colour:c () in
-    let s = Sphere.v ~material:m 42 in
-    let l = Light.v (Tuple.point (-10.) (-10.) (-10.)) (Colour.v 1. 1. 1.) in
 
     let il = Intersection.intersects (Intersection.Sphere s) r in
     let h = Intersection.hit il in
@@ -68,8 +85,6 @@ let tick t c b =
           let eye = Tuple.negate (Ray.direction r) in
 
           Light.lighting ~material:m ~light:l ~point ~normal ~eye ()
-      (* let v = 5. -. Intersection.distance t in
-          Colour.v (v /. 2.) 0. 0. *)
     in
 
     let rgb = Colour.to_rgb col in
