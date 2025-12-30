@@ -21,15 +21,14 @@ let sphere_intersects s r =
       ]
 
 let intersects s r = match s with Shape.Sphere s -> sphere_intersects s r
+let sort tl = List.sort (fun a b -> Float.compare a.distance b.distance) tl
 
 let hit tl =
   match tl with
   | [] -> None
   | tl ->
       (* In future we should just ensure this is sorted always *)
-      let sorted_lt =
-        List.sort (fun a b -> Float.compare a.distance b.distance) tl
-      in
+      let sorted_lt = sort tl in
       let rec loop tl =
         match tl with
         | [] -> None
