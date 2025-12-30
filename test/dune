@@ -6,6 +6,7 @@
   test_light
   test_matrix
   test_material
+  test_precomputed
   test_ray
   test_sphere
   test_transformation

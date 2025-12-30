@@ -57,7 +57,7 @@ let tick t c b =
     done; *)
   let c = Colour.v 1. 0.7 0.1 in
   let m = Material.v ~colour:c () in
-  let s = Sphere.v ~material:m 42 in
+  let s = Sphere.v ~material:m () in
 
   let light_location = Tuple.point (-10.) (-10.) (-10.) in
   let t = Transformation.rotate_x angle in
