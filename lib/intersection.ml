@@ -1,5 +1,4 @@
-type shape_t = Sphere of Sphere.t
-type t = { distance : float; shape : shape_t }
+type t = { distance : float; shape : Shape.t }
 
 let v shape distance = { shape; distance }
 let distance t = t.distance
@@ -21,7 +20,7 @@ let sphere_intersects s r =
         v (Sphere s) (((b *. -1.) +. Float.sqrt d) /. (2. *. a));
       ]
 
-let intersects s r = match s with Sphere s -> sphere_intersects s r
+let intersects s r = match s with Shape.Sphere s -> sphere_intersects s r
 
 let hit tl =
   match tl with
@@ -54,4 +53,4 @@ let sphere_normal_at s p =
        (Matrix.cell world_normal (1, 0))
        (Matrix.cell world_normal (2, 0)))
 
-let normal_at s p = match s with Sphere s -> sphere_normal_at s p
+let normal_at s p = match s with Shape.Sphere s -> sphere_normal_at s p

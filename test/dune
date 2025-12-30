@@ -9,5 +9,6 @@
   test_ray
   test_sphere
   test_transformation
-  test_tuple)
+  test_tuple
+  test_world)
  (libraries raybook ounit2))

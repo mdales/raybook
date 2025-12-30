@@ -77,7 +77,7 @@ let tick t c b =
     in
     let r = Ray.v camera_point view_vector in
 
-    let il = Intersection.intersects (Intersection.Sphere s) r in
+    let il = Intersection.intersects (Shape.Sphere s) r in
     let h = Intersection.hit il in
 
     let col =
@@ -85,7 +85,7 @@ let tick t c b =
       | None -> Colour.v 0. 0. 0.
       | Some t ->
           let point = Ray.position r (Intersection.distance t) in
-          let normal = Intersection.normal_at (Intersection.Sphere s) point in
+          let normal = Intersection.normal_at (Shape.Sphere s) point in
           let eye = Tuple.negate (Ray.direction r) in
 
           Light.lighting ~material:m ~light:l ~point ~normal ~eye ()
