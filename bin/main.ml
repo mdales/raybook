@@ -49,14 +49,13 @@ let tick t c b =
   let frame_key = t / height in
   let angle = Float.of_int frame_key *. Float.pi /. 8. in
 
-  if y_tick = 0 then
+  (* if y_tick = 0 then
     for y = 0 to height - 1 do
       for x = 0 to width - 1 do
-        b.{x + (y * width)} <- Int32.zero
+        b.{x + (y * width)} <- Int32.of_int 0xFFFFFF;
       done
-    done;
-
-  let c = Colour.v 1. 0.1 1. in
+    done; *)
+  let c = Colour.v 1. 0.7 0.1 in
   let m = Material.v ~colour:c () in
   let s = Sphere.v ~material:m 42 in
 
@@ -71,7 +70,12 @@ let tick t c b =
     let x_pos = (Float.of_int x_tick *. x_skip) -. (space_width /. 2.)
     and y_pos = (Float.of_int y_tick *. y_skip) -. (space_height /. 2.) in
 
-    let r = Ray.v (Tuple.point x_pos y_pos (-5.)) (Tuple.vector 0. 0. 1.) in
+    let wall_point = Tuple.point x_pos y_pos 0. in
+    let camera_point = Tuple.point 0. 0. (-5.) in
+    let view_vector =
+      Tuple.normalize (Tuple.subtract wall_point camera_point)
+    in
+    let r = Ray.v camera_point view_vector in
 
     let il = Intersection.intersects (Intersection.Sphere s) r in
     let h = Intersection.hit il in
