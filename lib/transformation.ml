@@ -63,3 +63,38 @@ let shearing xy xz yx yz zx zy =
     |]
   in
   Matrix.v data
+
+let view_transform from_p to_p up_v =
+  if not (Tuple.is_point from_p) then
+    raise (Invalid_argument "From must be a point");
+  if not (Tuple.is_point to_p) then
+    raise (Invalid_argument "To must be a point");
+  if not (Tuple.is_vector up_v) then
+    raise (Invalid_argument "Up must be a vector");
+  let forward = Tuple.normalize (Tuple.subtract to_p from_p) in
+  let upn = Tuple.normalize up_v in
+  let left = Tuple.cross forward upn in
+  let true_up = Tuple.cross left forward in
+
+  let orientation =
+    Matrix.v
+      [|
+        [| Tuple.x left; Tuple.y left; Tuple.z left; 0. |];
+        [| Tuple.x true_up; Tuple.y true_up; Tuple.z true_up; 0. |];
+        [|
+          0. -. Tuple.x forward;
+          0. -. Tuple.y forward;
+          0. -. Tuple.z forward;
+          0.;
+        |];
+        [| 0.; 0.; 0.; 1. |];
+      |]
+  in
+
+  let t =
+    translation
+      (0. -. Tuple.x from_p)
+      (0. -. Tuple.y from_p)
+      (0. -. Tuple.z from_p)
+  in
+  Matrix.multiply orientation t

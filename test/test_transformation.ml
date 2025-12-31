@@ -205,6 +205,57 @@ let test_sequence_transformations_2 _ =
   let expected = Tuple.point 15. 0. 7. in
   assert_bool "is equal" (Tuple.is_equal expected rest)
 
+let test_default_view_transform _ =
+  let from_p = Tuple.point 0. 0. 0.
+  and to_p = Tuple.point 0. 0. (-1.)
+  and up = Tuple.vector 0. 1. 0. in
+  let res = Transformation.view_transform from_p to_p up in
+  assert_bool "is equal" (Matrix.is_equal (Matrix.identity 4) res)
+
+let test_towards_z_view_transform _ =
+  let from_p = Tuple.point 0. 0. 0.
+  and to_p = Tuple.point 0. 0. 1.
+  and up = Tuple.vector 0. 1. 0. in
+  let res = Transformation.view_transform from_p to_p up in
+  assert_bool "is equal"
+    (Matrix.is_equal (Transformation.scaling (-1.) 1. (-1.)) res)
+
+let test_arbitrary_view_transform _ =
+  let from_p = Tuple.point 1. 3. 2.
+  and to_p = Tuple.point 4. (-2.) 8.
+  and up = Tuple.vector 1. 1. 0. in
+  let res = Transformation.view_transform from_p to_p up in
+  let expected =
+    Matrix.v
+      [|
+        [|
+          -0.50709255283710985562;
+          0.50709255283710985562;
+          0.67612340378281310382;
+          -2.36643191323984591889;
+        |];
+        [|
+          0.76771593385967995538;
+          0.60609152673132626887;
+          0.12121830534626525100;
+          -2.82842712474618895868;
+        |];
+        [|
+          -0.35856858280031805863;
+          0.59761430466719678289;
+          -0.71713716560063611727;
+          -0.00000000000000005551;
+        |];
+        [|
+          0.00000000000000000000;
+          0.00000000000000000000;
+          0.00000000000000000000;
+          1.00000000000000000000;
+        |];
+      |]
+  in
+  assert_bool "is equal" (Matrix.is_equal expected res)
+
 let suite =
   "Transformation tests"
   >::: [
@@ -229,6 +280,9 @@ let suite =
          >:: test_sequence_transformations_1;
          "Test sequence of transformations 2"
          >:: test_sequence_transformations_2;
+         "Test default view transformation" >:: test_default_view_transform;
+         "Test view towards z transformation" >:: test_towards_z_view_transform;
+         "Test arbitrary view transformation" >:: test_arbitrary_view_transform;
        ]
 
 let () = run_test_tt_main suite
