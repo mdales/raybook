@@ -13,18 +13,25 @@ let test_create_world _ =
   assert_equal l (World.light w);
   assert_equal sl (World.shapes w)
 
-let default_test_world ?(lighting = None) () =
+let default_test_world ?(lighting = None) ?(ambient_high = false) () =
   let l =
     match lighting with
     | None -> Light.v (Tuple.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.)
     | Some l -> l
   in
   let m1 =
-    Material.v ~colour:(Colour.v 0.8 1.0 0.6) ~diffuse:0.7 ~specular:0.2 ()
+    Material.v ~colour:(Colour.v 0.8 1.0 0.6) ~diffuse:0.7 ~specular:0.2
+      ~ambient:(if ambient_high then 1.0 else 0.1)
+      ()
   in
   let s1 = Shape.Sphere (Sphere.v ~material:m1 ()) in
   let t = Transformation.scaling 0.5 0.5 0.5 in
-  let s2 = Shape.Sphere (Sphere.v ~transform:t ()) in
+  let m2 =
+    Material.v ~colour:(Colour.v 1. 1. 1.)
+      ~ambient:(if ambient_high then 1.0 else 0.1)
+      ()
+  in
+  let s2 = Shape.Sphere (Sphere.v ~transform:t ~material:m2 ()) in
   World.v l [ s1; s2 ]
 
 let test_default_world _ =
@@ -66,6 +73,28 @@ let test_shading_inside_intersection _ =
   in
   assert_bool "is equal" (Colour.is_equal expected res)
 
+let test_colour_at_misses _ =
+  let w = default_test_world () in
+  let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 1. 0.) in
+  let res = World.colour_at w r in
+  assert_bool "is equal" (Colour.is_equal (Colour.v 0. 0. 0.) res)
+
+let test_colour_at_hits _ =
+  let w = default_test_world () in
+  let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
+  let res = World.colour_at w r in
+  let expected =
+    Colour.v 0.380661193081034355 0.475826491351292957 0.285495894810775752
+  in
+  assert_bool "is equal" (Colour.is_equal expected res)
+
+let test_colour_at_hits_in_between _ =
+  let w = default_test_world ~ambient_high:true () in
+  let r = Ray.v (Tuple.point 0. 0. 0.75) (Tuple.vector 0. 0. (-1.)) in
+  let res = World.colour_at w r in
+  let expected = Colour.v 1. 1. 1. in
+  assert_bool "is equal" (Colour.is_equal expected res)
+
 let suite =
   "World tests"
   >::: [
@@ -75,6 +104,9 @@ let suite =
          "Test shading outside intersection"
          >:: test_shading_outside_intersection;
          "Test shading inside intersection" >:: test_shading_inside_intersection;
+         "Test colour at misses" >:: test_colour_at_misses;
+         "Test colour at hits" >:: test_colour_at_hits;
+         "Test colour at hits between" >:: test_colour_at_hits_in_between;
        ]
 
 let () = run_test_tt_main suite

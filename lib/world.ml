@@ -12,3 +12,12 @@ let shader_hit w c =
   let material = Shape.material (Precomputed.shape c) in
   Light.lighting ~light:w.light ~eye:(Precomputed.eyev c)
     ~normal:(Precomputed.normalv c) ~material ~point:(Precomputed.point c) ()
+
+let colour_at w r =
+  let il = intersect w r in
+  let h = Intersection.hit il in
+  match h with
+  | None -> Colour.v 0. 0. 0.
+  | Some i ->
+      let c = Precomputed.v i r in
+      shader_hit w c
