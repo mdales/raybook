@@ -13,8 +13,12 @@ let test_create_world _ =
   assert_equal l (World.light w);
   assert_equal sl (World.shapes w)
 
-let default_test_world () =
-  let l = Light.v (Tuple.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.) in
+let default_test_world ?(lighting = None) () =
+  let l =
+    match lighting with
+    | None -> Light.v (Tuple.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.)
+    | Some l -> l
+  in
   let m1 =
     Material.v ~colour:(Colour.v 0.8 1.0 0.6) ~diffuse:0.7 ~specular:0.2 ()
   in
@@ -37,12 +41,40 @@ let test_intersect_world_with_ray _ =
   almost_equal 5.5 (Intersection.distance (List.nth res 2));
   almost_equal 6. (Intersection.distance (List.nth res 3))
 
+let test_shading_outside_intersection _ =
+  let w = default_test_world () in
+  let s = List.nth (World.shapes w) 0 in
+  let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
+  let i = Intersection.v s 4. in
+  let c = Precomputed.v i r in
+  let res = World.shader_hit w c in
+  let expected =
+    Colour.v 0.380661193081034355 0.475826491351292957 0.285495894810775752
+  in
+  assert_bool "is equal" (Colour.is_equal expected res)
+
+let test_shading_inside_intersection _ =
+  let lighting = Some (Light.v (Tuple.point 0. 0.25 0.) (Colour.v 1. 1. 1.)) in
+  let w = default_test_world ~lighting () in
+  let s = List.nth (World.shapes w) 1 in
+  let r = Ray.v (Tuple.point 0. 0. 0.) (Tuple.vector 0. 0. 1.) in
+  let i = Intersection.v s 0.5 in
+  let c = Precomputed.v i r in
+  let res = World.shader_hit w c in
+  let expected =
+    Colour.v 0.904984472083257496 0.904984472083257496 0.904984472083257496
+  in
+  assert_bool "is equal" (Colour.is_equal expected res)
+
 let suite =
   "World tests"
   >::: [
          "Test create world" >:: test_create_world;
          "Test default world" >:: test_default_world;
          "Test intersect world with ray" >:: test_intersect_world_with_ray;
+         "Test shading outside intersection"
+         >:: test_shading_outside_intersection;
+         "Test shading inside intersection" >:: test_shading_inside_intersection;
        ]
 
 let () = run_test_tt_main suite
