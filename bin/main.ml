@@ -64,7 +64,33 @@ let tick t c b =
   let rotated_m = Matrix.multiply t (Tuple.to_matrix light_location) in
   let rotated_p = Tuple.of_matrix rotated_m in
 
+  let count = 24 in
+  let sll : Shape.t list =
+    List.init count (fun i ->
+        let innerangle =
+          2. *. Float.pi *. (Float.of_int i /. Float.of_int count)
+        in
+        let c =
+          Colour.v (sin innerangle)
+            (sin (innerangle +. (2. *. Float.pi /. 3.)))
+            (sin (innerangle +. (4. *. Float.pi /. 3.)))
+        in
+        let m = Material.v ~colour:c () in
+        let scale : Matrix.t = Transformation.scaling 0.1 0.1 0.1 in
+        let translate : Matrix.t = Transformation.translation 1.5 0. 0. in
+        let rotate_y = Transformation.rotate_y innerangle in
+        let transform =
+          Matrix.multiply rotate_y (Matrix.multiply translate scale)
+        in
+        let rotate_x = Transformation.rotate_x 0.2 in
+        let transform = Matrix.multiply rotate_x transform in
+        let s = Sphere.v ~material:m ~transform () in
+        Shape.Sphere s)
+  in
+
   let l = Light.v rotated_p (Colour.v 1. 1. 1.) in
+
+  let w = World.v l (Shape.Sphere s :: sll) in
 
   for x_tick = 0 to width - 1 do
     let x_pos = (Float.of_int x_tick *. x_skip) -. (space_width /. 2.)
@@ -77,7 +103,9 @@ let tick t c b =
     in
     let r = Ray.v camera_point view_vector in
 
-    let il = Intersection.intersects (Shape.Sphere s) r in
+    let col = World.colour_at w r in
+
+    (* let il = Intersection.intersects (Shape.Sphere s) r in
     let h = Intersection.hit il in
 
     let col =
@@ -89,8 +117,7 @@ let tick t c b =
           let eye = Tuple.negate (Ray.direction r) in
 
           Light.lighting ~material:m ~light:l ~point ~normal ~eye ()
-    in
-
+    in *)
     let rgb = Colour.to_rgb col in
     b.{x_tick + (y_tick * width)} <- rgb
     (* Canvas.write_pixel c (x_tick, y_tick) col; *)
