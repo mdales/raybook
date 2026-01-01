@@ -11,7 +11,7 @@ let intersect w r =
 let shader_hit w c =
   let material = Shape.material (Precomputed.shape c) in
   Light.lighting ~light:w.light ~eye:(Precomputed.eyev c)
-    ~normal:(Precomputed.normalv c) ~material ~point:(Precomputed.point c) ()
+    ~normal:(Precomputed.normalv c) ~material ~point:(Precomputed.point c) ~shadow:false ()
 
 let colour_at w r =
   let il = intersect w r in

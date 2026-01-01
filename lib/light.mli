@@ -10,5 +10,6 @@ val lighting :
   normal:Tuple.t ->
   material:Material.t ->
   point:Tuple.t ->
+  shadow:bool ->
   unit ->
   Colour.t
