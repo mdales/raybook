@@ -1,14 +1,18 @@
-type t = Colour.t array array
+type t = {
+  array : (int32, Bigarray.int32_elt, Bigarray.c_layout) Bigarray.Array1.t;
+  width: int;
+  height : int;
+}
 
 let v dimensions =
   let width, height = dimensions in
   if width <= 0 then raise (Invalid_argument "Invalid width");
   if height <= 0 then raise (Invalid_argument "Invalid height");
-  Array.init height (fun _ -> Array.init width (fun _ -> Colour.v 0. 0. 0.))
+  let array = Bigarray.Array1.create Bigarray.int32 Bigarray.c_layout (width * height) in
+  {array; width; height}
 
 let dimensions t =
-  let height = Array.length t in
-  match height with 0 -> (0, 0) | _ -> (Array.length t.(0), height)
+  (t.width, t.height)
 
 let write_pixel t (x, y) c =
   if x < 0 then raise (Invalid_argument "Invalid x");
@@ -16,7 +20,8 @@ let write_pixel t (x, y) c =
   let w, h = dimensions t in
   if x >= w then raise (Invalid_argument "Invalid x");
   if y >= h then raise (Invalid_argument "Invalud y");
-  t.(y).(x) <- c
+  let rgb = Colour.to_rgb c in
+  t.array.{x + (y * t.width)} <- rgb
 
 let read_pixel t (x, y) =
   if x < 0 then raise (Invalid_argument "Invalid x");
@@ -24,4 +29,5 @@ let read_pixel t (x, y) =
   let w, h = dimensions t in
   if x >= w then raise (Invalid_argument "Invalid x");
   if y >= h then raise (Invalid_argument "Invalud y");
-  t.(y).(x)
+  let rgb = t.array.{x + (y * t.width)} in
+  Colour.of_rgb rgb
