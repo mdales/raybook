@@ -39,10 +39,6 @@ let _canvas_to_bitmap canvas bitmap dimensions =
 let tick t c b =
   let width, height = Canvas.dimensions c in
 
-  let space_width = 4.0 and space_height = 4.0 in
-  let x_skip = space_width /. Float.of_int width
-  and y_skip = space_height /. Float.of_int height in
-
   let t = t mod (width * height) in
   let y_tick = t mod height in
 
@@ -59,7 +55,7 @@ let tick t c b =
   let m = Material.v ~colour:c () in
   let s = Sphere.v ~material:m () in
 
-  let light_location = Tuple.point (-10.) (-10.) (-10.) in
+  let light_location = Tuple.point (10.) (10.) (10.) in
   let t = Transformation.rotate_x angle in
   let rotated_m = Matrix.multiply t (Tuple.to_matrix light_location) in
   let rotated_p = Tuple.of_matrix rotated_m in
@@ -92,38 +88,14 @@ let tick t c b =
 
   let w = World.v l (Shape.Sphere s :: sll) in
 
-  let ct = Transformation.translation 0. 0. (-5.) in
-  let _cam = Camera.v ~transform:ct (width, height) (Float.pi /. 2.) in
+  let ct = Transformation.translation 0. 0. (-3.5) in
+  let cam = Camera.v ~transform:ct (width, height) (Float.pi *. 70. /. 180.) in
 
   for x_tick = 0 to width - 1 do
 
-    let x_pos = (Float.of_int x_tick *. x_skip) -. (space_width /. 2.)
-    and y_pos = (Float.of_int y_tick *. y_skip) -. (space_height /. 2.) in
-
-    let wall_point = Tuple.point x_pos y_pos 0. in
-    let camera_point = Tuple.point 0. 0. (-5.) in
-    let view_vector =
-      Tuple.normalize (Tuple.subtract wall_point camera_point)
-    in
-    let r = Ray.v camera_point view_vector in
-
-
-    (* let r = Camera.ray_for_pixel c (x_tick, y_tick) in *)
+    let r = Camera.ray_for_pixel cam (x_tick, y_tick) in
     let col = World.colour_at w r in
 
-    (* let il = Intersection.intersects (Shape.Sphere s) r in
-    let h = Intersection.hit il in
-
-    let col =
-      match h with
-      | None -> Colour.v 0. 0. 0.
-      | Some t ->
-          let point = Ray.position r (Intersection.distance t) in
-          let normal = Intersection.normal_at (Shape.Sphere s) point in
-          let eye = Tuple.negate (Ray.direction r) in
-
-          Light.lighting ~material:m ~light:l ~point ~normal ~eye ()
-    in *)
     let rgb = Colour.to_rgb col in
     b.{x_tick + (y_tick * width)} <- rgb
     (* Canvas.write_pixel c (x_tick, y_tick) col; *)
