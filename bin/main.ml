@@ -92,7 +92,11 @@ let tick t c b =
 
   let w = World.v l (Shape.Sphere s :: sll) in
 
+  let ct = Transformation.translation 0. 0. (-5.) in
+  let _cam = Camera.v ~transform:ct (width, height) (Float.pi /. 2.) in
+
   for x_tick = 0 to width - 1 do
+
     let x_pos = (Float.of_int x_tick *. x_skip) -. (space_width /. 2.)
     and y_pos = (Float.of_int y_tick *. y_skip) -. (space_height /. 2.) in
 
@@ -103,6 +107,8 @@ let tick t c b =
     in
     let r = Ray.v camera_point view_vector in
 
+
+    (* let r = Camera.ray_for_pixel c (x_tick, y_tick) in *)
     let col = World.colour_at w r in
 
     (* let il = Intersection.intersects (Shape.Sphere s) r in
