@@ -20,31 +20,32 @@ let lighting ~light ~eye ~normal ~material ~point ~shadow () =
 
   match shadow with
   | true -> ambient_colour
-    | false -> (
+  | false ->
+      let light_dot_normal = Tuple.dot lightv normal in
 
-    let light_dot_normal = Tuple.dot lightv normal in
+      let black = Colour.v 0. 0. 0. in
 
-    let black = Colour.v 0. 0. 0. in
-
-    let diffuse =
-      if light_dot_normal < 0. then black
-      else
-        Colour.fmultiply effective_colour
-          (Material.diffuse material *. light_dot_normal)
-    in
-
-    let specular =
-      if light_dot_normal < 0. then black
-      else
-        let negative_lightv = Tuple.negate lightv in
-        let reflectv = Tuple.reflect negative_lightv normal in
-        let reflect_dot_eye = Tuple.dot reflectv eye in
-
-        if reflect_dot_eye < 0. then black
+      let diffuse =
+        if light_dot_normal < 0. then black
         else
-          let factor = Float.pow reflect_dot_eye (Material.shininess material) in
-          Colour.fmultiply (intensity light) (factor *. Material.specular material)
-    in
+          Colour.fmultiply effective_colour
+            (Material.diffuse material *. light_dot_normal)
+      in
 
-    Colour.add (Colour.add ambient_colour diffuse) specular
-  )
+      let specular =
+        if light_dot_normal < 0. then black
+        else
+          let negative_lightv = Tuple.negate lightv in
+          let reflectv = Tuple.reflect negative_lightv normal in
+          let reflect_dot_eye = Tuple.dot reflectv eye in
+
+          if reflect_dot_eye < 0. then black
+          else
+            let factor =
+              Float.pow reflect_dot_eye (Material.shininess material)
+            in
+            Colour.fmultiply (intensity light)
+              (factor *. Material.specular material)
+      in
+
+      Colour.add (Colour.add ambient_colour diffuse) specular

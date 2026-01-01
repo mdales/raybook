@@ -6,3 +6,4 @@ val shapes : t -> Shape.t list
 val intersect : t -> Ray.t -> Intersection.t list
 val shader_hit : t -> Precomputed.t -> Colour.t
 val colour_at : t -> Ray.t -> Colour.t
+val is_shadowed : t -> Tuple.t -> bool

@@ -44,6 +44,17 @@ let test_mixed_order_mixed_sign _ =
   | None -> assert_bool "unexpected" false
   | Some i -> assert_equal 2. (Intersection.distance i)
 
+let test_hit_should_offset _ =
+  let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
+  let t = Transformation.translation 0. 0. 1. in
+  let s = Shape.Sphere (Sphere.v ~transform:t ()) in
+  let i = Intersection.v s 5. in
+  let comps = Precomputed.v i r in
+  let point = Precomputed.point comps in
+  let over_point = Precomputed.over_point comps in
+  assert_bool "is small" (Tuple.z over_point < Float.epsilon /. 2.);
+  assert_bool "is greater" (Tuple.z point > Tuple.z over_point)
+
 let suite =
   "Intersection tests"
   >::: [
@@ -52,6 +63,7 @@ let suite =
          "Test hit mixed" >:: test_hit_mixed_positive_negative;
          "Test hit all negative" >:: test_hit_all_negative;
          "Test mixed order" >:: test_mixed_order_mixed_sign;
+         "Test over point" >:: test_hit_should_offset;
        ]
 
 let () = run_test_tt_main suite

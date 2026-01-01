@@ -68,9 +68,8 @@ let test_shading_inside_intersection _ =
   let i = Intersection.v s 0.5 in
   let c = Precomputed.v i r in
   let res = World.shader_hit w c in
-  let expected =
-    Colour.v 0.904984472083257496 0.904984472083257496 0.904984472083257496
-  in
+  (* Originally no shadow, but now in shadow *)
+  let expected = Colour.v 0.1 0.1 0.1 in
   assert_bool "is equal" (Colour.is_equal expected res)
 
 let test_colour_at_misses _ =
@@ -95,6 +94,47 @@ let test_colour_at_hits_in_between _ =
   let expected = Colour.v 1. 1. 1. in
   assert_bool "is equal" (Colour.is_equal expected res)
 
+let test_shadow_scenario_1 _ =
+  (* Nothing is colinear *)
+  let w = default_test_world () in
+  let p = Tuple.point 0. 10. 0. in
+  let res = World.is_shadowed w p in
+  assert_equal false res
+
+let test_shadow_scenario_2 _ =
+  (* object betweek point and light *)
+  let w = default_test_world () in
+  let p = Tuple.point 10. (-10.) 10. in
+  let res = World.is_shadowed w p in
+  assert_equal true res
+
+let test_shadow_scenario_3 _ =
+  (* object behind light *)
+  let w = default_test_world () in
+  let p = Tuple.point (-20.) 20. (-20.) in
+  let res = World.is_shadowed w p in
+  assert_equal false res
+
+let test_shadow_scenario_4 _ =
+  (* object behind point *)
+  let w = default_test_world () in
+  let p = Tuple.point (-2.) 2. (-2.) in
+  let res = World.is_shadowed w p in
+  assert_equal false res
+
+let test_shader_hit_is_given_intersection_in_shadow _ =
+  let l = Light.v (Tuple.point 0. 0. (-10.)) (Colour.v 1. 1. 1.) in
+  let s1 = Shape.Sphere (Sphere.v ()) in
+  let t2 = Transformation.translation 0. 0. 10. in
+  let s2 = Shape.Sphere (Sphere.v ~transform:t2 ()) in
+  let w = World.v l [ s1; s2 ] in
+  let r = Ray.v (Tuple.point 0. 0. 5.) (Tuple.vector 0. 0. 1.) in
+  let i = Intersection.v s2 4. in
+  let comps = Precomputed.v i r in
+  let res = World.shader_hit w comps in
+  let expected = Colour.v 0.1 0.1 0.1 in
+  assert_bool "is equal" (Colour.is_equal expected res)
+
 let suite =
   "World tests"
   >::: [
@@ -107,6 +147,12 @@ let suite =
          "Test colour at misses" >:: test_colour_at_misses;
          "Test colour at hits" >:: test_colour_at_hits;
          "Test colour at hits between" >:: test_colour_at_hits_in_between;
+         "Test shadow scenarion 1" >:: test_shadow_scenario_1;
+         "Test shadow scenarion 2" >:: test_shadow_scenario_2;
+         "Test shadow scenarion 3" >:: test_shadow_scenario_3;
+         "Test shadow scenarion 4" >:: test_shadow_scenario_4;
+         "Test shader hit in shadow"
+         >:: test_shader_hit_is_given_intersection_in_shadow;
        ]
 
 let () = run_test_tt_main suite

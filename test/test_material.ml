@@ -111,8 +111,6 @@ let test_surface_in_shadow _ =
   let expected = Colour.v 0.1 0.1 0.1 in
   assert_bool "is equal" (Colour.is_equal expected res)
 
-
-
 let suite =
   "Material tests"
   >::: [

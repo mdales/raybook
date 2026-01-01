@@ -1,6 +1,6 @@
 type t = {
   array : (int32, Bigarray.int32_elt, Bigarray.c_layout) Bigarray.Array1.t;
-  width: int;
+  width : int;
   height : int;
 }
 
@@ -8,11 +8,12 @@ let v dimensions =
   let width, height = dimensions in
   if width <= 0 then raise (Invalid_argument "Invalid width");
   if height <= 0 then raise (Invalid_argument "Invalid height");
-  let array = Bigarray.Array1.create Bigarray.int32 Bigarray.c_layout (width * height) in
-  {array; width; height}
+  let array =
+    Bigarray.Array1.create Bigarray.int32 Bigarray.c_layout (width * height)
+  in
+  { array; width; height }
 
-let dimensions t =
-  (t.width, t.height)
+let dimensions t = (t.width, t.height)
 
 let write_pixel t (x, y) c =
   if x < 0 then raise (Invalid_argument "Invalid x");
