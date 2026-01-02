@@ -8,7 +8,7 @@ let almost_equal a b =
 
 let test_create_world _ =
   let l = Light.v (Tuple.point 10. 10. 10.) (Colour.v 0.2 0.3 0.4)
-  and sl = [ Shape.Sphere (Sphere.v ()) ] in
+  and sl = [ Shape.v Shape.Sphere ] in
   let w = World.v l sl in
   assert_equal l (World.light w);
   assert_equal sl (World.shapes w)
@@ -24,14 +24,14 @@ let default_test_world ?(lighting = None) ?(ambient_high = false) () =
       ~ambient:(if ambient_high then 1.0 else 0.1)
       ()
   in
-  let s1 = Shape.Sphere (Sphere.v ~material:m1 ()) in
+  let s1 = Shape.v ~material:m1 Shape.Sphere in
   let t = Transformation.scaling 0.5 0.5 0.5 in
   let m2 =
     Material.v ~colour:(Colour.v 1. 1. 1.)
       ~ambient:(if ambient_high then 1.0 else 0.1)
       ()
   in
-  let s2 = Shape.Sphere (Sphere.v ~transform:t ~material:m2 ()) in
+  let s2 = Shape.v ~transform:t ~material:m2 Shape.Sphere in
   World.v l [ s1; s2 ]
 
 let test_default_world _ =
@@ -124,9 +124,9 @@ let test_shadow_scenario_4 _ =
 
 let test_shader_hit_is_given_intersection_in_shadow _ =
   let l = Light.v (Tuple.point 0. 0. (-10.)) (Colour.v 1. 1. 1.) in
-  let s1 = Shape.Sphere (Sphere.v ()) in
+  let s1 = Shape.v Shape.Sphere in
   let t2 = Transformation.translation 0. 0. 10. in
-  let s2 = Shape.Sphere (Sphere.v ~transform:t2 ()) in
+  let s2 = Shape.v ~transform:t2 Shape.Sphere in
   let w = World.v l [ s1; s2 ] in
   let r = Ray.v (Tuple.point 0. 0. 5.) (Tuple.vector 0. 0. 1.) in
   let i = Intersection.v s2 4. in

@@ -53,7 +53,7 @@ let tick t c b =
     done; *)
   let c = Colour.v 1. 0.7 0.1 in
   let m = Material.v ~colour:c () in
-  let s = Sphere.v ~material:m () in
+  let s = Shape.v ~material:m Shape.Sphere in
 
   let light_location = Tuple.point 10. 10. 10. in
   let t = Transformation.rotate_x angle in
@@ -80,13 +80,12 @@ let tick t c b =
         in
         let rotate_x = Transformation.rotate_x 0.2 in
         let transform = Matrix.multiply rotate_x transform in
-        let s = Sphere.v ~material:m ~transform () in
-        Shape.Sphere s)
+        Shape.v ~material:m ~transform Shape.Sphere)
   in
 
   let l = Light.v rotated_p (Colour.v 1. 1. 1.) in
 
-  let w = World.v l (Shape.Sphere s :: sll) in
+  let w = World.v l (s :: sll) in
 
   let ct = Transformation.translation 0. 0. (-3.5) in
   let cam = Camera.v ~transform:ct (width, height) (Float.pi *. 70. /. 180.) in
