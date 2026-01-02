@@ -21,7 +21,9 @@ let local_sphere_intersects s r =
 let intersects s r =
   let transform = Shape.inverse_transform s in
   let r = Ray.transform r transform in
-  match Shape.geometry s with Shape.Sphere -> local_sphere_intersects s r
+  match Shape.geometry s with
+  | Shape.Sphere -> local_sphere_intersects s r
+  | Shape.Plane -> failwith "tbd"
 
 let sort tl = List.sort (fun a b -> Float.compare a.distance b.distance) tl
 
@@ -49,7 +51,9 @@ let normal_at s p =
   let op = Tuple.of_matrix object_space_p in
 
   let object_normal =
-    match Shape.geometry s with Shape.Sphere -> local_sphere_normal_at s op
+    match Shape.geometry s with
+    | Shape.Sphere -> local_sphere_normal_at s op
+    | Shape.Plane -> failwith "tbd"
   in
 
   let titm = Shape.transpose_inverse_transform s in

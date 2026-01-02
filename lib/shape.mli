@@ -1,4 +1,4 @@
-type geometry_t = Sphere
+type geometry_t = Sphere | Plane
 type t
 
 val v : ?material:Material.t -> ?transform:Matrix.t -> geometry_t -> t
