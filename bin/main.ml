@@ -5,9 +5,10 @@ let ( >>= ) = Result.bind
 let ( >|= ) v f = Result.map f v
 
 let sdl_init width height title make_fullscreen =
-  Sdl.init Sdl.Init.(video + events) >>= fun () ->
-  Sdl.create_window ~w:width ~h:height title
-    Sdl.Window.(if make_fullscreen then fullscreen else windowed)
+  Sdl.init Sdl.Init.(video + events) >>= fun () -> (
+  Sdl.create_window ~w:width ~h:height title (
+    Sdl.Window.((if make_fullscreen then fullscreen else windowed) + allow_highdpi))
+  )
   >>= fun w ->
   Sdl.create_renderer ~flags:Sdl.Renderer.(accelerated + presentvsync) w
   >>= fun r ->
@@ -51,7 +52,7 @@ let tick t c b =
         b.{x + (y * width)} <- Int32.of_int 0xFFFFFF;
       done
     done; *)
-  if y_tick = 0 then Unix.sleep 5;
+  (* if y_tick = 0 && t <> 0 then Unix.sleep 5; *)
   let c = Colour.v 1. 0.7 0.1 in
   let m = Material.v ~colour:c () in
   let s = Shape.v ~material:m Shape.Sphere in
@@ -85,9 +86,9 @@ let tick t c b =
   in
 
   let plane_transform =
-    Matrix.multiply
-      (Transformation.translation 0. (-10.) 0.)
-      (Transformation.rotate_x (Float.pi /. 4.))
+    (* Matrix.multiply *)
+      (Transformation.translation 0. (-2.) 0.)
+      (* (Transformation.rotate_x (Float.pi /. 10.)) *)
   in
   let plane = Shape.v ~transform:plane_transform Shape.Plane in
 
@@ -110,14 +111,14 @@ let tick t c b =
   true
 
 let () =
-  let width = 500 and height = 500 in
+  let width = 1000 and height = 1000 in
 
   let bitmap =
     Bigarray.Array1.create Bigarray.int32 Bigarray.c_layout (width * height)
   in
   let canvas = Canvas.v (width, height) in
 
-  match sdl_init width height "Raybook" false with
+  match sdl_init 500 500 "Raybook" false with
   | Error (`Msg e) ->
       Sdl.log "Init error: %s" e;
       exit 1
