@@ -51,6 +51,7 @@ let tick t c b =
         b.{x + (y * width)} <- Int32.of_int 0xFFFFFF;
       done
     done; *)
+  if y_tick = 0 then Unix.sleep 5;
   let c = Colour.v 1. 0.7 0.1 in
   let m = Material.v ~colour:c () in
   let s = Shape.v ~material:m Shape.Sphere in
@@ -83,9 +84,16 @@ let tick t c b =
         Shape.v ~material:m ~transform Shape.Sphere)
   in
 
+  let plane_transform =
+    Matrix.multiply
+      (Transformation.translation 0. (-10.) 0.)
+      (Transformation.rotate_x (Float.pi /. 4.))
+  in
+  let plane = Shape.v ~transform:plane_transform Shape.Plane in
+
   let l = Light.v rotated_p (Colour.v 1. 1. 1.) in
 
-  let w = World.v l (s :: sll) in
+  let w = World.v l (plane :: s :: sll) in
 
   let ct = Transformation.translation 0. 0. (-3.5) in
   let cam = Camera.v ~transform:ct (width, height) (Float.pi *. 70. /. 180.) in
