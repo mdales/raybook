@@ -18,12 +18,20 @@ let local_sphere_intersects s r =
         v s (((b *. -1.) +. Float.sqrt d) /. (2. *. a));
       ]
 
+let local_plane_intersects s r =
+  let direction_y = Tuple.y (Ray.direction r) in
+  if Float.abs direction_y < Float.epsilon then []
+  else
+    let origin_y = Tuple.y (Ray.origin r) in
+    let t = (0. -. origin_y) /. direction_y in
+    [ v s t ]
+
 let intersects s r =
   let transform = Shape.inverse_transform s in
   let r = Ray.transform r transform in
   match Shape.geometry s with
   | Shape.Sphere -> local_sphere_intersects s r
-  | Shape.Plane -> failwith "tbd"
+  | Shape.Plane -> local_plane_intersects s r
 
 let sort tl = List.sort (fun a b -> Float.compare a.distance b.distance) tl
 
@@ -43,6 +51,7 @@ let hit tl =
       loop sorted_lt
 
 let local_sphere_normal_at _s op = Tuple.subtract op (Tuple.point 0. 0. 0.)
+let local_plane_normal_at _s _op = Tuple.vector 0. 1. 0.
 
 let normal_at s p =
   let pm = Tuple.to_matrix p in
@@ -53,7 +62,7 @@ let normal_at s p =
   let object_normal =
     match Shape.geometry s with
     | Shape.Sphere -> local_sphere_normal_at s op
-    | Shape.Plane -> failwith "tbd"
+    | Shape.Plane -> local_plane_normal_at s op
   in
 
   let titm = Shape.transpose_inverse_transform s in
