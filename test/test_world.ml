@@ -19,7 +19,7 @@ let default_test_world ?(lighting = None) ?(ambient_high = false) () =
     | None -> Light.v (Tuple.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.)
     | Some l -> l
   in
-  let p = Pattern.Solid (Colour.v 0.8 1.0 0.6) in
+  let p = Pattern.(v (Solid (Colour.v 0.8 1.0 0.6))) in
   let m1 =
     Material.v ~pattern:p ~diffuse:0.7 ~specular:0.2
       ~ambient:(if ambient_high then 1.0 else 0.1)
@@ -28,7 +28,8 @@ let default_test_world ?(lighting = None) ?(ambient_high = false) () =
   let s1 = Shape.v ~material:m1 Shape.Sphere in
   let t = Transformation.scaling 0.5 0.5 0.5 in
   let m2 =
-    Material.v ~pattern:(Pattern.Solid Colour.white)
+    Material.v
+      ~pattern:Pattern.(v (Solid Colour.white))
       ~ambient:(if ambient_high then 1.0 else 0.1)
       ()
   in

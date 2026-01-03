@@ -11,7 +11,7 @@ let test_create_plane_default_material _ =
   assert_equal Shape.Plane (Shape.geometry s);
   let expected_colour = Colour.v 1. 1. 1. in
   let expected_material =
-    Material.v ~pattern:(Pattern.Solid expected_colour) ()
+    Material.v ~pattern:Pattern.(v (Solid expected_colour)) ()
   in
   assert_equal expected_material (Shape.material s)
 
