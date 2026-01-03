@@ -6,6 +6,7 @@ val intensity : t -> Colour.t
 
 val lighting :
   light:t ->
+  shape:Shape.t ->
   eye:Tuple.t ->
   normal:Tuple.t ->
   material:Material.t ->

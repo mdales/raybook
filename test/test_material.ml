@@ -33,8 +33,11 @@ let test_eye_between_light_and_material _ =
   let normal = Tuple.vector 0. 0. (-1.) in
   let light = Light.v (Tuple.point 0. 0. (-10.)) Colour.white in
   let shadow = false in
+  let shape = Shape.(v Sphere) in
 
-  let res = Light.lighting ~material ~point ~eye ~normal ~light ~shadow () in
+  let res =
+    Light.lighting ~shape ~material ~point ~eye ~normal ~light ~shadow ()
+  in
   let expected = Colour.v 1.9 1.9 1.9 in
   assert_bool "is equal" (Colour.is_equal expected res)
 
@@ -47,8 +50,11 @@ let test_eye_45_degrees_from_light_and_material _ =
   let normal = Tuple.vector 0. 0. (-1.) in
   let light = Light.v (Tuple.point 0. 0. (-10.)) Colour.white in
   let shadow = false in
+  let shape = Shape.(v Sphere) in
 
-  let res = Light.lighting ~material ~point ~eye ~normal ~light ~shadow () in
+  let res =
+    Light.lighting ~shape ~material ~point ~eye ~normal ~light ~shadow ()
+  in
   let expected = Colour.white in
   assert_bool "is equal" (Colour.is_equal expected res)
 
@@ -62,8 +68,11 @@ let test_light_45_degrees_from_eye_and_material _ =
   let normal = Tuple.vector 0. 0. (-1.) in
   let light = Light.v (Tuple.point 0. 10. (-10.)) Colour.white in
   let shadow = false in
+  let shape = Shape.(v Sphere) in
 
-  let res = Light.lighting ~material ~point ~eye ~normal ~light ~shadow () in
+  let res =
+    Light.lighting ~shape ~material ~point ~eye ~normal ~light ~shadow ()
+  in
   let expected = Colour.v y y y in
   assert_bool "is equal" (Colour.is_equal expected res)
 
@@ -77,8 +86,11 @@ let test_eye_and_light_45_degrees_from_material _ =
   let normal = Tuple.vector 0. 0. (-1.) in
   let light = Light.v (Tuple.point 0. 10. (-10.)) Colour.white in
   let shadow = false in
+  let shape = Shape.(v Sphere) in
 
-  let res = Light.lighting ~material ~point ~eye ~normal ~light ~shadow () in
+  let res =
+    Light.lighting ~shape ~material ~point ~eye ~normal ~light ~shadow ()
+  in
   let expected = Colour.v y y y in
   assert_bool "is equal" (Colour.is_equal expected res)
 
@@ -90,8 +102,11 @@ let test_material_between_light_and_eye _ =
   let normal = Tuple.vector 0. 0. (-1.) in
   let light = Light.v (Tuple.point 0. 0. 10.) Colour.white in
   let shadow = false in
+  let shape = Shape.(v Sphere) in
 
-  let res = Light.lighting ~material ~point ~eye ~normal ~light ~shadow () in
+  let res =
+    Light.lighting ~shape ~material ~point ~eye ~normal ~light ~shadow ()
+  in
   let expected = Colour.v 0.1 0.1 0.1 in
   assert_bool "is equal" (Colour.is_equal expected res)
 
@@ -103,8 +118,11 @@ let test_surface_in_shadow _ =
   let normal = Tuple.vector 0. 0. (-1.) in
   let light = Light.v (Tuple.point 0. 0. (-10.)) Colour.white in
   let shadow = true in
+  let shape = Shape.(v Sphere) in
 
-  let res = Light.lighting ~material ~point ~eye ~normal ~light ~shadow () in
+  let res =
+    Light.lighting ~shape ~material ~point ~eye ~normal ~light ~shadow ()
+  in
   let expected = Colour.v 0.1 0.1 0.1 in
   assert_bool "is equal" (Colour.is_equal expected res)
 
@@ -118,15 +136,16 @@ let test_lighting_with_pattern _ =
   let normal = Tuple.vector 0. 0. (-1.) in
   let light = Light.v (Tuple.point 0. 0. (-10.)) Colour.white in
   let shadow = false in
+  let shape = Shape.(v Sphere) in
 
   let p1 = Tuple.point 0.9 0. 0. in
   let res1 =
-    Light.lighting ~material:m ~point:p1 ~eye ~normal ~light ~shadow ()
+    Light.lighting ~shape ~material:m ~point:p1 ~eye ~normal ~light ~shadow ()
   in
   assert_bool "is equal" (Colour.is_equal Colour.white res1);
   let p2 = Tuple.point 1.1 0. 0. in
   let res2 =
-    Light.lighting ~material:m ~point:p2 ~eye ~normal ~light ~shadow ()
+    Light.lighting ~shape ~material:m ~point:p2 ~eye ~normal ~light ~shadow ()
   in
   assert_bool "is equal" (Colour.is_equal Colour.black res2)
 

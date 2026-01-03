@@ -24,8 +24,9 @@ let is_shadowed w p =
 
 let shader_hit w c =
   let shadow = is_shadowed w (Precomputed.over_point c) in
-  let material = Shape.material (Precomputed.shape c) in
-  Light.lighting ~light:w.light ~eye:(Precomputed.eyev c)
+  let shape = Precomputed.shape c in
+  let material = Shape.material shape in
+  Light.lighting ~shape ~light:w.light ~eye:(Precomputed.eyev c)
     ~normal:(Precomputed.normalv c) ~material ~point:(Precomputed.point c)
     ~shadow ()
 

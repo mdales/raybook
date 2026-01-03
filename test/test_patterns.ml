@@ -81,9 +81,12 @@ let suite =
          "Test stripes constant in y" >:: test_stripes_constant_in_y;
          "Test stripes constant in z" >:: test_stripes_constant_in_z;
          "Test stripes alternatte in x" >:: test_stripes_alternates_in_x;
-         "Test stripes with object translation" >:: test_strips_with_object_translation;
-         "Test stripes with pattern translation" >:: test_strips_with_pattern_translation;
-         "Test stripes with object and pattern translation" >:: test_strips_with_object_and_pattern_translation;
+         "Test stripes with object translation"
+         >:: test_strips_with_object_translation;
+         "Test stripes with pattern translation"
+         >:: test_strips_with_pattern_translation;
+         "Test stripes with object and pattern translation"
+         >:: test_strips_with_object_and_pattern_translation;
        ]
 
 let () = run_test_tt_main suite

@@ -8,9 +8,16 @@ let v position intensity =
 let position t = t.position
 let intensity t = t.intensity
 
-let lighting ~light ~eye ~normal ~material ~point ~shadow () =
+let lighting ~light ~shape ~eye ~normal ~material ~point ~shadow () =
   let pattern = Material.pattern material in
-  let raw_colour = Pattern.colour_at pattern point in
+
+  (* move to object space to get the colour *)
+  let pm = Tuple.to_matrix point in
+  let opm = Matrix.multiply (Shape.inverse_transform shape) pm in
+  let op = Tuple.of_matrix opm in
+
+  let raw_colour = Pattern.colour_at pattern op in
+
   let effective_colour = Colour.multiply raw_colour (intensity light) in
   let lightv = Tuple.normalize (Tuple.subtract (position light) point) in
 
