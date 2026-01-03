@@ -7,6 +7,7 @@
   test_light
   test_matrix
   test_material
+  test_patterns
   test_plane
   test_precomputed
   test_ray

@@ -43,3 +43,6 @@ let of_rgb x =
     green = Float.of_int green /. 255.;
     blue = Float.of_int blue /. 255.;
   }
+
+let white = v 1. 1. 1.
+let black = v 0. 0. 0.

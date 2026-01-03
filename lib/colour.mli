@@ -11,3 +11,6 @@ val multiply : t -> t -> t
 val is_equal : t -> t -> bool
 val to_rgb : t -> int32
 val of_rgb : int32 -> t
+
+val white : t
+val black : t
