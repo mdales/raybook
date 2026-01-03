@@ -5,10 +5,10 @@ let ( >>= ) = Result.bind
 let ( >|= ) v f = Result.map f v
 
 let sdl_init width height title make_fullscreen =
-  Sdl.init Sdl.Init.(video + events) >>= fun () -> (
-  Sdl.create_window ~w:width ~h:height title (
-    Sdl.Window.((if make_fullscreen then fullscreen else windowed) + allow_highdpi))
-  )
+  Sdl.init Sdl.Init.(video + events) >>= fun () ->
+  Sdl.create_window ~w:width ~h:height title
+    Sdl.Window.(
+      (if make_fullscreen then fullscreen else windowed) + allow_highdpi)
   >>= fun w ->
   Sdl.create_renderer ~flags:Sdl.Renderer.(accelerated + presentvsync) w
   >>= fun r ->
@@ -87,8 +87,8 @@ let tick t c b =
 
   let plane_transform =
     (* Matrix.multiply *)
-      (Transformation.translation 0. (-2.) 0.)
-      (* (Transformation.rotate_x (Float.pi /. 10.)) *)
+    Transformation.translation 0. (-2.) 0.
+    (* (Transformation.rotate_x (Float.pi /. 10.)) *)
   in
   let plane = Shape.v ~transform:plane_transform Shape.Plane in
 
