@@ -41,6 +41,39 @@ let test_stripes_alternates_in_x _ =
   assert_equal b (Pattern.colour_at p (Tuple.point (-1.) 0. 0.));
   assert_equal w (Pattern.colour_at p (Tuple.point (-1.1) 0. 0.))
 
+let test_strips_with_object_translation _ =
+  let pt = Tuple.point 1.5 0. 0. in
+  let t = Transformation.scaling 2. 2. 2. in
+  let s = Shape.(v ~transform:t Sphere) in
+  let p = Pattern.(v (Stripes (Colour.white, Colour.black))) in
+
+  let ptm = Tuple.to_matrix pt in
+  let optm = Matrix.multiply (Shape.inverse_transform s) ptm in
+  let opt = Tuple.of_matrix optm in
+
+  let res = Pattern.colour_at p opt in
+  assert_equal Colour.white res
+
+let test_strips_with_pattern_translation _ =
+  let t = Transformation.scaling 2. 2. 2. in
+  let p = Pattern.(v ~transform:t (Stripes (Colour.white, Colour.black))) in
+  let res = Pattern.colour_at p (Tuple.point 1.5 0. 0.) in
+  assert_equal Colour.white res
+
+let test_strips_with_object_and_pattern_translation _ =
+  let pt = Tuple.point 2.5 0. 0. in
+  let t1 = Transformation.scaling 2. 2. 2. in
+  let s = Shape.(v ~transform:t1 Sphere) in
+
+  let ptm = Tuple.to_matrix pt in
+  let optm = Matrix.multiply (Shape.inverse_transform s) ptm in
+  let opt = Tuple.of_matrix optm in
+
+  let t2 = Transformation.translation 0.5 0. 0. in
+  let p = Pattern.(v ~transform:t2 (Stripes (Colour.white, Colour.black))) in
+  let res = Pattern.colour_at p opt in
+  assert_equal Colour.white res
+
 let suite =
   "Pattern tests"
   >::: [
@@ -48,6 +81,9 @@ let suite =
          "Test stripes constant in y" >:: test_stripes_constant_in_y;
          "Test stripes constant in z" >:: test_stripes_constant_in_z;
          "Test stripes alternatte in x" >:: test_stripes_alternates_in_x;
+         "Test stripes with object translation" >:: test_strips_with_object_translation;
+         "Test stripes with pattern translation" >:: test_strips_with_pattern_translation;
+         "Test stripes with object and pattern translation" >:: test_strips_with_object_and_pattern_translation;
        ]
 
 let () = run_test_tt_main suite

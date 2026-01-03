@@ -7,7 +7,7 @@ let almost_equal a b =
     (Float.abs (a -. b) < Float.epsilon)
 
 let test_create_sphere_default_material _ =
-  let s = Shape.v Shape.Sphere in
+  let s = Shape.(v Sphere) in
   assert_equal Shape.Sphere (Shape.geometry s);
   let expected_colour = Colour.v 1. 1. 1. in
   let expected_material =
@@ -27,7 +27,7 @@ let test_create_sphere_with_material _ =
 
 let test_intersect_at_two_points _ =
   let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
-  let s = Shape.v Shape.Sphere in
+  let s = Shape.(v Sphere) in
   let xs = Intersection.intersects s r in
   match xs with
   | [ t1; t2 ] ->
@@ -37,7 +37,7 @@ let test_intersect_at_two_points _ =
 
 let test_intersect_at_tangent _ =
   let r = Ray.v (Tuple.point 0. 1. (-5.)) (Tuple.vector 0. 0. 1.) in
-  let s = Shape.v Shape.Sphere in
+  let s = Shape.(v Sphere) in
   let xs = Intersection.intersects s r in
   match xs with
   | [ t1; t2 ] ->
@@ -47,13 +47,13 @@ let test_intersect_at_tangent _ =
 
 let test_no_intersect _ =
   let r = Ray.v (Tuple.point 0. 2. (-5.)) (Tuple.vector 0. 0. 1.) in
-  let s = Shape.v Shape.Sphere in
+  let s = Shape.(v Sphere) in
   let xs = Intersection.intersects s r in
   match xs with [] -> () | _ -> assert_bool "expected no answer" false
 
 let test_ray_inside_sphere _ =
   let r = Ray.v (Tuple.point 0. 0. 0.) (Tuple.vector 0. 0. 1.) in
-  let s = Shape.v Shape.Sphere in
+  let s = Shape.(v Sphere) in
   let xs = Intersection.intersects s r in
   match xs with
   | [ t1; t2 ] ->
@@ -63,7 +63,7 @@ let test_ray_inside_sphere _ =
 
 let test_ray_behind_sphere _ =
   let r = Ray.v (Tuple.point 0. 0. 5.) (Tuple.vector 0. 0. 1.) in
-  let s = Shape.v Shape.Sphere in
+  let s = Shape.(v Sphere) in
   let xs = Intersection.intersects s r in
   match xs with
   | [ t1; t2 ] ->
@@ -72,7 +72,7 @@ let test_ray_behind_sphere _ =
   | _ -> assert_bool "no intersects" false
 
 let test_default_transform _ =
-  let s = Shape.v Shape.Sphere in
+  let s = Shape.(v Sphere) in
   let res = Shape.transform s in
   let expected = Matrix.identity 4 in
   assert_bool "is equal" (Matrix.is_equal expected res)
@@ -102,21 +102,21 @@ let test_translated_sphere_intersection _ =
   match xs with [] -> () | _ -> assert_bool "expected no answer" false
 
 let test_normal_at_x_axis _ =
-  let s = Shape.v Shape.Sphere in
+  let s = Shape.(v Sphere) in
   let p = Tuple.point 1. 0. 0. in
   let res = Intersection.normal_at s p in
   let expected = Tuple.vector 1. 0. 0. in
   assert_bool "is equal" (Tuple.is_equal expected res)
 
 let test_normal_at_y_axis _ =
-  let s = Shape.v Shape.Sphere in
+  let s = Shape.(v Sphere) in
   let p = Tuple.point 0. 1. 0. in
   let res = Intersection.normal_at s p in
   let expected = Tuple.vector 0. 1. 0. in
   assert_bool "is equal" (Tuple.is_equal expected res)
 
 let test_normal_at_z_axis _ =
-  let s = Shape.v Shape.Sphere in
+  let s = Shape.(v Sphere) in
   let p = Tuple.point 0. 0. 1. in
   let res = Intersection.normal_at s p in
   let expected = Tuple.vector 0. 0. 1. in
@@ -124,7 +124,7 @@ let test_normal_at_z_axis _ =
 
 let test_normal_at_off_axis _ =
   let v = Float.sqrt 3. /. 3. in
-  let s = Shape.v Shape.Sphere in
+  let s = Shape.(v Sphere) in
   let p = Tuple.point v v v in
   let res = Intersection.normal_at s p in
   let expected = Tuple.vector v v v in

@@ -8,7 +8,7 @@ let almost_equal a b =
 
 let test_create_world _ =
   let l = Light.v (Tuple.point 10. 10. 10.) (Colour.v 0.2 0.3 0.4)
-  and sl = [ Shape.v Shape.Sphere ] in
+  and sl = [ Shape.(v Sphere) ] in
   let w = World.v l sl in
   assert_equal l (World.light w);
   assert_equal sl (World.shapes w)
@@ -126,7 +126,7 @@ let test_shadow_scenario_4 _ =
 
 let test_shader_hit_is_given_intersection_in_shadow _ =
   let l = Light.v (Tuple.point 0. 0. (-10.)) (Colour.v 1. 1. 1.) in
-  let s1 = Shape.v Shape.Sphere in
+  let s1 = Shape.(v Sphere) in
   let t2 = Transformation.translation 0. 0. 10. in
   let s2 = Shape.v ~transform:t2 Shape.Sphere in
   let w = World.v l [ s1; s2 ] in

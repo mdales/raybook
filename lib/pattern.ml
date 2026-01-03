@@ -17,7 +17,17 @@ let stripes_colour_at (a, b) p =
   let ix = Int.of_float (Float.floor x) in
   if ix mod 2 = 0 then a else b
 
-let colour_at t p =
+let _colour_at t p =
+  if not (Tuple.is_point p) then
+    raise (Invalid_argument "Expected point not vector");
   match t.style with
   | Solid c -> c
   | Stripes (a, b) -> stripes_colour_at (a, b) p
+
+let colour_at t p =
+  if not (Tuple.is_point p) then
+    raise (Invalid_argument "Expected point not vector");
+  let pm = Tuple.to_matrix p in
+  let pattern_space_point = Matrix.multiply t.inverse_transform pm in
+  let opp = Tuple.of_matrix pattern_space_point in
+  _colour_at t opp
