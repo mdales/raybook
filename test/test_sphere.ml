@@ -10,12 +10,16 @@ let test_create_sphere_default_material _ =
   let s = Shape.v Shape.Sphere in
   assert_equal Shape.Sphere (Shape.geometry s);
   let expected_colour = Colour.v 1. 1. 1. in
-  let expected_material = Material.v ~colour:expected_colour () in
+  let expected_material =
+    Material.v ~pattern:(Pattern.Solid expected_colour) ()
+  in
   assert_equal expected_material (Shape.material s)
 
 let test_create_sphere_with_material _ =
   let expected_colour = Colour.v 0.1 0.2 0.3 in
-  let material = Material.v ~colour:expected_colour ~ambient:0.4 () in
+  let material =
+    Material.v ~pattern:(Pattern.Solid expected_colour) ~ambient:0.4 ()
+  in
   let s = Shape.v ~material Shape.Sphere in
   assert_equal Shape.Sphere (Shape.geometry s);
   let rm = Shape.material s in

@@ -9,9 +9,9 @@ let position t = t.position
 let intensity t = t.intensity
 
 let lighting ~light ~eye ~normal ~material ~point ~shadow () =
-  let effective_colour =
-    Colour.multiply (Material.colour material) (intensity light)
-  in
+  let pattern = Material.pattern material in
+  let raw_colour = Pattern.colour_at pattern point in
+  let effective_colour = Colour.multiply raw_colour (intensity light) in
   let lightv = Tuple.normalize (Tuple.subtract (position light) point) in
 
   let ambient_colour =
@@ -23,7 +23,7 @@ let lighting ~light ~eye ~normal ~material ~point ~shadow () =
   | false ->
       let light_dot_normal = Tuple.dot lightv normal in
 
-      let black = Colour.v 0. 0. 0. in
+      let black = Colour.black in
 
       let diffuse =
         if light_dot_normal < 0. then black

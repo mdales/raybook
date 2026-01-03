@@ -1,17 +1,17 @@
 type t = {
   ambient : float;
-  colour : Colour.t;
+  pattern : Pattern.t;
   diffuse : float;
   shininess : float;
   specular : float;
 }
 
-let v ~colour ?(ambient = 0.1) ?(diffuse = 0.9) ?(specular = 0.9)
+let v ~pattern ?(ambient = 0.1) ?(diffuse = 0.9) ?(specular = 0.9)
     ?(shininess = 200.0) () =
-  { colour; ambient; diffuse; specular; shininess }
+  { pattern; ambient; diffuse; specular; shininess }
 
 let ambient t = t.ambient
-let colour t = t.colour
+let pattern t = t.pattern
 let diffuse t = t.diffuse
 let shininess t = t.shininess
 let specular t = t.specular

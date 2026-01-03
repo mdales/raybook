@@ -54,7 +54,7 @@ let tick t c b =
     done; *)
   (* if y_tick = 0 && t <> 0 then Unix.sleep 5; *)
   let c = Colour.v 1. 0.7 0.1 in
-  let m = Material.v ~colour:c () in
+  let m = Material.v ~pattern:(Pattern.Solid c) () in
   let s = Shape.v ~material:m Shape.Sphere in
 
   let light_location = Tuple.point 10. 10. 10. in
@@ -73,7 +73,7 @@ let tick t c b =
             (sin (innerangle +. (2. *. Float.pi /. 3.)))
             (sin (innerangle +. (4. *. Float.pi /. 3.)))
         in
-        let m = Material.v ~colour:c () in
+        let m = Material.v ~pattern:(Pattern.Solid c) () in
         let scale : Matrix.t = Transformation.scaling 0.1 0.1 0.1 in
         let translate : Matrix.t = Transformation.translation 1.5 0. 0. in
         let rotate_y = Transformation.rotate_y innerangle in

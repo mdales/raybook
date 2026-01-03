@@ -12,7 +12,7 @@ let v ?material ?transform geometry =
   let material =
     match material with
     | Some m -> m
-    | None -> Material.v ~colour:(Colour.v 1. 1. 1.) ()
+    | None -> Material.v ~pattern:(Pattern.Solid Colour.white) ()
   in
   let transform, inverse_transform =
     match transform with

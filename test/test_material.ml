@@ -3,28 +3,31 @@ open OUnit2
 
 let test_create_material_defaults _ =
   let c = Colour.v 0.8 0.8 0.8 in
-  let res = Material.v ~colour:c () in
+  let p = Pattern.Solid c in
+  let res = Material.v ~pattern:p () in
   assert_equal 0.1 (Material.ambient res);
-  assert_bool "is equal" (Colour.is_equal c (Material.colour res));
+  assert_equal p (Material.pattern res);
   assert_equal 0.9 (Material.diffuse res);
   assert_equal 0.9 (Material.specular res);
   assert_equal 200.0 (Material.shininess res)
 
 let test_create_material_non_defaults _ =
   let c = Colour.v 0.8 0.8 0.8 in
+  let p = Pattern.Solid c in
   let res =
-    Material.v ~colour:c ~ambient:0.4 ~diffuse:0.5 ~specular:0.6
+    Material.v ~pattern:p ~ambient:0.4 ~diffuse:0.5 ~specular:0.6
       ~shininess:123.0 ()
   in
   assert_equal 0.4 (Material.ambient res);
-  assert_bool "is equal" (Colour.is_equal c (Material.colour res));
+  assert_equal p (Material.pattern res);
   assert_equal 0.5 (Material.diffuse res);
   assert_equal 0.6 (Material.specular res);
   assert_equal 123.0 (Material.shininess res)
 
 let test_eye_between_light_and_material _ =
   let c = Colour.v 1. 1. 1. in
-  let material = Material.v ~colour:c () in
+  let p = Pattern.Solid c in
+  let material = Material.v ~pattern:p () in
   let point = Tuple.point 0. 0. 0. in
 
   let eye = Tuple.vector 0. 0. (-1.) in
@@ -38,7 +41,7 @@ let test_eye_between_light_and_material _ =
 
 let test_eye_45_degrees_from_light_and_material _ =
   let c = Colour.v 1. 1. 1. in
-  let material = Material.v ~colour:c () in
+  let material = Material.v ~pattern:(Pattern.Solid c) () in
   let point = Tuple.point 0. 0. 0. in
 
   let x = Float.sqrt 2. /. 2. in
@@ -53,7 +56,7 @@ let test_eye_45_degrees_from_light_and_material _ =
 
 let test_light_45_degrees_from_eye_and_material _ =
   let c = Colour.v 1. 1. 1. in
-  let material = Material.v ~colour:c () in
+  let material = Material.v ~pattern:(Pattern.Solid c) () in
   let point = Tuple.point 0. 0. 0. in
 
   let x = Float.sqrt 2. /. 2. in
@@ -69,7 +72,7 @@ let test_light_45_degrees_from_eye_and_material _ =
 
 let test_eye_and_light_45_degrees_from_material _ =
   let c = Colour.v 1. 1. 1. in
-  let material = Material.v ~colour:c () in
+  let material = Material.v ~pattern:(Pattern.Solid c) () in
   let point = Tuple.point 0. 0. 0. in
 
   let x = Float.sqrt 2. /. 2. in
@@ -85,7 +88,7 @@ let test_eye_and_light_45_degrees_from_material _ =
 
 let test_material_between_light_and_eye _ =
   let c = Colour.v 1. 1. 1. in
-  let material = Material.v ~colour:c () in
+  let material = Material.v ~pattern:(Pattern.Solid c) () in
   let point = Tuple.point 0. 0. 0. in
 
   let eye = Tuple.vector 0. 0. (-1.) in
@@ -99,7 +102,7 @@ let test_material_between_light_and_eye _ =
 
 let test_surface_in_shadow _ =
   let c = Colour.v 1. 1. 1. in
-  let material = Material.v ~colour:c () in
+  let material = Material.v ~pattern:(Pattern.Solid c) () in
   let point = Tuple.point 0. 0. 0. in
 
   let eye = Tuple.vector 0. 0. (-1.) in
