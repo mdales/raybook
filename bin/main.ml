@@ -90,7 +90,8 @@ let tick t c b =
     Transformation.translation 0. (-2.) 0.
     (* (Transformation.rotate_x (Float.pi /. 10.)) *)
   in
-  let plane = Shape.v ~transform:plane_transform Shape.Plane in
+  let plane_m = Material.v ~pattern:(Pattern.Stripes (Colour.white, Colour.black)) () in
+  let plane = Shape.v ~material:plane_m ~transform:plane_transform Shape.Plane in
 
   let l = Light.v rotated_p (Colour.v 1. 1. 1.) in
 
