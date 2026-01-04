@@ -53,8 +53,10 @@ let tick t c b =
       done
     done; *)
   (* if y_tick = 0 && t <> 0 then Unix.sleep 5; *)
-  let c = Colour.v 1. 0.7 0.1 in
-  let m = Material.v ~pattern:Pattern.(v (Solid c)) () in
+  let c1 = Colour.v 1. 0.7 0.1 in
+  let c2 = Colour.v 0.9 0.6 0.1 in
+  let t = Matrix.multiply (Transformation.scaling 0.1 0.1 0.1) (Transformation.rotate_z (Float.pi /. 2.)) in
+  let m = Material.v ~pattern:Pattern.(v ~transform:t (Stripes (c1, c2))) () in
   let s = Shape.v ~material:m Shape.Sphere in
 
   let light_location = Tuple.point 10. 10. 10. in
@@ -80,8 +82,6 @@ let tick t c b =
         let transform =
           Matrix.multiply rotate_y (Matrix.multiply translate scale)
         in
-        let rotate_x = Transformation.rotate_x 0.2 in
-        let transform = Matrix.multiply rotate_x transform in
         Shape.v ~material:m ~transform Shape.Sphere)
   in
 
@@ -101,7 +101,7 @@ let tick t c b =
 
   let w = World.v l (plane :: s :: sll) in
 
-  let ct = Transformation.translation 0. 0. (-3.5) in
+  let ct = Matrix.multiply (Transformation.translation 0. 0. (-3.5)) (Transformation.rotate_x 0.2) in
   let cam = Camera.v ~transform:ct (width, height) (Float.pi *. 70. /. 180.) in
 
   for x_tick = 0 to width - 1 do
