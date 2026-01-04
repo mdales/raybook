@@ -27,17 +27,7 @@ let render_texture r texture dimensions bitmap =
   in
   Sdl.render_copy ~dst r texture >|= fun () -> Sdl.render_present r
 
-let _canvas_to_bitmap canvas bitmap dimensions =
-  let width, height = dimensions in
-  for y = 0 to height - 1 do
-    for x = 0 to width - 1 do
-      let c = Canvas.read_pixel canvas (x, y) in
-      let rgb = Colour.to_rgb c in
-      bitmap.{x + (y * width)} <- rgb
-    done
-  done
-
-let tick t c b =
+let tick t c =
   let width, height = Canvas.dimensions c in
 
   let t = t mod (width * height) in
@@ -121,20 +111,13 @@ let tick t c b =
   for x_tick = 0 to width - 1 do
     let r = Camera.ray_for_pixel cam (x_tick, y_tick) in
     let col = World.colour_at w r in
-
-    let rgb = Colour.to_rgb col in
-    b.{x_tick + (y_tick * width)} <- rgb
-    (* Canvas.write_pixel c (x_tick, y_tick) col; *)
+    Canvas.write_pixel c (x_tick, y_tick) col
   done;
 
   true
 
 let () =
   let width = 1000 and height = 1000 in
-
-  let bitmap =
-    Bigarray.Array1.create Bigarray.int32 Bigarray.c_layout (width * height)
-  in
   let canvas = Canvas.v (width, height) in
 
   match sdl_init 500 500 "Raybook" false with
@@ -161,11 +144,12 @@ let () =
               | false -> false
             in
 
-            match tick counter canvas bitmap with
+            match tick counter canvas with
             | false -> ()
             | true -> (
-                (* canvas_to_bitmap canvas bitmap (width, height); *)
-                (match render_texture r texture (width, height) bitmap with
+                (match
+                   render_texture r texture (width, height) (Canvas.raw canvas)
+                 with
                 | Error (`Msg e) -> Sdl.log "Render error: %s" e
                 | Ok () -> ());
                 match should_quit with true -> () | false -> loop (counter + 1))

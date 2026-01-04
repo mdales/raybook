@@ -14,6 +14,7 @@ let v dimensions =
   { array; width; height }
 
 let dimensions t = (t.width, t.height)
+let raw t = t.array
 
 let write_pixel t (x, y) c =
   if x < 0 then raise (Invalid_argument "Invalid x");
