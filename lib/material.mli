@@ -6,6 +6,7 @@ val v :
   ?diffuse:float ->
   ?specular:float ->
   ?shininess:float ->
+  ?reflectivity:float ->
   unit ->
   t
 
@@ -14,3 +15,4 @@ val diffuse : t -> float
 val specular : t -> float
 val shininess : t -> float
 val pattern : t -> Pattern.t
+val reflectivity : t -> float

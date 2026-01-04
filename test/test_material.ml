@@ -9,7 +9,8 @@ let test_create_material_defaults _ =
   assert_equal p (Material.pattern res);
   assert_equal 0.9 (Material.diffuse res);
   assert_equal 0.9 (Material.specular res);
-  assert_equal 200.0 (Material.shininess res)
+  assert_equal 200.0 (Material.shininess res);
+  assert_equal 0.0 (Material.reflectivity res)
 
 let test_create_material_non_defaults _ =
   let c = Colour.v 0.8 0.8 0.8 in

@@ -11,3 +11,4 @@ val v : ?transform:Matrix.t -> style_t -> t
 val transform : t -> Matrix.t
 val inverse_transform : t -> Matrix.t
 val colour_at : t -> Tuple.t -> Colour.t
+val style : t -> style_t

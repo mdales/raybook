@@ -7,4 +7,5 @@ val point : t -> Tuple.t
 val over_point : t -> Tuple.t
 val eyev : t -> Tuple.t
 val normalv : t -> Tuple.t
+val reflectv : t -> Tuple.t
 val inside : t -> bool

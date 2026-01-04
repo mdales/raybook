@@ -15,6 +15,7 @@ let v ?transform style =
   in
   { style; transform; inverse_transform }
 
+let style t = t.style
 let transform t = t.transform
 let inverse_transform t = t.inverse_transform
 

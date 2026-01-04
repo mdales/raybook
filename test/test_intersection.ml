@@ -2,13 +2,13 @@ open Raybook
 open OUnit2
 
 let test_create_intersection _ =
-  let s = Shape.v Shape.Sphere in
+  let s = Shape.(v Sphere) in
   let res = Intersection.v s 3.5 in
   assert_equal 3.5 (Intersection.distance res);
   assert_equal s (Intersection.shape res)
 
 let test_hit_all_positive _ =
-  let s = Shape.v Shape.Sphere in
+  let s = Shape.(v Sphere) in
   let tl = [ Intersection.v s 1.; Intersection.v s 2. ] in
   let res = Intersection.hit tl in
   match res with
@@ -16,7 +16,7 @@ let test_hit_all_positive _ =
   | Some i -> assert_equal 1. (Intersection.distance i)
 
 let test_hit_mixed_positive_negative _ =
-  let s = Shape.v Shape.Sphere in
+  let s = Shape.(v Sphere) in
   let tl = [ Intersection.v s (-1.); Intersection.v s 1. ] in
   let res = Intersection.hit tl in
   match res with
@@ -30,7 +30,7 @@ let test_hit_all_negative _ =
   match res with None -> () | Some _ -> assert_bool "unexpected" false
 
 let test_mixed_order_mixed_sign _ =
-  let s = Shape.v Shape.Sphere in
+  let s = Shape.(v Sphere) in
   let tl =
     [
       Intersection.v s 5.;
@@ -47,13 +47,23 @@ let test_mixed_order_mixed_sign _ =
 let test_hit_should_offset _ =
   let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
   let t = Transformation.translation 0. 0. 1. in
-  let s = Shape.v ~transform:t Shape.Sphere in
+  let s = Shape.(v ~transform:t Sphere) in
   let i = Intersection.v s 5. in
   let comps = Precomputed.v i r in
   let point = Precomputed.point comps in
   let over_point = Precomputed.over_point comps in
   assert_bool "is small" (Tuple.z over_point < Float.epsilon /. 2.);
   assert_bool "is greater" (Tuple.z point > Tuple.z over_point)
+
+let test_reflect_ray _ =
+  let x = Float.sqrt 2. /. 2. in
+  let r = Ray.v (Tuple.point 0. 1. (-1.)) (Tuple.vector 0. (0. -. x) x) in
+  let s = Shape.(v Plane) in
+  let i = Intersection.v s x in
+  let comps = Precomputed.v i r in
+  let res = Precomputed.reflectv comps in
+  let expected = Tuple.vector 0. x x in
+  assert_bool "is equal" (Tuple.is_equal expected res)
 
 let suite =
   "Intersection tests"
@@ -64,6 +74,7 @@ let suite =
          "Test hit all negative" >:: test_hit_all_negative;
          "Test mixed order" >:: test_mixed_order_mixed_sign;
          "Test over point" >:: test_hit_should_offset;
+         "Test reflect vector" >:: test_reflect_ray;
        ]
 
 let () = run_test_tt_main suite

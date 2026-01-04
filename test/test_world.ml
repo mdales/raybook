@@ -13,7 +13,8 @@ let test_create_world _ =
   assert_equal l (World.light w);
   assert_equal sl (World.shapes w)
 
-let default_test_world ?(lighting = None) ?(ambient_high = false) () =
+let default_test_world ?(lighting = None) ?(ambient_high = false)
+    ?(more_shapes = []) () =
   let l =
     match lighting with
     | None -> Light.v (Tuple.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.)
@@ -34,7 +35,7 @@ let default_test_world ?(lighting = None) ?(ambient_high = false) () =
       ()
   in
   let s2 = Shape.v ~transform:t ~material:m2 Shape.Sphere in
-  World.v l [ s1; s2 ]
+  World.v l (s1 :: s2 :: more_shapes)
 
 let test_default_world _ =
   let w = default_test_world () in
@@ -137,6 +138,33 @@ let test_shader_hit_is_given_intersection_in_shadow _ =
   let expected = Colour.v 0.1 0.1 0.1 in
   assert_bool "is equal" (Colour.is_equal expected res)
 
+let test_reflected_colour_on_non_reflective_surface _ =
+  let w = default_test_world ~ambient_high:true () in
+  let r = Ray.v (Tuple.point 0. 0. 0.) (Tuple.vector 0. 0. 1.) in
+  let s = List.nth (World.shapes w) 1 in
+  let i = Intersection.v s 1. in
+  let comps = Precomputed.v i r in
+  let res = World.reflected_colour w comps in
+  assert_bool "is equal" (Colour.is_equal Colour.black res)
+
+let test_reflected_colour_on_reflective_surface _ =
+  let m =
+    Material.v ~pattern:Pattern.(v (Solid Colour.white)) ~reflectivity:0.5 ()
+  in
+  let t = Transformation.translation 0. (-1.) 0. in
+  let p = Shape.(v ~transform:t ~material:m Plane) in
+  let w = default_test_world ~more_shapes:[ p ] () in
+  let x = Float.sqrt 2. /. 2. in
+  let r = Ray.v (Tuple.point 0. 0. (-2.)) (Tuple.vector 0. (0. -. x) x) in
+  let i = Intersection.v p x in
+  let comps = Precomputed.v i r in
+  let res = World.reflected_colour w comps in
+  let expected =
+    Colour.v 0.19033059654052100762 0.23791324567565125259
+      0.14274794740539073490
+  in
+  assert_bool "is equal" (Colour.is_equal expected res)
+
 let suite =
   "World tests"
   >::: [
@@ -155,6 +183,10 @@ let suite =
          "Test shadow scenarion 4" >:: test_shadow_scenario_4;
          "Test shader hit in shadow"
          >:: test_shader_hit_is_given_intersection_in_shadow;
+         "Test reflected colour on non-reflective surface"
+         >:: test_reflected_colour_on_non_reflective_surface;
+         "Test reflected colour on reflective surface"
+         >:: test_reflected_colour_on_reflective_surface;
        ]
 
 let () = run_test_tt_main suite

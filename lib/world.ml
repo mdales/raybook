@@ -38,3 +38,15 @@ let colour_at w r =
   | Some i ->
       let c = Precomputed.v i r in
       shader_hit w c
+
+let reflected_colour w c =
+  let m = Shape.material (Precomputed.shape c) in
+  let r = Material.reflectivity m in
+  match r with
+  | 0. -> Colour.black
+  | _ ->
+      let reflect_ray =
+        Ray.v (Precomputed.over_point c) (Precomputed.reflectv c)
+      in
+      let col = colour_at w reflect_ray in
+      Colour.fmultiply col r

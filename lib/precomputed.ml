@@ -5,6 +5,7 @@ type t = {
   over_point : Tuple.t;
   eyev : Tuple.t;
   normalv : Tuple.t;
+  reflectv : Tuple.t;
   inside : bool;
 }
 
@@ -21,7 +22,8 @@ let v i r =
     if Tuple.dot normalv eyev < 0. then (true, Tuple.negate normalv)
     else (false, normalv)
   in
-  { distance; shape; point; over_point; eyev; normalv; inside }
+  let reflectv = Tuple.reflect (Ray.direction r) normalv in
+  { distance; shape; point; over_point; eyev; normalv; reflectv; inside }
 
 let distance t = t.distance
 let shape t = t.shape
@@ -30,3 +32,4 @@ let eyev t = t.eyev
 let normalv t = t.normalv
 let inside t = t.inside
 let over_point t = t.over_point
+let reflectv t = t.reflectv
