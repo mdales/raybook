@@ -1,4 +1,8 @@
-type style_t = Solid of Colour.t | Stripes of Colour.t * Colour.t
+type style_t =
+  | Solid of Colour.t
+  | Stripes of Colour.t * Colour.t
+  | Gradient of Colour.t * Colour.t
+
 type t = { style : style_t; transform : Matrix.t; inverse_transform : Matrix.t }
 
 let v ?transform style =
@@ -17,12 +21,25 @@ let stripes_colour_at (a, b) p =
   let ix = Int.of_float (Float.floor x) in
   if ix mod 2 = 0 then a else b
 
+let channel_gradient fa fb fp =
+  let distance = fb -. fa in
+  let fraction = fp -. Float.floor fp in
+  fa +. (distance *. fraction)
+
+let gradient_colour_at (a, b) p =
+  let fp = Tuple.x p in
+  let r = channel_gradient (Colour.red a) (Colour.red b) fp
+  and g = channel_gradient (Colour.green a) (Colour.green b) fp
+  and b = channel_gradient (Colour.blue a) (Colour.blue b) fp in
+  Colour.v r g b
+
 let _colour_at t p =
   if not (Tuple.is_point p) then
     raise (Invalid_argument "Expected point not vector");
   match t.style with
   | Solid c -> c
   | Stripes (a, b) -> stripes_colour_at (a, b) p
+  | Gradient (a, b) -> gradient_colour_at (a, b) p
 
 let colour_at t p =
   if not (Tuple.is_point p) then

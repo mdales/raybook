@@ -1,4 +1,8 @@
-type style_t = Solid of Colour.t | Stripes of Colour.t * Colour.t
+type style_t =
+  | Solid of Colour.t
+  | Stripes of Colour.t * Colour.t
+  | Gradient of Colour.t * Colour.t
+
 type t
 
 val v : ?transform:Matrix.t -> style_t -> t
