@@ -2,6 +2,7 @@ type style_t =
   | Solid of Colour.t
   | Stripes of Colour.t * Colour.t
   | Gradient of Colour.t * Colour.t
+  | Rings of Colour.t * Colour.t
 
 type t
 

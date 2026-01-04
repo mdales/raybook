@@ -85,6 +85,15 @@ let test_gradient_pattern _ =
   let expected = Colour.v 0.25 0.25 0.25 in
   assert_equal expected (Pattern.colour_at p (Tuple.point 0.75 0. 0.))
 
+let test_ring_pattern _ =
+  let p = Pattern.(v (Rings (Colour.white, Colour.black))) in
+  let expected = Colour.white in
+  assert_equal expected (Pattern.colour_at p (Tuple.point 0. 0. 0.));
+  let expected = Colour.black in
+  assert_equal expected (Pattern.colour_at p (Tuple.point 1. 0. 0.));
+  assert_equal expected (Pattern.colour_at p (Tuple.point 1. 0. 1.));
+  assert_equal expected (Pattern.colour_at p (Tuple.point 0.708 0. 0.708))
+
 let suite =
   "Pattern tests"
   >::: [
@@ -99,6 +108,7 @@ let suite =
          "Test stripes with object and pattern translation"
          >:: test_strips_with_object_and_pattern_translation;
          "Test gradient pattern" >:: test_gradient_pattern;
+         "Test ring pattern" >:: test_ring_pattern;
        ]
 
 let () = run_test_tt_main suite

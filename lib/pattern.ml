@@ -2,6 +2,7 @@ type style_t =
   | Solid of Colour.t
   | Stripes of Colour.t * Colour.t
   | Gradient of Colour.t * Colour.t
+  | Rings of Colour.t * Colour.t
 
 type t = { style : style_t; transform : Matrix.t; inverse_transform : Matrix.t }
 
@@ -20,6 +21,12 @@ let stripes_colour_at (a, b) p =
   let x = Tuple.x p in
   let ix = Int.of_float (Float.floor x) in
   if ix mod 2 = 0 then a else b
+
+let rings_colour_at (a, b) p =
+  let x = Tuple.x p and z = Tuple.z p in
+  let distance = Float.sqrt ((x *. x) +. (z *. z)) in
+  let idistance = Int.of_float (Float.floor distance) in
+  if idistance mod 2 = 0 then a else b
 
 let channel_gradient fa fb fp =
   let distance = fb -. fa in
@@ -40,6 +47,7 @@ let _colour_at t p =
   | Solid c -> c
   | Stripes (a, b) -> stripes_colour_at (a, b) p
   | Gradient (a, b) -> gradient_colour_at (a, b) p
+  | Rings (a, b) -> rings_colour_at (a, b) p
 
 let colour_at t p =
   if not (Tuple.is_point p) then
