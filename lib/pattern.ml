@@ -3,6 +3,7 @@ type style_t =
   | Stripes of Colour.t * Colour.t
   | Gradient of Colour.t * Colour.t
   | Rings of Colour.t * Colour.t
+  | Cubes of Colour.t * Colour.t
 
 type t = { style : style_t; transform : Matrix.t; inverse_transform : Matrix.t }
 
@@ -40,6 +41,13 @@ let gradient_colour_at (a, b) p =
   and b = channel_gradient (Colour.blue a) (Colour.blue b) fp in
   Colour.v r g b
 
+let cubes_colour_at (a, b) p =
+  let x = Int.of_float (Float.floor (Tuple.x p +. Float.epsilon))
+  and y = Int.of_float (Float.floor (Tuple.y p +. Float.epsilon))
+  and z = Int.of_float (Float.floor (Tuple.z p +. Float.epsilon)) in
+  let dist = x + y + z in
+  if dist mod 2 = 0 then a else b
+
 let _colour_at t p =
   if not (Tuple.is_point p) then
     raise (Invalid_argument "Expected point not vector");
@@ -48,6 +56,7 @@ let _colour_at t p =
   | Stripes (a, b) -> stripes_colour_at (a, b) p
   | Gradient (a, b) -> gradient_colour_at (a, b) p
   | Rings (a, b) -> rings_colour_at (a, b) p
+  | Cubes (a, b) -> cubes_colour_at (a, b) p
 
 let colour_at t p =
   if not (Tuple.is_point p) then

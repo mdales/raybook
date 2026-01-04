@@ -3,7 +3,7 @@ open OUnit2
 
 let test_create_precomputed _ =
   let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.)
-  and s = Shape.v Shape.Sphere in
+  and s = Shape.(v Sphere) in
   let i = Intersection.v s 4. in
   let res = Precomputed.v i r in
   assert_equal 4. (Precomputed.distance res);
@@ -17,14 +17,14 @@ let test_create_precomputed _ =
 
 let test_outside _ =
   let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.)
-  and s = Shape.v Shape.Sphere in
+  and s = Shape.(v Sphere) in
   let i = Intersection.v s 4. in
   let res = Precomputed.v i r in
   assert_equal false (Precomputed.inside res)
 
 let test_inside _ =
   let r = Ray.v (Tuple.point 0. 0. 0.) (Tuple.vector 0. 0. 1.)
-  and s = Shape.v Shape.Sphere in
+  and s = Shape.(v Sphere) in
   let i = Intersection.v s 1. in
   let res = Precomputed.v i r in
   assert_equal true (Precomputed.inside res);

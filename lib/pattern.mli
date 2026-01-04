@@ -3,6 +3,7 @@ type style_t =
   | Stripes of Colour.t * Colour.t
   | Gradient of Colour.t * Colour.t
   | Rings of Colour.t * Colour.t
+  | Cubes of Colour.t * Colour.t
 
 type t
 

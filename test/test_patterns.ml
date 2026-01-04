@@ -94,6 +94,30 @@ let test_ring_pattern _ =
   assert_equal expected (Pattern.colour_at p (Tuple.point 1. 0. 1.));
   assert_equal expected (Pattern.colour_at p (Tuple.point 0.708 0. 0.708))
 
+let test_cubes_pattern_in_x _ =
+  let p = Pattern.(v (Cubes (Colour.white, Colour.black))) in
+  let expected = Colour.white in
+  assert_equal expected (Pattern.colour_at p (Tuple.point 0. 0. 0.));
+  assert_equal expected (Pattern.colour_at p (Tuple.point 0.9 0. 0.));
+  let expected = Colour.black in
+  assert_equal expected (Pattern.colour_at p (Tuple.point 1. 0. 0.))
+
+let test_cubes_pattern_in_y _ =
+  let p = Pattern.(v (Cubes (Colour.white, Colour.black))) in
+  let expected = Colour.white in
+  assert_equal expected (Pattern.colour_at p (Tuple.point 0. 0. 0.));
+  assert_equal expected (Pattern.colour_at p (Tuple.point 0. 0.9 0.));
+  let expected = Colour.black in
+  assert_equal expected (Pattern.colour_at p (Tuple.point 0. 1. 0.))
+
+let test_cubes_pattern_in_z _ =
+  let p = Pattern.(v (Cubes (Colour.white, Colour.black))) in
+  let expected = Colour.white in
+  assert_equal expected (Pattern.colour_at p (Tuple.point 0. 0. 0.));
+  assert_equal expected (Pattern.colour_at p (Tuple.point 0. 0. 0.9));
+  let expected = Colour.black in
+  assert_equal expected (Pattern.colour_at p (Tuple.point 0. 0. 1.))
+
 let suite =
   "Pattern tests"
   >::: [
@@ -109,6 +133,9 @@ let suite =
          >:: test_strips_with_object_and_pattern_translation;
          "Test gradient pattern" >:: test_gradient_pattern;
          "Test ring pattern" >:: test_ring_pattern;
+         "Test cubes pattern in x" >:: test_cubes_pattern_in_x;
+         "Test cubes pattern in y" >:: test_cubes_pattern_in_y;
+         "Test cubes pattern in z" >:: test_cubes_pattern_in_z;
        ]
 
 let () = run_test_tt_main suite
