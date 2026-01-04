@@ -165,6 +165,24 @@ let test_reflected_colour_on_reflective_surface _ =
   in
   assert_bool "is equal" (Colour.is_equal expected res)
 
+let test_shader_hit_on_reflective_surface _ =
+  let m =
+    Material.v ~pattern:Pattern.(v (Solid Colour.white)) ~reflectivity:0.5 ()
+  in
+  let t = Transformation.translation 0. (-1.) 0. in
+  let p = Shape.(v ~transform:t ~material:m Plane) in
+  let w = default_test_world ~more_shapes:[ p ] () in
+  let x = Float.sqrt 2. /. 2. in
+  let r = Ray.v (Tuple.point 0. 0. (-2.)) (Tuple.vector 0. (0. -. x) x) in
+  let i = Intersection.v p x in
+  let comps = Precomputed.v i r in
+  let res = World.shader_hit w comps in
+  let expected =
+    Colour.v 0.85257168739727051676 0.90015433653240073397
+      0.80498903826214029955
+  in
+  assert_bool "is equal" (Colour.is_equal expected res)
+
 let suite =
   "World tests"
   >::: [
@@ -187,6 +205,8 @@ let suite =
          >:: test_reflected_colour_on_non_reflective_surface;
          "Test reflected colour on reflective surface"
          >:: test_reflected_colour_on_reflective_surface;
+         "Test shader hit on reflective surface"
+         >:: test_shader_hit_on_reflective_surface;
        ]
 
 let () = run_test_tt_main suite
