@@ -160,8 +160,7 @@ let test_reflected_colour_on_reflective_surface _ =
   let comps = Precomputed.v i r in
   let res = World.reflected_colour w comps in
   let expected =
-    Colour.v 0.19033059654052100762 0.23791324567565125259
-      0.14274794740539073490
+    Colour.v 00.19033059654055548005 0.23791324567569432924 0.14274794740541657534
   in
   assert_bool "is equal" (Colour.is_equal expected res)
 
@@ -178,8 +177,7 @@ let test_shader_hit_on_reflective_surface _ =
   let comps = Precomputed.v i r in
   let res = World.shader_hit w comps in
   let expected =
-    Colour.v 0.85257168739727051676 0.90015433653240073397
-      0.80498903826214029955
+    Colour.v 0.85257168739730504470 0.90015433653244381063 0.80498903826216605673
   in
   assert_bool "is equal" (Colour.is_equal expected res)
 
