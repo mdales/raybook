@@ -15,7 +15,7 @@ let v i r =
   let point = Ray.position r distance in
   let normalv = Intersection.normal_at shape point in
   let over_point =
-    Tuple.add point (Tuple.multiply normalv (Float.epsilon *. 100.))
+    Tuple.add point (Tuple.multiply normalv (Float.epsilon *. 1000.))
   in
   let eyev = Tuple.negate (Ray.direction r) in
   let inside, normalv =
