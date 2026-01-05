@@ -50,10 +50,14 @@ let tick t c =
       (Transformation.scaling 0.1 0.1 0.1)
       (Transformation.rotate_z (Float.pi /. 2.))
   in
-  let m = Material.v ~pattern:Pattern.(v ~transform:t (Stripes (c1, c2))) () in
+  let m =
+    Material.v ~reflectivity:0.2
+      ~pattern:Pattern.(v ~transform:t (Stripes (c1, c2)))
+      ()
+  in
   let s = Shape.v ~material:m Shape.Sphere in
 
-  let light_location = Tuple.point 10. 10. 10. in
+  let light_location = Tuple.point 0. 10. 0. in
   let t = Transformation.rotate_x angle in
   let rotated_m = Matrix.multiply t (Tuple.to_matrix light_location) in
   let rotated_p = Tuple.of_matrix rotated_m in
@@ -69,7 +73,9 @@ let tick t c =
             (sin (innerangle +. (2. *. Float.pi /. 3.)))
             (sin (innerangle +. (4. *. Float.pi /. 3.)))
         in
-        let m = Material.v ~pattern:Pattern.(v (Solid c)) () in
+        let m =
+          Material.v ~reflectivity:0.3 ~pattern:Pattern.(v (Solid c)) ()
+        in
         let scale : Matrix.t = Transformation.scaling 0.1 0.1 0.1 in
         let translate : Matrix.t = Transformation.translation 1.5 0. 0. in
         let rotate_y = Transformation.rotate_y innerangle in
@@ -81,12 +87,12 @@ let tick t c =
 
   let plane_transform =
     (* Matrix.multiply *)
-    Transformation.translation 0. (-2.) 0.
+    Transformation.translation 0. (-1.5) 0.
     (* (Transformation.rotate_x (Float.pi /. 10.)) *)
   in
   let plane_pattern_transform = Transformation.scaling 2. 2. 2. in
   let plane_m =
-    Material.v
+    Material.v ~reflectivity:0.5
       ~pattern:
         Pattern.(
           v ~transform:plane_pattern_transform
@@ -103,7 +109,7 @@ let tick t c =
 
   let ct =
     Matrix.multiply
-      (Transformation.translation 0. 0. (-3.5))
+      (Transformation.translation 0. 0.5 (-3.5))
       (Transformation.rotate_x 0.2)
   in
   let cam = Camera.v ~transform:ct (width, height) (Float.pi *. 70. /. 180.) in

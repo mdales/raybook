@@ -22,7 +22,9 @@ let is_shadowed w p =
       let t = Intersection.distance i in
       t < distance
 
-let rec shader_hit w c =
+let max_reflection_depth = 5
+
+let rec shader_hit ?(count = max_reflection_depth) w c =
   let shadow = is_shadowed w (Precomputed.over_point c) in
   let shape = Precomputed.shape c in
   let material = Shape.material shape in
@@ -31,20 +33,22 @@ let rec shader_hit w c =
       ~normal:(Precomputed.normalv c) ~material ~point:(Precomputed.point c)
       ~shadow ()
   in
+  match count with
+  | 0 -> surface
+  | _ ->
+      let reflected = reflected_colour ~count:(count - 1) w c in
+      Colour.add surface reflected
 
-  let reflected = reflected_colour w c in
-  Colour.add surface reflected
-
-and colour_at w r =
+and colour_at ?(count = max_reflection_depth) w r =
   let il = intersect w r in
   let h = Intersection.hit il in
   match h with
   | None -> Colour.v 0. 0. 0.
   | Some i ->
       let c = Precomputed.v i r in
-      shader_hit w c
+      shader_hit ~count w c
 
-and reflected_colour w c =
+and reflected_colour ?(count = 0) w c =
   let m = Shape.material (Precomputed.shape c) in
   let r = Material.reflectivity m in
   match r with
@@ -53,5 +57,5 @@ and reflected_colour w c =
       let reflect_ray =
         Ray.v (Precomputed.over_point c) (Precomputed.reflectv c)
       in
-      let col = colour_at w reflect_ray in
+      let col = colour_at ~count w reflect_ray in
       Colour.fmultiply col r

@@ -183,6 +183,20 @@ let test_shader_hit_on_reflective_surface _ =
   in
   assert_bool "is equal" (Colour.is_equal expected res)
 
+let test_reflection_between_parallel_surfaces_terminates _ =
+  let t1 = Transformation.translation 0. 1. 0. in
+  let m1 =
+    Material.v ~pattern:Pattern.(v (Solid Colour.white)) ~reflectivity:1. ()
+  in
+  let p1 = Shape.(v ~transform:t1 ~material:m1 Plane) in
+  let t2 = Transformation.translation 0. (-1.) 0. in
+  let p2 = Shape.(v ~transform:t2 ~material:m1 Plane) in
+  let l = Light.v (Tuple.point 0. 0. 0.) Colour.white in
+  let w = World.v l [ p1; p2 ] in
+  let r = Ray.v (Tuple.point 0. 0. 0.) (Tuple.vector 0. 1. 0.) in
+  let _ = World.colour_at w r in
+  ()
+
 let suite =
   "World tests"
   >::: [
@@ -207,6 +221,8 @@ let suite =
          >:: test_reflected_colour_on_reflective_surface;
          "Test shader hit on reflective surface"
          >:: test_shader_hit_on_reflective_surface;
+         "Test reflections between parallel surfaces terminates"
+         >:: test_reflection_between_parallel_surfaces_terminates;
        ]
 
 let () = run_test_tt_main suite

@@ -46,7 +46,7 @@ let hit tl =
         | [] -> None
         | x :: xs ->
             let d = x.distance in
-            if d >= 0. then Some x else loop xs
+            if d >= -10. *. Float.epsilon then Some x else loop xs
       in
       loop sorted_lt
 
