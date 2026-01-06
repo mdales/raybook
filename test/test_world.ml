@@ -197,6 +197,50 @@ let test_reflection_between_parallel_surfaces_terminates _ =
   let _ = World.colour_at w r in
   ()
 
+let test_refracted_colour_on_opaque_surface _ =
+  let w = default_test_world () in
+  let s = List.hd (World.shapes w) in
+  let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
+  let il = [ Intersection.v s 4.; Intersection.v s 6. ] in
+  let comps = Precomputed.v (List.hd il) r il in
+  let res = World.refracted_colour ~count:1 w comps in
+  let expected = Colour.black in
+  assert_bool "is equal" (Colour.is_equal expected res)
+
+let test_refracted_colour_on_recurrsion_limit _ =
+  let m =
+    Material.v
+      ~pattern:Pattern.(v (Solid Colour.white))
+      ~transparency:1. ~refractive_index:1.5 ()
+  in
+  let s = Shape.(v ~material:m Sphere) in
+  let l = Light.v (Tuple.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.) in
+  let w = World.v l [ s ] in
+  let s = List.hd (World.shapes w) in
+  let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
+  let il = [ Intersection.v s 4.; Intersection.v s 6. ] in
+  let comps = Precomputed.v (List.hd il) r il in
+  let res = World.refracted_colour ~count:0 w comps in
+  let expected = Colour.black in
+  assert_bool "is equal" (Colour.is_equal expected res)
+
+let test_total_internal_reflection _ =
+  let m =
+    Material.v
+      ~pattern:Pattern.(v (Solid Colour.white))
+      ~transparency:1. ~refractive_index:1.5 ()
+  in
+  let s = Shape.(v ~material:m Sphere) in
+  let l = Light.v (Tuple.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.) in
+  let w = World.v l [ s ] in
+  let x = Float.sqrt 2. /. 2. in
+  let r = Ray.v (Tuple.point 0. 0. x) (Tuple.vector 0. 1. 0.) in
+  let il = [ Intersection.v s (0. -. x); Intersection.v s x ] in
+  let comps = Precomputed.v (List.nth il 1) r il in
+  let res = World.refracted_colour ~count:1 w comps in
+  let expected = Colour.black in
+  assert_bool "is equal" (Colour.is_equal expected res)
+
 let suite =
   "World tests"
   >::: [
@@ -223,6 +267,11 @@ let suite =
          >:: test_shader_hit_on_reflective_surface;
          "Test reflections between parallel surfaces terminates"
          >:: test_reflection_between_parallel_surfaces_terminates;
+         "Test refracted colour on opaque surface"
+         >:: test_refracted_colour_on_opaque_surface;
+         "Test refracted colour at recursion limit"
+         >:: test_refracted_colour_on_recurrsion_limit;
+         "Test total internal reflection" >:: test_total_internal_reflection;
        ]
 
 let () = run_test_tt_main suite

@@ -59,3 +59,18 @@ and reflected_colour ?(count = 0) w c =
       in
       let col = colour_at ~count w reflect_ray in
       Colour.fmultiply col r
+
+let refracted_colour ?(count = 1) _w c =
+  match count with
+  | 0 -> Colour.black
+  | _ -> (
+      let m = Shape.material (Precomputed.shape c) in
+      let r = Material.transparency m in
+      match r with
+      | 0. -> Colour.black
+      | _ ->
+          let n1, n2 = Precomputed.n_pair c in
+          let n_ratio = n1 /. n2 in
+          let cos_i = Tuple.dot (Precomputed.eyev c) (Precomputed.normalv c) in
+          let sin2_t = n_ratio *. n_ratio *. (1. -. (cos_i *. cos_i)) in
+          if sin2_t > 1. then Colour.black else Colour.white)
