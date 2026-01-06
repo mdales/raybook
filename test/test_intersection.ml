@@ -64,8 +64,21 @@ let test_hit_should_offset _ =
   let comps = Precomputed.v i r [ i ] in
   let point = Precomputed.point comps in
   let over_point = Precomputed.over_point comps in
+  assert_bool "is point" (Tuple.is_point over_point);
   assert_bool "is small" (Tuple.z over_point < Float.epsilon /. 2.);
   assert_bool "is greater" (Tuple.z point > Tuple.z over_point)
+
+let test_under_point_offset _ =
+  let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
+  let t = Transformation.translation 0. 0. 1. in
+  let s = Shape.(v ~transform:t Sphere) in
+  let i = Intersection.v s 5. in
+  let comps = Precomputed.v i r [ i ] in
+  let point = Precomputed.point comps in
+  let under_point = Precomputed.under_point comps in
+  assert_bool "is point" (Tuple.is_point under_point);
+  assert_bool "is small" (Tuple.z under_point > Float.epsilon /. 2.);
+  assert_bool "is greater" (Tuple.z point < Tuple.z under_point)
 
 let test_reflect_ray _ =
   let x = Float.sqrt 2. /. 2. in
@@ -143,6 +156,7 @@ let suite =
          "Test hit all negative" >:: test_hit_all_negative;
          "Test mixed order" >:: test_mixed_order_mixed_sign;
          "Test over point" >:: test_hit_should_offset;
+         "Test under point" >:: test_under_point_offset;
          "Test reflect vector" >:: test_reflect_ray;
          "Test n1 n2 intersection" >:: test_n1_n2_intersections;
          "Test n1 n2 intersection single spehere"

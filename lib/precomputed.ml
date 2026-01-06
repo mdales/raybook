@@ -3,6 +3,7 @@ type t = {
   shape : Shape.t;
   point : Tuple.t;
   over_point : Tuple.t;
+  under_point : Tuple.t;
   eyev : Tuple.t;
   normalv : Tuple.t;
   reflectv : Tuple.t;
@@ -76,6 +77,9 @@ let v i r il =
   let over_point =
     Tuple.add point (Tuple.multiply normalv (Float.epsilon *. 1000.))
   in
+  let under_point =
+    Tuple.subtract point (Tuple.multiply normalv (Float.epsilon *. 1000.))
+  in
   let eyev = Tuple.negate (Ray.direction r) in
   let inside, normalv =
     if Tuple.dot normalv eyev < 0. then (true, Tuple.negate normalv)
@@ -88,6 +92,7 @@ let v i r il =
     shape;
     point;
     over_point;
+    under_point;
     eyev;
     normalv;
     reflectv;
@@ -103,5 +108,6 @@ let eyev t = t.eyev
 let normalv t = t.normalv
 let inside t = t.inside
 let over_point t = t.over_point
+let under_point t = t.under_point
 let reflectv t = t.reflectv
 let n_pair t = (t.n1, t.n2)
