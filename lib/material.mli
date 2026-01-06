@@ -19,4 +19,4 @@ val reflectivity : t -> float
 val refractive_index : t -> float
 val shininess : t -> float
 val specular : t -> float
-val transparency: t -> float
+val transparency : t -> float

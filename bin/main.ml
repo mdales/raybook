@@ -74,7 +74,9 @@ let tick t c =
             (sin (innerangle +. (4. *. Float.pi /. 3.)))
         in
         let m =
-          Material.v ~ambient:0.2 ~reflectivity:0.3 ~pattern:Pattern.(v (Solid c)) ()
+          Material.v ~ambient:0.2 ~reflectivity:0.3
+            ~pattern:Pattern.(v (Solid c))
+            ()
         in
         let scale : Matrix.t = Transformation.scaling 0.1 0.1 0.1 in
         let translate : Matrix.t = Transformation.translation 1.5 0. 0. in

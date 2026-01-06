@@ -5,7 +5,7 @@ let test_create_precomputed _ =
   let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.)
   and s = Shape.(v Sphere) in
   let i = Intersection.v s 4. in
-  let res = Precomputed.v i r in
+  let res = Precomputed.v i r [ i ] in
   assert_equal 4. (Precomputed.distance res);
   assert_equal s (Precomputed.shape res);
   assert_bool "is equal"
@@ -19,14 +19,14 @@ let test_outside _ =
   let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.)
   and s = Shape.(v Sphere) in
   let i = Intersection.v s 4. in
-  let res = Precomputed.v i r in
+  let res = Precomputed.v i r [ i ] in
   assert_equal false (Precomputed.inside res)
 
 let test_inside _ =
   let r = Ray.v (Tuple.point 0. 0. 0.) (Tuple.vector 0. 0. 1.)
   and s = Shape.(v Sphere) in
   let i = Intersection.v s 1. in
-  let res = Precomputed.v i r in
+  let res = Precomputed.v i r [ i ] in
   assert_equal true (Precomputed.inside res);
   assert_bool "is equal"
     (Tuple.is_equal (Tuple.point 0. 0. 1.) (Precomputed.point res));

@@ -56,7 +56,7 @@ let test_shading_outside_intersection _ =
   let s = List.nth (World.shapes w) 0 in
   let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
   let i = Intersection.v s 4. in
-  let c = Precomputed.v i r in
+  let c = Precomputed.v i r [ i ] in
   let res = World.shader_hit w c in
   let expected =
     Colour.v 0.380661193081034355 0.475826491351292957 0.285495894810775752
@@ -69,7 +69,7 @@ let test_shading_inside_intersection _ =
   let s = List.nth (World.shapes w) 1 in
   let r = Ray.v (Tuple.point 0. 0. 0.) (Tuple.vector 0. 0. 1.) in
   let i = Intersection.v s 0.5 in
-  let c = Precomputed.v i r in
+  let c = Precomputed.v i r [ i ] in
   let res = World.shader_hit w c in
   (* Originally no shadow, but now in shadow *)
   let expected = Colour.v 0.1 0.1 0.1 in
@@ -133,7 +133,7 @@ let test_shader_hit_is_given_intersection_in_shadow _ =
   let w = World.v l [ s1; s2 ] in
   let r = Ray.v (Tuple.point 0. 0. 5.) (Tuple.vector 0. 0. 1.) in
   let i = Intersection.v s2 4. in
-  let comps = Precomputed.v i r in
+  let comps = Precomputed.v i r [ i ] in
   let res = World.shader_hit w comps in
   let expected = Colour.v 0.1 0.1 0.1 in
   assert_bool "is equal" (Colour.is_equal expected res)
@@ -143,7 +143,7 @@ let test_reflected_colour_on_non_reflective_surface _ =
   let r = Ray.v (Tuple.point 0. 0. 0.) (Tuple.vector 0. 0. 1.) in
   let s = List.nth (World.shapes w) 1 in
   let i = Intersection.v s 1. in
-  let comps = Precomputed.v i r in
+  let comps = Precomputed.v i r [ i ] in
   let res = World.reflected_colour w comps in
   assert_bool "is equal" (Colour.is_equal Colour.black res)
 
@@ -157,10 +157,11 @@ let test_reflected_colour_on_reflective_surface _ =
   let x = Float.sqrt 2. /. 2. in
   let r = Ray.v (Tuple.point 0. 0. (-2.)) (Tuple.vector 0. (0. -. x) x) in
   let i = Intersection.v p x in
-  let comps = Precomputed.v i r in
+  let comps = Precomputed.v i r [ i ] in
   let res = World.reflected_colour w comps in
   let expected =
-    Colour.v 00.19033059654055548005 0.23791324567569432924 0.14274794740541657534
+    Colour.v 00.19033059654055548005 0.23791324567569432924
+      0.14274794740541657534
   in
   assert_bool "is equal" (Colour.is_equal expected res)
 
@@ -174,10 +175,11 @@ let test_shader_hit_on_reflective_surface _ =
   let x = Float.sqrt 2. /. 2. in
   let r = Ray.v (Tuple.point 0. 0. (-2.)) (Tuple.vector 0. (0. -. x) x) in
   let i = Intersection.v p x in
-  let comps = Precomputed.v i r in
+  let comps = Precomputed.v i r [ i ] in
   let res = World.shader_hit w comps in
   let expected =
-    Colour.v 0.85257168739730504470 0.90015433653244381063 0.80498903826216605673
+    Colour.v 0.85257168739730504470 0.90015433653244381063
+      0.80498903826216605673
   in
   assert_bool "is equal" (Colour.is_equal expected res)
 

@@ -45,7 +45,7 @@ and colour_at ?(count = max_reflection_depth) w r =
   match h with
   | None -> Colour.v 0. 0. 0.
   | Some i ->
-      let c = Precomputed.v i r in
+      let c = Precomputed.v i r il in
       shader_hit ~count w c
 
 and reflected_colour ?(count = 0) w c =
