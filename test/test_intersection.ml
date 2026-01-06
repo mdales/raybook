@@ -107,6 +107,33 @@ let test_n1_n2_intersections _ =
       almost_equal n2 res_n2)
     testdata
 
+let test_n1_n2_intersections_single_sphere _ =
+  let t1 = Transformation.scaling 2. 2. 2. in
+  let a = glass_sphere t1 in
+  let r = Ray.v (Tuple.point 0. 0. (-4.)) (Tuple.vector 0. 0. 1.) in
+  let il = [ Intersection.v a 2.; Intersection.v a 6. ] in
+  let expected_n1_n2 = [ (1., 1.5); (1.5, 1.) ] in
+  let testdata = List.combine il expected_n1_n2 in
+  List.iter
+    (fun (i, (n1, n2)) ->
+      let comp = Precomputed.v i r il in
+      let res_n1, res_n2 = Precomputed.n_pair comp in
+      almost_equal n1 res_n1;
+      almost_equal n2 res_n2)
+    testdata
+
+let test_n1_n2_intersections_in_single_sphere _ =
+  let t1 = Transformation.scaling 2. 2. 2. in
+  let a = glass_sphere t1 in
+  let r = Ray.v (Tuple.point 0. 0. 0.) (Tuple.vector 0. 0. 1.) in
+  let il = [ Intersection.v a (-2.); Intersection.v a 2. ] in
+  (* only second intersection is a hit *)
+  let i2 = List.nth il 1 in
+  let comp = Precomputed.v i2 r il in
+  let res_n1, res_n2 = Precomputed.n_pair comp in
+  almost_equal 1.5 res_n1;
+  almost_equal 1. res_n2
+
 let suite =
   "Intersection tests"
   >::: [
@@ -118,6 +145,10 @@ let suite =
          "Test over point" >:: test_hit_should_offset;
          "Test reflect vector" >:: test_reflect_ray;
          "Test n1 n2 intersection" >:: test_n1_n2_intersections;
+         "Test n1 n2 intersection single spehere"
+         >:: test_n1_n2_intersections_single_sphere;
+         "Test n1 n2 intersection in sphere"
+         >:: test_n1_n2_intersections_in_single_sphere;
        ]
 
 let () = run_test_tt_main suite
