@@ -51,6 +51,46 @@ let test_intersect_world_with_ray _ =
   almost_equal 5.5 (Intersection.distance (List.nth res 2));
   almost_equal 6. (Intersection.distance (List.nth res 3))
 
+let test_intersect_single_plane_from_above _ =
+  let m1 =
+    Material.v
+      ~pattern:Pattern.(v (Solid Colour.white))
+      ~transparency:0.5 ~refractive_index:1.5 ()
+  in
+  let floor = Shape.(v ~material:m1 Plane) in
+  let l = Light.v (Tuple.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.) in
+  let w = World.v l [ floor ] in
+  let r = Ray.v (Tuple.point 0. 1. 0.) (Tuple.vector 0. (-1.) 0.) in
+  let il = World.intersect w r in
+  assert_equal 1 (List.length il);
+  let i = List.hd il in
+  almost_equal 1. (Intersection.distance i);
+  let comp = Precomputed.v i r il in
+  assert_bool "over is more positive"
+    (Precomputed.over_point comp > Precomputed.point comp);
+  assert_bool "under is more negative"
+    (Precomputed.point comp > Precomputed.under_point comp)
+
+let test_intersect_single_plane_from_below _ =
+  let m1 =
+    Material.v
+      ~pattern:Pattern.(v (Solid Colour.white))
+      ~transparency:0.5 ~refractive_index:1.5 ()
+  in
+  let floor = Shape.(v ~material:m1 Plane) in
+  let l = Light.v (Tuple.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.) in
+  let w = World.v l [ floor ] in
+  let r = Ray.v (Tuple.point 0. (-1.) 0.) (Tuple.vector 0. 1. 0.) in
+  let il = World.intersect w r in
+  assert_equal 1 (List.length il);
+  let i = List.hd il in
+  almost_equal 1. (Intersection.distance i);
+  let comp = Precomputed.v i r il in
+  assert_bool "under is more positive"
+    (Precomputed.under_point comp > Precomputed.point comp);
+  assert_bool "over is more negative"
+    (Precomputed.point comp > Precomputed.over_point comp)
+
 let test_shading_outside_intersection _ =
   let w = default_test_world () in
   let s = List.nth (World.shapes w) 0 in
@@ -265,27 +305,49 @@ let test_refracted_colour _ =
   let i = List.nth il 2 in
   let comps = Precomputed.v i r il in
   let res = World.refracted_colour ~count:5 w comps in
-
   let expected =
-    Colour.v 0.00000000000000000000 0.99888470374668136831
-      0.04721597844908988206
+    Colour.v 0.00000000000000000000 0.99888470374667837071
+      0.04721597844915045167
   in
   assert_bool "is equal" (Colour.is_equal expected res)
 
-(*
-
-
-    let il = [ Intersection.v s (0. -. x); Intersection.v s x ] in
-    let comps = Precomputed.v (List.nth il 1) r il in
-    let res = World.refracted_colour ~count:1 w comps in
-    let expected = Colour.black in
-    assert_bool "is equal" (Colour.is_equal expected res) *)
+let test_shader_hit_with_refraction _ =
+  let m1 =
+    Material.v
+      ~pattern:Pattern.(v (Solid Colour.white))
+      ~transparency:0.5 ~refractive_index:1.5 ()
+  in
+  let t1 = Transformation.translation 0. (-1.) 0. in
+  let floor = Shape.(v ~material:m1 ~transform:t1 Plane) in
+  let m2 =
+    Material.v
+      ~pattern:Pattern.(v (Solid (Colour.v 1. 0. 0.)))
+      ~diffuse:0. ~specular:0. ~ambient:0.5 ~shininess:0. ()
+  in
+  let t2 = Transformation.translation 0. (-3.5) (-0.5) in
+  let ball = Shape.(v ~material:m2 ~transform:t2 Sphere) in
+  let l = Light.v (Tuple.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.) in
+  let w = World.v l [ floor; ball ] in
+  let x = Float.sqrt 2. /. 2. in
+  let r = Ray.v (Tuple.point 0. 0. (-3.)) (Tuple.vector 0. (0. -. x) x) in
+  let i = Intersection.v floor (Float.sqrt 2.) in
+  let comps = Precomputed.v i r [ i ] in
+  let res = World.shader_hit ~count:5 w comps in
+  let expected =
+    Colour.v 0.93642538898150140536 0.68642538898150140536
+      0.68642538898150140536
+  in
+  assert_bool "is equal" (Colour.is_equal expected res)
 
 let suite =
   "World tests"
   >::: [
          "Test create world" >:: test_create_world;
          "Test default world" >:: test_default_world;
+         "Test intersect plane from above"
+         >:: test_intersect_single_plane_from_above;
+         "Test intersect plane from below"
+         >:: test_intersect_single_plane_from_below;
          "Test intersect world with ray" >:: test_intersect_world_with_ray;
          "Test shading outside intersection"
          >:: test_shading_outside_intersection;
@@ -313,6 +375,7 @@ let suite =
          >:: test_refracted_colour_on_recurrsion_limit;
          "Test total internal reflection" >:: test_total_internal_reflection;
          "Test refracted colour" >:: test_refracted_colour;
+         "Test shader hit with refraction" >:: test_shader_hit_with_refraction;
        ]
 
 let () = run_test_tt_main suite

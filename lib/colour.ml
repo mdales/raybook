@@ -46,3 +46,6 @@ let of_rgb x =
 
 let white = v 1. 1. 1.
 let black = v 0. 0. 0.
+(* let red = v 1. 0. 0. *)
+(* let green = v 0. 1. 0.
+let blue = v 0. 0. 1. *)

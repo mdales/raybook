@@ -52,6 +52,20 @@ let test_scaling_ray _ =
   assert_bool "is equal" (Tuple.is_equal expected_origin (Ray.origin res));
   assert_bool "is equal" (Tuple.is_equal expected_direction (Ray.direction res))
 
+let test_identity_on_ray_1 _ =
+  let r = Ray.v (Tuple.point 0. 1. 0.) (Tuple.vector 0. (-1.) 0.) in
+  let m = Matrix.identity 4 in
+  let res = Ray.transform r m in
+  assert_bool "is equal" (Tuple.is_equal (Ray.origin r) (Ray.origin res));
+  assert_bool "is equal" (Tuple.is_equal (Ray.direction r) (Ray.direction res))
+
+let test_identity_on_ray_2 _ =
+  let r = Ray.v (Tuple.point 0. (-1.) 0.) (Tuple.vector 0. 1. 0.) in
+  let m = Matrix.identity 4 in
+  let res = Ray.transform r m in
+  assert_bool "is equal" (Tuple.is_equal (Ray.origin r) (Ray.origin res));
+  assert_bool "is equal" (Tuple.is_equal (Ray.direction r) (Ray.direction res))
+
 let suite =
   "Ray tests"
   >::: [
@@ -62,6 +76,8 @@ let suite =
          "Test position" >:: test_position;
          "Test translate ray" >:: test_translate_ray;
          "Test scaling ray" >:: test_scaling_ray;
+         "Test identity on ray 1" >:: test_identity_on_ray_1;
+         "Test identity on ray 2" >:: test_identity_on_ray_2;
        ]
 
 let () = run_test_tt_main suite

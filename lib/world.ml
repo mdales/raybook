@@ -37,7 +37,8 @@ let rec shader_hit ?(count = max_reflection_depth) w c =
   | 0 -> surface
   | _ ->
       let reflected = reflected_colour ~count:(count - 1) w c in
-      Colour.add surface reflected
+      let refracted = refracted_colour ~count:(count - 1) w c in
+      Colour.add (Colour.add surface reflected) refracted
 
 and colour_at ?(count = max_reflection_depth) w r =
   let il = intersect w r in
@@ -60,7 +61,7 @@ and reflected_colour ?(count = 0) w c =
       let col = colour_at ~count w reflect_ray in
       Colour.fmultiply col r
 
-let refracted_colour ?(count = 1) w c =
+and refracted_colour ?(count = 1) w c =
   match count with
   | 0 -> Colour.black
   | _ -> (
@@ -83,5 +84,5 @@ let refracted_colour ?(count = 1) w c =
                 (Tuple.multiply (Precomputed.eyev c) n_ratio)
             in
             let refracted_ray = Ray.v (Precomputed.under_point c) direction in
-            let col = colour_at ~count:(count - 1) w refracted_ray in
+            let col = colour_at ~count w refracted_ray in
             Colour.fmultiply col r)
