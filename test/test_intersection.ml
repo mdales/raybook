@@ -147,6 +147,34 @@ let test_n1_n2_intersections_in_single_sphere _ =
   almost_equal 1.5 res_n1;
   almost_equal 1. res_n2
 
+let test_schlick_total_internal_reflection _ =
+  let a = glass_sphere (Matrix.identity 4) in
+  let x = Float.sqrt 2. /. 2. in
+  let r = Ray.v (Tuple.point 0. 0. x) (Tuple.vector 0. 1. 0.) in
+  let il = [ Intersection.v a (0. -. x); Intersection.v a x ] in
+  let comps = Precomputed.v (List.nth il 1) r il in
+  let res = Precomputed.schlick comps in
+  let expected = 1. in
+  almost_equal expected res
+
+let test_schlick_perpendicular _ =
+  let a = glass_sphere (Matrix.identity 4) in
+  let r = Ray.v (Tuple.point 0. 0. 0.) (Tuple.vector 0. 1. 0.) in
+  let il = [ Intersection.v a (-1.); Intersection.v a 1. ] in
+  let comps = Precomputed.v (List.nth il 1) r il in
+  let res = Precomputed.schlick comps in
+  let expected = 0.04 in
+  almost_equal expected res
+
+let test_schlick_shallow_angle _ =
+  let a = glass_sphere (Matrix.identity 4) in
+  let r = Ray.v (Tuple.point 0. 0.99 (-2.)) (Tuple.vector 0. 0. 1.) in
+  let i = Intersection.v a 1.8589 in
+  let comps = Precomputed.v i r [ i ] in
+  let res = Precomputed.schlick comps in
+  let expected = 0.48873081012212182817 in
+  almost_equal expected res
+
 let suite =
   "Intersection tests"
   >::: [
@@ -163,6 +191,10 @@ let suite =
          >:: test_n1_n2_intersections_single_sphere;
          "Test n1 n2 intersection in sphere"
          >:: test_n1_n2_intersections_in_single_sphere;
+         "Test schlick total internal reflection"
+         >:: test_schlick_total_internal_reflection;
+         "Test schlick perpendicular" >:: test_schlick_perpendicular;
+         "Test schlick shallow angle" >:: test_schlick_shallow_angle;
        ]
 
 let () = run_test_tt_main suite

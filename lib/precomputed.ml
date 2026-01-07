@@ -111,3 +111,22 @@ let over_point t = t.over_point
 let under_point t = t.under_point
 let reflectv t = t.reflectv
 let n_pair t = (t.n1, t.n2)
+
+let schlick t =
+  let cosp = Tuple.dot t.eyev t.normalv in
+
+  let res, cosy =
+    match t.n1 > t.n2 with
+    | true ->
+        let n = t.n1 /. t.n2 in
+        let sin2_t = n *. n *. (1. -. (cosp *. cosp)) in
+        if sin2_t > 1. then (Some 1., 0.) else (None, Float.sqrt (1. -. sin2_t))
+    | false -> (None, cosp)
+  in
+
+  match res with
+  | Some v -> v
+  | None ->
+      let r0 = (t.n1 -. t.n2) /. (t.n1 +. t.n2) in
+      let r0 = r0 *. r0 in
+      r0 +. ((1. -. r0) *. Float.pow (1. -. cosy) 5.)

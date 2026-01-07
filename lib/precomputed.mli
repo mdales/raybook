@@ -11,3 +11,4 @@ val normalv : t -> Tuple.t
 val reflectv : t -> Tuple.t
 val inside : t -> bool
 val n_pair : t -> float * float
+val schlick : t -> float

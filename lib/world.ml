@@ -35,10 +35,19 @@ let rec shader_hit ?(count = max_reflection_depth) w c =
   in
   match count with
   | 0 -> surface
-  | _ ->
+  | _ -> (
       let reflected = reflected_colour ~count:(count - 1) w c in
       let refracted = refracted_colour ~count:(count - 1) w c in
-      Colour.add (Colour.add surface reflected) refracted
+      match
+        Material.transparency material > 0.
+        && Material.reflectivity material > 0.
+      with
+      | true ->
+          let reflectance = Precomputed.schlick c in
+          Colour.add
+            (Colour.add surface (Colour.fmultiply reflected reflectance))
+            (Colour.fmultiply refracted (1. -. reflectance))
+      | false -> Colour.add (Colour.add surface reflected) refracted)
 
 and colour_at ?(count = max_reflection_depth) w r =
   let il = intersect w r in

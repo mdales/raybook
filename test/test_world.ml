@@ -339,6 +339,33 @@ let test_shader_hit_with_refraction _ =
   in
   assert_bool "is equal" (Colour.is_equal expected res)
 
+let test_shader_hit_with_relective_transparent_model _ =
+  let m1 =
+    Material.v
+      ~pattern:Pattern.(v (Solid Colour.white))
+      ~reflectivity:0.5 ~transparency:0.5 ~refractive_index:1.5 ()
+  in
+  let t1 = Transformation.translation 0. (-1.) 0. in
+  let floor = Shape.(v ~material:m1 ~transform:t1 Plane) in
+  let m2 =
+    Material.v
+      ~pattern:Pattern.(v (Solid (Colour.v 1. 0. 0.)))
+      ~diffuse:0. ~specular:0. ~ambient:0.5 ~shininess:0. ()
+  in
+  let t2 = Transformation.translation 0. (-3.5) (-0.5) in
+  let ball = Shape.(v ~material:m2 ~transform:t2 Sphere) in
+  let w = default_test_world ~more_shapes:[ floor; ball ] () in
+  let x = Float.sqrt 2. /. 2. in
+  let r = Ray.v (Tuple.point 0. 0. (-3.)) (Tuple.vector 0. (0. -. x) x) in
+  let i = Intersection.v floor (Float.sqrt 2.) in
+  let comps = Precomputed.v i r [ i ] in
+  let res = World.shader_hit ~count:5 w comps in
+  let expected =
+    Colour.v 0.93391514055019775320 0.69643422629373807897
+      0.69243069136884338732
+  in
+  assert_bool "is equal" (Colour.is_equal expected res)
+
 let suite =
   "World tests"
   >::: [
@@ -376,6 +403,8 @@ let suite =
          "Test total internal reflection" >:: test_total_internal_reflection;
          "Test refracted colour" >:: test_refracted_colour;
          "Test shader hit with refraction" >:: test_shader_hit_with_refraction;
+         "Test shader hit with reflection and transparecy"
+         >:: test_shader_hit_with_relective_transparent_model;
        ]
 
 let () = run_test_tt_main suite

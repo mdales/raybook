@@ -51,7 +51,8 @@ let tick t c =
       (Transformation.rotate_z (Float.pi /. 2.))
   in
   let m =
-    Material.v ~reflectivity:0.2
+    Material.v ~reflectivity:0.0 ~ambient:0. ~diffuse:0. ~specular:0.
+      ~transparency:1. ~refractive_index:1.5
       ~pattern:Pattern.(v ~transform:t (Stripes (c1, c2)))
       ()
   in
