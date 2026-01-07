@@ -72,7 +72,10 @@ let test_shading_inside_intersection _ =
   let c = Precomputed.v i r [ i ] in
   let res = World.shader_hit w c in
   (* Originally no shadow, but now in shadow *)
-  let expected = Colour.v 0.1 0.1 0.1 in
+  let expected =
+    Colour.v 0.90498447208325749624 0.90498447208325749624
+      0.90498447208325749624
+  in
   assert_bool "is equal" (Colour.is_equal expected res)
 
 let test_colour_at_misses _ =
@@ -241,6 +244,43 @@ let test_total_internal_reflection _ =
   let expected = Colour.black in
   assert_bool "is equal" (Colour.is_equal expected res)
 
+let test_refracted_colour _ =
+  let p = Pattern.(v TestPattern) in
+  let m1 =
+    Material.v ~pattern:p ~transparency:0. ~ambient:1. ~diffuse:0. ~specular:0.
+      ()
+  in
+  let a = Shape.(v ~material:m1 Sphere) in
+  let t = Transformation.scaling 0.5 0.5 0.5 in
+  let m2 =
+    Material.v
+      ~pattern:Pattern.(v (Solid Colour.white))
+      ~transparency:1. ~refractive_index:1.5 ()
+  in
+  let b = Shape.(v ~material:m2 ~transform:t Sphere) in
+  let l = Light.v (Tuple.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.) in
+  let w = World.v l [ a; b ] in
+  let r = Ray.v (Tuple.point 0. 0. 0.1) (Tuple.vector 0. 1. 0.) in
+  let il = World.intersect w r in
+  let i = List.nth il 2 in
+  let comps = Precomputed.v i r il in
+  let res = World.refracted_colour ~count:5 w comps in
+
+  let expected =
+    Colour.v 0.00000000000000000000 0.99888470374668136831
+      0.04721597844908988206
+  in
+  assert_bool "is equal" (Colour.is_equal expected res)
+
+(*
+
+
+    let il = [ Intersection.v s (0. -. x); Intersection.v s x ] in
+    let comps = Precomputed.v (List.nth il 1) r il in
+    let res = World.refracted_colour ~count:1 w comps in
+    let expected = Colour.black in
+    assert_bool "is equal" (Colour.is_equal expected res) *)
+
 let suite =
   "World tests"
   >::: [
@@ -272,6 +312,7 @@ let suite =
          "Test refracted colour at recursion limit"
          >:: test_refracted_colour_on_recurrsion_limit;
          "Test total internal reflection" >:: test_total_internal_reflection;
+         "Test refracted colour" >:: test_refracted_colour;
        ]
 
 let () = run_test_tt_main suite

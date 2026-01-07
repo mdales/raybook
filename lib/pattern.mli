@@ -4,6 +4,7 @@ type style_t =
   | Gradient of Colour.t * Colour.t
   | Rings of Colour.t * Colour.t
   | Cubes of Colour.t * Colour.t
+  | TestPattern
 
 type t
 

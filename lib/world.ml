@@ -60,7 +60,7 @@ and reflected_colour ?(count = 0) w c =
       let col = colour_at ~count w reflect_ray in
       Colour.fmultiply col r
 
-let refracted_colour ?(count = 1) _w c =
+let refracted_colour ?(count = 1) w c =
   match count with
   | 0 -> Colour.black
   | _ -> (
@@ -73,4 +73,15 @@ let refracted_colour ?(count = 1) _w c =
           let n_ratio = n1 /. n2 in
           let cos_i = Tuple.dot (Precomputed.eyev c) (Precomputed.normalv c) in
           let sin2_t = n_ratio *. n_ratio *. (1. -. (cos_i *. cos_i)) in
-          if sin2_t > 1. then Colour.black else Colour.white)
+          if sin2_t > 1. then Colour.black
+          else
+            let cos_t = Float.sqrt (1. -. sin2_t) in
+            let direction =
+              Tuple.subtract
+                (Tuple.multiply (Precomputed.normalv c)
+                   ((n_ratio *. cos_i) -. cos_t))
+                (Tuple.multiply (Precomputed.eyev c) n_ratio)
+            in
+            let refracted_ray = Ray.v (Precomputed.under_point c) direction in
+            let col = colour_at ~count:(count - 1) w refracted_ray in
+            Colour.fmultiply col r)

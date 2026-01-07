@@ -4,6 +4,7 @@ type style_t =
   | Gradient of Colour.t * Colour.t
   | Rings of Colour.t * Colour.t
   | Cubes of Colour.t * Colour.t
+  | TestPattern
 
 type t = { style : style_t; transform : Matrix.t; inverse_transform : Matrix.t }
 
@@ -49,6 +50,8 @@ let cubes_colour_at (a, b) p =
   let dist = x + y + z in
   if dist mod 2 = 0 then a else b
 
+let test_pattern_colour_at p = Colour.v (Tuple.x p) (Tuple.y p) (Tuple.z p)
+
 let _colour_at t p =
   if not (Tuple.is_point p) then
     raise (Invalid_argument "Expected point not vector");
@@ -58,6 +61,7 @@ let _colour_at t p =
   | Gradient (a, b) -> gradient_colour_at (a, b) p
   | Rings (a, b) -> rings_colour_at (a, b) p
   | Cubes (a, b) -> cubes_colour_at (a, b) p
+  | TestPattern -> test_pattern_colour_at p
 
 let colour_at t p =
   if not (Tuple.is_point p) then

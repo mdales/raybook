@@ -74,16 +74,16 @@ let v i r il =
   let shape = Intersection.shape i in
   let point = Ray.position r distance in
   let normalv = Intersection.normal_at shape point in
-  let over_point =
-    Tuple.add point (Tuple.multiply normalv (Float.epsilon *. 1000.))
-  in
-  let under_point =
-    Tuple.subtract point (Tuple.multiply normalv (Float.epsilon *. 1000.))
-  in
   let eyev = Tuple.negate (Ray.direction r) in
   let inside, normalv =
     if Tuple.dot normalv eyev < 0. then (true, Tuple.negate normalv)
     else (false, normalv)
+  in
+  let over_point =
+    Tuple.add point (Tuple.multiply normalv (Float.epsilon *. 1000.))
+  in
+  let under_point =
+    Tuple.subtract point (Tuple.multiply normalv (Float.epsilon *. 100.))
   in
   let reflectv = Tuple.reflect (Ray.direction r) normalv in
   let n1, n2 = calc_n1_n2 i il in
