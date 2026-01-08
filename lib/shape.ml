@@ -1,4 +1,4 @@
-type geometry_t = Sphere | Plane
+type geometry_t = Sphere | Plane | Cube
 
 type t = {
   geometry : geometry_t;

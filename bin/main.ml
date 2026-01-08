@@ -81,9 +81,9 @@ let tick t =
   in *)
   let ctl =
     [
-      Transformation.translation 0. (0.3) 0.;
+      Transformation.translation 0. 0.3 0.;
       Transformation.rotate_x (Float.pi /. 4.);
-      (Transformation.rotate_y (Float.pi /. 4.));
+      Transformation.rotate_y (Float.pi /. 4.);
       Transformation.translation 0. (-1.5) (-2.);
     ]
   in
