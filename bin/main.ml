@@ -74,15 +74,16 @@ let tick t =
 
   let w = World.v l (plane :: s :: sll) in
 
-  (* let ct =
+  (* let camera_transform =
     Matrix.multiply
-      (Transformation.translation 0. (0.5) (-3.5))
-      (Transformation.rotate_x 0.2)
+      (Transformation.translation 0. 0.5 (-3.5))
+    (Transformation.rotate_x 0.2)
   in *)
   let ctl =
     [
+      Transformation.translation 0. (0.3) 0.;
       Transformation.rotate_x (Float.pi /. 4.);
-      (* (Transformation.rotate_y (Float.pi /. 4.)); *)
+      (Transformation.rotate_y (Float.pi /. 4.));
       Transformation.translation 0. (-1.5) (-2.);
     ]
   in
