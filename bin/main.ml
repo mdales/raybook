@@ -1,40 +1,7 @@
 open Raybook
-open Tsdl
 
-let ( >>= ) = Result.bind
-let ( >|= ) v f = Result.map f v
-
-let sdl_init width height title make_fullscreen =
-  Sdl.init Sdl.Init.(video + events) >>= fun () ->
-  Sdl.create_window ~w:width ~h:height title
-    Sdl.Window.(
-      (if make_fullscreen then fullscreen else windowed) + allow_highdpi)
-  >>= fun w ->
-  Sdl.create_renderer ~flags:Sdl.Renderer.(accelerated + presentvsync) w
-  >>= fun r ->
-  Sdl.show_cursor (not make_fullscreen) >|= fun _ -> (w, r)
-
-let render_texture r texture dimensions bitmap =
-  let width, height = dimensions in
-  Sdl.render_clear r >>= fun () ->
-  Sdl.update_texture texture None bitmap width >>= fun () ->
-  let ow, oh = Result.get_ok (Sdl.get_renderer_output_size r) in
-  let dst =
-    Sdl.Rect.create
-      ~x:((ow - width) / 2)
-      ~y:((oh - height) / 2)
-      ~w:width ~h:height
-  in
-  Sdl.render_copy ~dst r texture >|= fun () -> Sdl.render_present r
-
-let tick t c =
-  let width, height = Canvas.dimensions c in
-
-  let t = t mod (width * height) in
-  let y_tick = t mod height in
-
-  let frame_key = t / height in
-  let angle = Float.of_int frame_key *. Float.pi /. 8. in
+let tick t =
+  let angle = Float.of_int t *. Float.pi /. 8. in
 
   (* if y_tick = 0 then
     for y = 0 to height - 1 do
@@ -50,11 +17,7 @@ let tick t c =
       (Transformation.scaling 0.1 0.1 0.1)
       (Transformation.rotate_z (Float.pi /. 2.))
   in
-  let m =
-    Material.v
-      ~pattern:Pattern.(v ~transform:t (Stripes (c1, c2)))
-      ()
-  in
+  let m = Material.v ~pattern:Pattern.(v ~transform:t (Stripes (c1, c2))) () in
   let s = Shape.v ~material:m Shape.Sphere in
 
   let light_location = Tuple.point 0. 10. 0. in
@@ -75,9 +38,8 @@ let tick t c =
         in
         let c = Colour.fmultiply c 0.3 in
         let m =
-          Material.v ~ambient:0.2 ~reflectivity:0.9
-          ~diffuse:0.1 ~specular:1. ~shininess:300.
-          ~transparency:0.9 ~refractive_index:1.5
+          Material.v ~ambient:0.2 ~reflectivity:0.9 ~diffuse:0.1 ~specular:1.
+            ~shininess:300. ~transparency:0.9 ~refractive_index:1.5
             ~pattern:Pattern.(v (Solid c))
             ()
         in
@@ -117,63 +79,17 @@ let tick t c =
       (Transformation.translation 0. (0.5) (-3.5))
       (Transformation.rotate_x 0.2)
   in *)
-  let ctl = [
-    (Transformation.rotate_x (Float.pi /. 4.));
-    (* (Transformation.rotate_y (Float.pi /. 4.)); *)
-    (Transformation.translation 0. (-1.5) (-2.));
-  ] in
-  let ct = List.fold_left Matrix.multiply (Matrix.identity 4) ctl in
-  let cam = Camera.v ~transform:ct (width, height) (Float.pi *. 70. /. 180.) in
+  let ctl =
+    [
+      Transformation.rotate_x (Float.pi /. 4.);
+      (* (Transformation.rotate_y (Float.pi /. 4.)); *)
+      Transformation.translation 0. (-1.5) (-2.);
+    ]
+  in
+  let camera_transform =
+    List.fold_left Matrix.multiply (Matrix.identity 4) ctl
+  in
 
-  for x_tick = 0 to width - 1 do
-    let r = Camera.ray_for_pixel cam (x_tick, y_tick) in
-    let col = World.colour_at w r in
-    Canvas.write_pixel c (x_tick, y_tick) col
-  done;
+  (camera_transform, w)
 
-  true
-
-let () =
-  let width = 1000 and height = 1000 in
-  let canvas = Canvas.v (width, height) in
-
-  match sdl_init 500 500 "Raybook" false with
-  | Error (`Msg e) ->
-      Sdl.log "Init error: %s" e;
-      exit 1
-  | Ok (w, r) -> (
-      match
-        Sdl.create_texture r Sdl.Pixel.format_rgb888 ~w:width ~h:height
-          Sdl.Texture.access_streaming
-      with
-      | Error (`Msg e) ->
-          Sdl.log "Texture error: %s" e;
-          exit 1
-      | Ok texture ->
-          let rec loop counter =
-            let e = Sdl.Event.create () in
-            let should_quit =
-              match Sdl.poll_event (Some e) with
-              | true -> (
-                  match Sdl.Event.(enum (get e typ)) with
-                  | `Quit -> true
-                  | _ -> false)
-              | false -> false
-            in
-
-            match tick counter canvas with
-            | false -> ()
-            | true -> (
-                (match
-                   render_texture r texture (width, height) (Canvas.raw canvas)
-                 with
-                | Error (`Msg e) -> Sdl.log "Render error: %s" e
-                | Ok () -> ());
-                match should_quit with true -> () | false -> loop (counter + 1))
-          in
-          loop 0;
-
-          Sdl.destroy_texture texture;
-          Sdl.destroy_renderer r;
-          Sdl.destroy_window w;
-          Sdl.quit ())
+let () = Sdl.run (500, 500) tick
