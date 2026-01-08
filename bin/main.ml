@@ -51,8 +51,7 @@ let tick t c =
       (Transformation.rotate_z (Float.pi /. 2.))
   in
   let m =
-    Material.v ~reflectivity:0.0 ~ambient:0. ~diffuse:0. ~specular:0.
-      ~transparency:1. ~refractive_index:1.5
+    Material.v
       ~pattern:Pattern.(v ~transform:t (Stripes (c1, c2)))
       ()
   in
@@ -63,7 +62,7 @@ let tick t c =
   let rotated_m = Matrix.multiply t (Tuple.to_matrix light_location) in
   let rotated_p = Tuple.of_matrix rotated_m in
 
-  let count = 24 in
+  let count = 18 in
   let sll : Shape.t list =
     List.init count (fun i ->
         let innerangle =
@@ -74,12 +73,15 @@ let tick t c =
             (sin (innerangle +. (2. *. Float.pi /. 3.)))
             (sin (innerangle +. (4. *. Float.pi /. 3.)))
         in
+        let c = Colour.fmultiply c 0.3 in
         let m =
-          Material.v ~ambient:0.2 ~reflectivity:0.3
+          Material.v ~ambient:0.2 ~reflectivity:0.9
+          ~diffuse:0.1 ~specular:1. ~shininess:300.
+          ~transparency:0.9 ~refractive_index:1.5
             ~pattern:Pattern.(v (Solid c))
             ()
         in
-        let scale : Matrix.t = Transformation.scaling 0.1 0.1 0.1 in
+        let scale : Matrix.t = Transformation.scaling 0.15 0.15 0.15 in
         let translate : Matrix.t = Transformation.translation 1.5 0. 0. in
         let rotate_y = Transformation.rotate_y innerangle in
         let transform =
@@ -110,11 +112,17 @@ let tick t c =
 
   let w = World.v l (plane :: s :: sll) in
 
-  let ct =
+  (* let ct =
     Matrix.multiply
-      (Transformation.translation 0. 0.5 (-3.5))
+      (Transformation.translation 0. (0.5) (-3.5))
       (Transformation.rotate_x 0.2)
-  in
+  in *)
+  let ctl = [
+    (Transformation.rotate_x (Float.pi /. 4.));
+    (* (Transformation.rotate_y (Float.pi /. 4.)); *)
+    (Transformation.translation 0. (-1.5) (-2.));
+  ] in
+  let ct = List.fold_left Matrix.multiply (Matrix.identity 4) ctl in
   let cam = Camera.v ~transform:ct (width, height) (Float.pi *. 70. /. 180.) in
 
   for x_tick = 0 to width - 1 do
