@@ -1,15 +1,10 @@
 open Raybook
 
 let tick t =
+  Random.init 123;
+
   let angle = Float.of_int t *. Float.pi /. 8. in
 
-  (* if y_tick = 0 then
-    for y = 0 to height - 1 do
-      for x = 0 to width - 1 do
-        b.{x + (y * width)} <- Int32.of_int 0xFFFFFF;
-      done
-    done; *)
-  (* if y_tick = 0 && t <> 0 then Unix.sleep 5; *)
   let c1 = Colour.v 1. 0.7 0.1 in
   let c2 = Colour.v 0.9 0.6 0.1 in
   let t =
@@ -18,7 +13,26 @@ let tick t =
       (Transformation.rotate_z (Float.pi /. 2.))
   in
   let m = Material.v ~pattern:Pattern.(v ~transform:t (Stripes (c1, c2))) () in
-  let s = Shape.v ~material:m Shape.Sphere in
+  (* let m = Material.v ~reflectivity:0.5 ~specular:1. ~shininess:400. ~pattern:Pattern.(v ~transform:t (Solid Colour.black)) () in *)
+
+  let cl = List.init 100 (fun _ ->
+    let md = 0.05 -. (Random.float 0.1) in
+    let x = ((Float.sqrt 2.) /. 2.) in
+    let x = x *. x in
+    let x = x +. md in
+    let cube_scale = Transformation.scaling x x x in
+    let xrot = Transformation.rotate_x (Random.float (Float.pi *. 2.))
+    and yrot = Transformation.rotate_y (Random.float (Float.pi *. 2.))
+    and zrot = Transformation.rotate_z (Random.float (Float.pi *. 2.)) in
+
+    let rotate = Matrix.multiply (
+      Matrix.multiply xrot yrot
+    ) zrot in
+
+    let t = Matrix.multiply rotate cube_scale in
+    Shape.(v ~transform:t ~material:m Cube)
+  ) in
+
 
   let light_location = Tuple.point 0. 10. 0. in
   let t = Transformation.rotate_x angle in
@@ -39,7 +53,8 @@ let tick t =
         let c = Colour.fmultiply c 0.3 in
         let m =
           Material.v ~ambient:0.2 ~reflectivity:0.9 ~diffuse:0.1 ~specular:1.
-            ~shininess:300. (* ~transparency:0.9 ~refractive_index:1.5 *)
+            ~shininess:300.
+            ~transparency:0.9 ~refractive_index:1.5
             ~pattern:Pattern.(v (Solid c))
             ()
         in
@@ -70,13 +85,13 @@ let tick t =
     Shape.v ~material:plane_m ~transform:plane_transform Shape.Plane
   in
 
-  let cube_transform = Transformation.translation (-3.) (-2.) (-3.) in
-  let cube_m = Material.v ~pattern:Pattern.(v (Solid Colour.white)) () in
-  let cube = Shape.(v ~material:cube_m ~transform:cube_transform Cube) in
+  (* let cube_transform = Transformation.translation (-3.) (-2.) (-3.) in
+  let cube_m = Material.v ~pattern:(Pattern.(v (Solid Colour.white))) () in
+  let cube = Shape.(v ~material:cube_m ~transform:cube_transform Cube) in *)
 
   let l = Light.v rotated_p (Colour.v 1. 1. 1.) in
 
-  let w = World.v l (plane :: s :: cube :: sll) in
+  let w = World.v l (plane :: (sll @ cl)) in
 
   let camera_transform =
     Matrix.multiply
@@ -90,8 +105,8 @@ let tick t =
       Transformation.rotate_y (Float.pi /. 4.);
       Transformation.translation 0. (-1.5) (-2.);
     ]
-  in
-  let camera_transform =
+  in *)
+  (* let camera_transform =
     List.fold_left Matrix.multiply (Matrix.identity 4) ctl
   in *)
 
