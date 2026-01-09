@@ -39,8 +39,7 @@ let tick t =
         let c = Colour.fmultiply c 0.3 in
         let m =
           Material.v ~ambient:0.2 ~reflectivity:0.9 ~diffuse:0.1 ~specular:1.
-            ~shininess:300.
-            (* ~transparency:0.9 ~refractive_index:1.5 *)
+            ~shininess:300. (* ~transparency:0.9 ~refractive_index:1.5 *)
             ~pattern:Pattern.(v (Solid c))
             ()
         in
@@ -72,9 +71,8 @@ let tick t =
   in
 
   let cube_transform = Transformation.translation (-3.) (-2.) (-3.) in
-  let cube_m = Material.v ~pattern:(Pattern.(v (Solid Colour.white))) () in
+  let cube_m = Material.v ~pattern:Pattern.(v (Solid Colour.white)) () in
   let cube = Shape.(v ~material:cube_m ~transform:cube_transform Cube) in
-
 
   let l = Light.v rotated_p (Colour.v 1. 1. 1.) in
 
@@ -83,7 +81,7 @@ let tick t =
   let camera_transform =
     Matrix.multiply
       (Transformation.translation 0. 0.5 (-3.5))
-    (Transformation.rotate_x 0.2)
+      (Transformation.rotate_x 0.2)
   in
   (* let ctl =
     [
