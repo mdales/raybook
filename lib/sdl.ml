@@ -1,7 +1,7 @@
 open Tsdl
 module Chan = Domainslib.Chan
 
-type 'a message = Task of 'a | Done of int | Quit
+type message = Task of int | Done of int | Quit
 type tick_func = int -> Matrix.t * World.t
 
 let ( >>= ) = Result.bind
@@ -9,18 +9,13 @@ let ( >|= ) v f = Result.map f v
 
 type state = { camera : Camera.t; world : World.t }
 
-let inner_tick linestart linecount tick_state c =
-  let width, height = Canvas.dimensions c in
+let inner_tick lineno state c =
+  let width, _ = Canvas.dimensions c in
 
-  let blockheight = min height (linestart + linecount) in
-  let rows = blockheight - linestart in
-
-  for y_tick = linestart to linestart + rows - 1 do
-    for x_tick = 0 to width - 1 do
-      let r = Camera.ray_for_pixel tick_state.camera (x_tick, y_tick) in
-      let col = World.colour_at tick_state.world r in
-      Canvas.write_pixel c (x_tick, y_tick) col
-    done
+  for x_tick = 0 to width - 1 do
+    let r = Camera.ray_for_pixel state.camera (x_tick, lineno) in
+    let col = World.colour_at state.world r in
+    Canvas.write_pixel c (x_tick, lineno) col
   done
 
 let sdl_init width height title make_fullscreen =
@@ -46,15 +41,12 @@ let render_texture r texture dimensions bitmap =
   in
   Sdl.render_copy ~dst r texture >|= fun () -> Sdl.render_present r
 
-let rec domain_loop index worker_count inputQ outputQ canvas =
+let rec domain_loop state inputQ outputQ canvas =
   match Chan.recv inputQ with
-  | Task state ->
-      let _, h = Canvas.dimensions canvas in
-      let step = h / worker_count in
-      let linestart = index * step and linecount = step in
-      inner_tick linestart linecount state canvas;
-      Chan.send outputQ (Done linestart);
-      domain_loop index worker_count inputQ outputQ canvas
+  | Task lineno ->
+      inner_tick lineno !state canvas;
+      Chan.send outputQ (Done lineno);
+      domain_loop state inputQ outputQ canvas
   | Done _ -> ()
   | Quit -> Chan.send outputQ Quit
 
@@ -68,19 +60,14 @@ let run (width, height) tick =
       (width * 2, height * 2)
       (Float.pi *. 70. /. 180.)
   in
-  let init_state = { camera; world } in
+  let state = ref { camera; world } in
 
   let worker_count = Domain.recommended_domain_count () in
   let inputQ = Chan.make_unbounded () in
   let outputQ = Chan.make_unbounded () in
   let _workers =
-    List.init worker_count (fun i ->
-        let domain =
-          Domain.spawn (fun _ ->
-              domain_loop i worker_count inputQ outputQ canvas)
-        in
-        Chan.send inputQ (Task init_state);
-        domain)
+    List.init worker_count (fun _ ->
+        Domain.spawn (fun _ -> domain_loop state inputQ outputQ canvas))
   in
 
   match sdl_init width height "Raybook" false with
@@ -96,7 +83,7 @@ let run (width, height) tick =
           Sdl.log "Texture error: %s" e;
           exit 1
       | Ok texture ->
-          let rec loop outstanding_workers counter =
+          let rec loop outstanding_blocks counter =
             let e = Sdl.Event.create () in
             let should_quit, should_advance =
               match Sdl.poll_event (Some e) with
@@ -118,17 +105,16 @@ let run (width, height) tick =
             match should_quit with
             | true -> ()
             | false ->
-                let outstanding_workers =
+                let rec recvloop acc =
                   match Chan.recv_poll outputQ with
-                  | None -> outstanding_workers
+                  | None -> acc
                   | Some msg -> (
-                      match msg with
-                      | Done _ -> outstanding_workers - 1
-                      | _ -> outstanding_workers)
+                      match msg with Done _ -> recvloop (acc - 1) | _ -> acc)
                 in
+                let outstanding_blocks = recvloop outstanding_blocks in
 
-                let outstanding_workers, counter =
-                  match (outstanding_workers, should_advance) with
+                let outstanding_blocks, counter =
+                  match (outstanding_blocks, should_advance) with
                   | 0, true ->
                       let camera_transform, world = tick (counter + 1) in
                       let camera =
@@ -136,18 +122,19 @@ let run (width, height) tick =
                           (width * 2, height * 2)
                           (Float.pi *. 70. /. 180.)
                       in
-                      let new_state = { camera; world } in
-                      for _ = 0 to worker_count - 1 do
-                        Chan.send inputQ (Task new_state)
+                      state := { camera; world };
+                      for index = 0 to (height * 2) - 1 do
+                        Chan.send inputQ (Task index)
                       done;
-                      (worker_count, counter + 1)
-                  | _ -> (outstanding_workers, counter)
+                      (height * 2, counter + 1)
+                  | _ -> (outstanding_blocks, counter)
                 in
 
-                loop outstanding_workers counter;
+                Printf.printf "%d %d\n" outstanding_blocks counter;
+                loop outstanding_blocks counter;
                 ()
           in
-          loop worker_count 0;
+          loop 0 (-1);
 
           Sdl.destroy_texture texture;
           Sdl.destroy_renderer r;
