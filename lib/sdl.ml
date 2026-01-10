@@ -92,7 +92,7 @@ let run (width, height) tick =
                   | `Quit -> (true, false)
                   | `Key_up -> (false, true)
                   | _ -> (false, false))
-              | false -> (false, false)
+              | false -> (false, counter = -1)
             in
 
             (match
@@ -130,7 +130,6 @@ let run (width, height) tick =
                   | _ -> (outstanding_blocks, counter)
                 in
 
-                Printf.printf "%d %d\n" outstanding_blocks counter;
                 loop outstanding_blocks counter;
                 ()
           in
