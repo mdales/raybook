@@ -6,8 +6,8 @@ let almost_equal a b =
     (Printf.sprintf "%f vs %f" a b)
     (Float.abs (a -. b) < Float.epsilon)
 
-let test_ray_intersects_cylinder =
-  let c = Shape.(v Cylinder) in
+let test_ray_intersects_infinite_cylinder =
+  let c = Shape.(v (Cylinder (Float.neg_infinity, Float.infinity))) in
   let testcases =
     [
       ( "Tangent",
@@ -34,8 +34,29 @@ let test_ray_intersects_cylinder =
       almost_equal t2 (Intersection.distance (List.nth il 1)))
     testcases
 
+let test_ray_intersects_constrained_cylinder =
+  let c = Shape.(v (Cylinder (1., 2.))) in
+  let testcases =
+    [
+      ( "hit 1",
+        Ray.v (Tuple.point 0. 1.5 0.) (Tuple.normalize (Tuple.vector 0.1 1. 0.)),
+        0 );
+      ("hit 2", Ray.v (Tuple.point 0. 3. (-5.)) (Tuple.vector 0. 0. 1.), 0);
+      ("hit 3", Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.), 0);
+      ("hit 4", Ray.v (Tuple.point 0. 2. (-5.)) (Tuple.vector 0. 0. 1.), 0);
+      ("hit 5", Ray.v (Tuple.point 0. 1. (-5.)) (Tuple.vector 0. 0. 1.), 0);
+      ("hit 6", Ray.v (Tuple.point 0. 1.5 (-2.)) (Tuple.vector 0. 0. 1.), 2);
+    ]
+  in
+  List.map
+    (fun (name, r, expected_count) ->
+      name >:: fun _ ->
+      let il = Intersection.intersects c r in
+      assert_equal expected_count (List.length il))
+    testcases
+
 let test_ray_misses_cylinder =
-  let c = Shape.(v Cylinder) in
+  let c = Shape.(v (Cylinder (Float.neg_infinity, Float.infinity))) in
   let testcases =
     [
       ("aligned on edge", Ray.v (Tuple.point 1. 0. 0.) (Tuple.vector 0. 1. 0.));
@@ -53,7 +74,7 @@ let test_ray_misses_cylinder =
     testcases
 
 let test_normal_at =
-  let c = Shape.(v Cylinder) in
+  let c = Shape.(v (Cylinder (Float.neg_infinity, Float.infinity))) in
   let testcases =
     [
       ("normal +ve x face", Tuple.point 1. 0. 0., Tuple.vector 1. 0. 0.);
@@ -72,7 +93,10 @@ let test_normal_at =
 let suite =
   "Cylinder tests"
   >::: [
-         "Test ray intersects cylinder" >::: test_ray_intersects_cylinder;
+         "Test ray intersects infinite cylinder"
+         >::: test_ray_intersects_infinite_cylinder;
+         "Test ray intersects constrained cylinder"
+         >::: test_ray_intersects_constrained_cylinder;
          "Test ray misses cylinder" >::: test_ray_misses_cylinder;
          "Test normal at" >::: test_normal_at;
        ]

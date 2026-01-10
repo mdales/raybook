@@ -1,4 +1,4 @@
-type geometry_t = Cube | Cylinder | Plane | Sphere
+type geometry_t = Cube | Cylinder of float * float | Plane | Sphere
 type t
 
 val v : ?material:Material.t -> ?transform:Matrix.t -> geometry_t -> t

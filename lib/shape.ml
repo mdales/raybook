@@ -1,4 +1,4 @@
-type geometry_t = Cube | Cylinder | Plane | Sphere
+type geometry_t = Cube | Cylinder of float * float | Plane | Sphere
 
 type t = {
   geometry : geometry_t;
