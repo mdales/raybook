@@ -5,13 +5,15 @@
 (generate_opam_files true)
 
 (source
- (github username/reponame))
+ (github mdales/raybook))
 
-(authors "Author Name <author@example.com>")
+(authors "Michael Dales <michael@digitalflapjack.com>")
 
-(maintainers "Maintainer Name <maintainer@example.com>")
+(maintainers "Michael Dales <michael@digitalflapjack.com>")
 
-(license LICENSE)
+(license GPL)
+
+(maintenance_intent "(latest)")
 
 (documentation https://url/to/documentation)
 

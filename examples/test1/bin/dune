@@ -1,0 +1,4 @@
+(executable
+ (public_name test1)
+ (name main)
+ (libraries raybook))
