@@ -45,41 +45,68 @@ let local_cube_intersects s r =
   and tmax = Float.min (Float.min xmax ymax) zmax in
   if tmin < tmax then [ v s tmin; v s tmax ] else []
 
-let local_cylinder_intersects min max s r =
+let check_cap r t =
+  let o = Ray.origin r in
+  let d = Ray.direction r in
+  let x = Tuple.x o +. (t *. Tuple.x d) and z = Tuple.z o +. (t *. Tuple.z d) in
+  (x *. x) +. (z *. z) <= 1.
+
+let intersect_caps min max capped s r il =
+  match capped with
+  | false -> il
+  | true -> (
+      let dy = Tuple.y (Ray.direction r) in
+      match Float.abs dy < Float.epsilon with
+      | true -> il
+      | false -> (
+          let oy = Tuple.y (Ray.origin r) in
+          let t0 = (min -. oy) /. dy and t1 = (max -. oy) /. dy in
+          let c0 = check_cap r t0 and c1 = check_cap r t1 in
+          match (c0, c1) with
+          | false, false -> il
+          | true, false -> v s t0 :: il
+          | false, true -> v s t1 :: il
+          | true, true -> [ v s t0; v s t1 ] @ il))
+
+let local_cylinder_intersects min max capped s r =
   let d = Ray.direction r in
   let dx = Tuple.x d and dz = Tuple.z d in
   let a = (dx *. dx) +. (dz *. dz) in
-  match Float.abs a < Float.epsilon with
-  | true -> []
-  | false -> (
-      let o = Ray.origin r in
-      let ox = Tuple.x o and oz = Tuple.z o in
-      let b = (2. *. ox *. dx) +. (2. *. oz *. dz)
-      and c = (ox *. ox) +. (oz *. oz) -. 1. in
-      let disc = (b *. b) -. (4. *. a *. c) in
-      match disc < 0. with
-      | true -> []
-      | false -> (
-          let t0 = ((b *. -1.) -. Float.sqrt disc) /. (2. *. a)
-          and t1 = ((b *. -1.) +. Float.sqrt disc) /. (2. *. a) in
-          let t0, t1 = if t0 > t1 then (t1, t0) else (t0, t1) in
+  let il =
+    match Float.abs a < Float.epsilon with
+    | true -> []
+    | false -> (
+        let o = Ray.origin r in
+        let ox = Tuple.x o and oz = Tuple.z o in
+        let b = (2. *. ox *. dx) +. (2. *. oz *. dz)
+        and c = (ox *. ox) +. (oz *. oz) -. 1. in
+        let disc = (b *. b) -. (4. *. a *. c) in
+        match disc < 0. with
+        | true -> []
+        | false -> (
+            let t0 = ((b *. -1.) -. Float.sqrt disc) /. (2. *. a)
+            and t1 = ((b *. -1.) +. Float.sqrt disc) /. (2. *. a) in
+            let t0, t1 = if t0 > t1 then (t1, t0) else (t0, t1) in
 
-          let y0 = Tuple.y o +. (t0 *. Tuple.y d)
-          and y1 = Tuple.y o +. (t1 *. Tuple.y d) in
+            let y0 = Tuple.y o +. (t0 *. Tuple.y d)
+            and y1 = Tuple.y o +. (t1 *. Tuple.y d) in
 
-          let y0in = y0 > min && y0 < max and y1in = y1 > min && y1 < max in
-          match (y0in, y1in) with
-          | false, false -> []
-          | true, false -> [ v s t0 ]
-          | false, true -> [ v s t1 ]
-          | true, true -> [ v s t0; v s t1 ]))
+            let y0in = y0 > min && y0 < max and y1in = y1 > min && y1 < max in
+            match (y0in, y1in) with
+            | false, false -> []
+            | true, false -> [ v s t0 ]
+            | false, true -> [ v s t1 ]
+            | true, true -> [ v s t0; v s t1 ]))
+  in
+  intersect_caps min max capped s r il
 
 let intersects s r =
   let transform = Shape.inverse_transform s in
   let r = Ray.transform r transform in
   match Shape.geometry s with
   | Shape.Cube -> local_cube_intersects s r
-  | Shape.Cylinder (min, max) -> local_cylinder_intersects min max s r
+  | Shape.Cylinder { min; max; capped } ->
+      local_cylinder_intersects min max capped s r
   | Shape.Plane -> local_plane_intersects s r
   | Shape.Sphere -> local_sphere_intersects s r
 
@@ -113,7 +140,13 @@ let local_cube_normal_at _s op =
   else if abs_y = maxc then Tuple.vector 0. (Tuple.y op) 0.
   else Tuple.vector 0. 0. (Tuple.z op)
 
-let local_cylinder_normal_at _s op = Tuple.vector (Tuple.x op) 0. (Tuple.z op)
+let local_cylinder_normal_at min max _s op =
+  let px = Tuple.x op and py = Tuple.y op and pz = Tuple.z op in
+  let dist = (px *. px) +. (pz *. pz) in
+
+  if dist < 1. && py >= max -. Float.epsilon then Tuple.vector 0. 1. 0.
+  else if dist < 1. && py <= min +. Float.epsilon then Tuple.vector 0. (-1.) 0.
+  else Tuple.vector px 0. pz
 
 let normal_at s p =
   let pm = Tuple.to_matrix p in
@@ -124,7 +157,7 @@ let normal_at s p =
   let object_normal =
     match Shape.geometry s with
     | Shape.Cube -> local_cube_normal_at s op
-    | Shape.Cylinder _ -> local_cylinder_normal_at s op
+    | Shape.Cylinder { min; max; _ } -> local_cylinder_normal_at min max s op
     | Shape.Plane -> local_plane_normal_at s op
     | Shape.Sphere -> local_sphere_normal_at s op
   in

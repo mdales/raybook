@@ -1,4 +1,8 @@
-type geometry_t = Cube | Cylinder of float * float | Plane | Sphere
+type geometry_t =
+  | Cube
+  | Cylinder of { min : float; max : float; capped : bool }
+  | Plane
+  | Sphere
 
 type t = {
   geometry : geometry_t;
