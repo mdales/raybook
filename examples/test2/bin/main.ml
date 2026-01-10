@@ -1,9 +1,9 @@
 open Raybook
 
 let tick _ =
-
-    let count = 32 in
-    let sl = List.init count (fun i ->
+  let count = 32 in
+  let sl =
+    List.init count (fun i ->
         let innerangle =
           2. *. Float.pi *. (Float.of_int i /. Float.of_int count)
         in
@@ -20,35 +20,36 @@ let tick _ =
             ()
         in
 
-
-        let transform = List.fold_left Matrix.multiply (Matrix.identity 4) [
-            Transformation.rotate_z innerangle;
-            Transformation.translation 0. 1. 0.;
-            Transformation.rotate_x (Float.pi /. 2.1);
-            Transformation.scaling 0.05 10.0 0.05;
-        ]
+        let transform =
+          List.fold_left Matrix.multiply (Matrix.identity 4)
+            [
+              Transformation.rotate_z innerangle;
+              Transformation.translation 0. 1. 0.;
+              Transformation.rotate_x (Float.pi /. 2.1);
+              Transformation.scaling 0.05 10.0 0.05;
+            ]
         in
-          Shape.v ~material:m ~transform
-            (Shape.Cylinder
-               { min = 0.; max = 1.; capped = false })
-    ) in
+        Shape.v ~material:m ~transform
+          (Shape.Cylinder { min = 0.; max = 1.; capped = false }))
+  in
 
-
-    let mt = Material.v ~ambient:0.1 ~pattern:(Pattern.(v (Solid Colour.white))) () in
-    let pt = List.fold_left Matrix.multiply (Matrix.identity 4) [
+  let mt =
+    Material.v ~ambient:0.1 ~pattern:Pattern.(v (Solid Colour.white)) ()
+  in
+  let pt =
+    List.fold_left Matrix.multiply (Matrix.identity 4)
+      [
         Transformation.translation 0. 0. (-55.);
         Transformation.rotate_x (Float.pi /. 2.);
-    ] in
-    let p = Shape.(v ~transform:pt ~material:mt Plane) in
+      ]
+  in
+  let p = Shape.(v ~transform:pt ~material:mt Plane) in
 
-    let l = Light.v (Tuple.point 0. 0. 0.) (Colour.v 1. 1. 1.) in
+  let l = Light.v (Tuple.point 0. 0. 0.) (Colour.v 1. 1. 1.) in
 
-    let w = World.v l (p :: sl) in
+  let w = World.v l (p :: sl) in
 
-    let camera_transform =
-          (Transformation.translation 0. 0.0 (-5.0))
-
-      in
+  let camera_transform = Transformation.translation 0. 0.0 (-5.0) in
 
   (camera_transform, w)
 

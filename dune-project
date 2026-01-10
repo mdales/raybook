@@ -21,7 +21,7 @@
  (name raybook)
  (synopsis "A short synopsis")
  (description "A longer description")
- (depends ocaml (ounit2 :with-test) (tsdl (>= 1.1.0)))
+ (depends ocaml (ounit2 :with-test) (tsdl (>= 1.1.0)) camlimages domainslib)
  (tags
   ("add topics" "to describe" your project)))
 

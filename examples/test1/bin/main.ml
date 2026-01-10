@@ -15,10 +15,7 @@ let tick t =
   let m = Material.v ~pattern:Pattern.(v ~transform:t (Stripes (c1, c2))) () in
   (* let m = Material.v ~reflectivity:0.5 ~specular:1. ~shininess:400. ~pattern:Pattern.(v ~transform:t (Solid Colour.black)) () in *)
 
-
-  let cl = [
-    Shape.(v ~material:m Sphere)
-  ] in
+  let cl = [ Shape.(v ~material:m Sphere) ] in
 
   let light_location = Tuple.point 0. 10. 0. in
   let t = Transformation.rotate_x angle in
@@ -50,7 +47,9 @@ let tick t =
           Matrix.multiply rotate_y (Matrix.multiply translate scale)
         in
         [
-          Shape.v ~material:m ~transform (Shape.Cylinder {min=Float.neg_infinity; max=0.; capped= true});
+          Shape.v ~material:m ~transform
+            (Shape.Cylinder
+               { min = Float.neg_infinity; max = 0.; capped = true });
           (* Shape.v ~material:m ~transform  Shape.Sphere *)
         ])
   in

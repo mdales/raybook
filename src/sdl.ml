@@ -85,15 +85,22 @@ let run (width, height) tick =
       | Ok texture ->
           let rec loop outstanding_blocks counter =
             let e = Sdl.Event.create () in
-            let should_quit, should_advance =
+            let should_quit, should_advance, should_save =
               match Sdl.poll_event (Some e) with
               | true -> (
                   match Sdl.Event.(enum (get e typ)) with
-                  | `Quit -> (true, false)
-                  | `Key_up -> (false, true)
-                  | _ -> (false, false))
-              | false -> (false, counter = -1)
+                  | `Quit -> (true, false, false)
+                  | `Key_up -> (
+                      let scancode = Sdl.Event.(get e keyboard_scancode) in
+                      match Sdl.Scancode.enum scancode with
+                      | `S -> (false, false, true)
+                      | `Space -> (false, true, false)
+                      | _ -> (false, false, false))
+                  | _ -> (false, false, false))
+              | false -> (false, counter = -1, false)
             in
+
+            if should_save then Canvas.save_png canvas "raybook.png";
 
             (match
                render_texture r texture

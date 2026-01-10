@@ -1,4 +1,4 @@
 (library
  (name raybook)
  (public_name raybook)
- (libraries tsdl domainslib))
+ (libraries tsdl domainslib camlimages.png))
