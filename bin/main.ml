@@ -15,22 +15,7 @@ let tick t =
   let m = Material.v ~pattern:Pattern.(v ~transform:t (Stripes (c1, c2))) () in
   (* let m = Material.v ~reflectivity:0.5 ~specular:1. ~shininess:400. ~pattern:Pattern.(v ~transform:t (Solid Colour.black)) () in *)
 
-  let cl =
-    List.init 100 (fun _ ->
-        let md = 0.05 -. Random.float 0.1 in
-        let x = Float.sqrt 2. /. 2. in
-        let x = x *. x in
-        let x = x +. md in
-        let cube_scale = Transformation.scaling x x x in
-        let xrot = Transformation.rotate_x (Random.float (Float.pi *. 2.))
-        and yrot = Transformation.rotate_y (Random.float (Float.pi *. 2.))
-        and zrot = Transformation.rotate_z (Random.float (Float.pi *. 2.)) in
-
-        let rotate = Matrix.multiply (Matrix.multiply xrot yrot) zrot in
-
-        let t = Matrix.multiply rotate cube_scale in
-        Shape.(v ~transform:t ~material:m Cube))
-  in
+  let cl = [ Shape.(v ~material:m Sphere) ] in
 
   let light_location = Tuple.point 0. 10. 0. in
   let t = Transformation.rotate_x angle in
@@ -38,7 +23,7 @@ let tick t =
   let rotated_p = Tuple.of_matrix rotated_m in
 
   let count = 18 in
-  let sll : Shape.t list =
+  let slll : Shape.t list list =
     List.init count (fun i ->
         let innerangle =
           2. *. Float.pi *. (Float.of_int i /. Float.of_int count)
@@ -61,8 +46,14 @@ let tick t =
         let transform =
           Matrix.multiply rotate_y (Matrix.multiply translate scale)
         in
-        Shape.v ~material:m ~transform Shape.Sphere)
+        [
+          Shape.v ~material:m ~transform
+            (Shape.Cylinder
+               { min = Float.neg_infinity; max = 0.; capped = true });
+          (* Shape.v ~material:m ~transform  Shape.Sphere *)
+        ])
   in
+  let sll = List.concat slll in
 
   let plane_transform =
     (* Matrix.multiply *)
