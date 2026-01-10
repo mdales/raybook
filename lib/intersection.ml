@@ -45,13 +45,34 @@ let local_cube_intersects s r =
   and tmax = Float.min (Float.min xmax ymax) zmax in
   if tmin < tmax then [ v s tmin; v s tmax ] else []
 
+let local_cylinder_intersects s r =
+  let d = Ray.direction r in
+  let dx = Tuple.x d and dz = Tuple.z d in
+  let a = (dx *. dx) +. (dz *. dz) in
+  match Float.abs a < Float.epsilon with
+  | true -> []
+  | false -> (
+      let o = Ray.origin r in
+      let ox = Tuple.x o and oz = Tuple.z o in
+      let b = (2. *. ox *. dx) +. (2. *. oz *. dz)
+      and c = (ox *. ox) +. (oz *. oz) -. 1. in
+      let disc = (b *. b) -. (4. *. a *. c) in
+      match disc < 0. with
+      | true -> []
+      | false ->
+          [
+            v s (((b *. -1.) -. Float.sqrt disc) /. (2. *. a));
+            v s (((b *. -1.) +. Float.sqrt disc) /. (2. *. a));
+          ])
+
 let intersects s r =
   let transform = Shape.inverse_transform s in
   let r = Ray.transform r transform in
   match Shape.geometry s with
-  | Shape.Sphere -> local_sphere_intersects s r
-  | Shape.Plane -> local_plane_intersects s r
   | Shape.Cube -> local_cube_intersects s r
+  | Shape.Cylinder -> local_cylinder_intersects s r
+  | Shape.Plane -> local_plane_intersects s r
+  | Shape.Sphere -> local_sphere_intersects s r
 
 let sort tl = List.sort (fun a b -> Float.compare a.distance b.distance) tl
 
@@ -83,6 +104,8 @@ let local_cube_normal_at _s op =
   else if abs_y = maxc then Tuple.vector 0. (Tuple.y op) 0.
   else Tuple.vector 0. 0. (Tuple.z op)
 
+let local_cylinder_normal_at _s op = Tuple.vector (Tuple.x op) 0. (Tuple.z op)
+
 let normal_at s p =
   let pm = Tuple.to_matrix p in
   let itm = Shape.inverse_transform s in
@@ -91,9 +114,10 @@ let normal_at s p =
 
   let object_normal =
     match Shape.geometry s with
-    | Shape.Sphere -> local_sphere_normal_at s op
-    | Shape.Plane -> local_plane_normal_at s op
     | Shape.Cube -> local_cube_normal_at s op
+    | Shape.Cylinder -> local_cylinder_normal_at s op
+    | Shape.Plane -> local_plane_normal_at s op
+    | Shape.Sphere -> local_sphere_normal_at s op
   in
 
   let titm = Shape.transpose_inverse_transform s in
