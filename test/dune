@@ -3,6 +3,7 @@
   test_camera
   test_canvas
   test_colour
+  test_cone
   test_cube
   test_cylinder
   test_intersection

@@ -1,4 +1,5 @@
 type geometry_t =
+  | Cone of { min : float; max : float; capped : bool }
   | Cube
   | Cylinder of { min : float; max : float; capped : bool }
   | Plane
