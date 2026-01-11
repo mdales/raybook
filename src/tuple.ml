@@ -73,7 +73,8 @@ let normalize t =
   match t.w with
   | Vector ->
       let m = magnitude t in
-      { x = t.x /. m; y = t.y /. m; z = t.z /. m; w = t.w }
+      if m = 0. then t
+      else { x = t.x /. m; y = t.y /. m; z = t.z /. m; w = t.w }
   | Point -> raise (Invalid_argument "Cannot normalize point")
 
 let dot t o =

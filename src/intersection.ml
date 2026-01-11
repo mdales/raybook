@@ -49,7 +49,7 @@ let check_cap r t radius =
   let o = Ray.origin r in
   let d = Ray.direction r in
   let x = Tuple.x o +. (t *. Tuple.x d) and z = Tuple.z o +. (t *. Tuple.z d) in
-  (x *. x) +. (z *. z) <= radius
+  (x *. x) +. (z *. z) <= radius *. radius
 
 let intersect_caps min max capped s r il is_cone =
   match capped with
@@ -108,7 +108,7 @@ let local_cone_intersects min max capped s r =
   let ox = Tuple.x o and oy = Tuple.y o and oz = Tuple.z o in
   let a = (dx *. dx) -. (dy *. dy) +. (dz *. dz)
   and b = (2. *. ox *. dx) -. (2. *. oy *. dy) +. (2. *. oz *. dz)
-  and c = (ox *. ox) -. (oy *. ox) +. (oz *. oz) in
+  and c = (ox *. ox) -. (oy *. oy) +. (oz *. oz) in
 
   let il =
     match Float.abs a < Float.epsilon with
@@ -186,6 +186,17 @@ let local_cylinder_normal_at min max _s op =
   else if dist < 1. && py <= min +. Float.epsilon then Tuple.vector 0. (-1.) 0.
   else Tuple.vector px 0. pz
 
+let local_cone_normal_at min max _s op =
+  let px = Tuple.x op and py = Tuple.y op and pz = Tuple.z op in
+  let dist = (px *. px) +. (pz *. pz) in
+
+  if dist < max *. max && py >= max -. Float.epsilon then Tuple.vector 0. 1. 0.
+  else if dist < min *. min && py <= min +. Float.epsilon then
+    Tuple.vector 0. (-1.) 0.
+  else
+    let y = Float.sqrt dist in
+    Tuple.vector px (if py > 0. then 0. -. y else y) pz
+
 let normal_at s p =
   let pm = Tuple.to_matrix p in
   let itm = Shape.inverse_transform s in
@@ -194,7 +205,7 @@ let normal_at s p =
 
   let object_normal =
     match Shape.geometry s with
-    | Shape.Cone _ -> failwith "todo"
+    | Shape.Cone { min; max; _ } -> local_cone_normal_at min max s op
     | Shape.Cube -> local_cube_normal_at s op
     | Shape.Cylinder { min; max; _ } -> local_cylinder_normal_at min max s op
     | Shape.Plane -> local_plane_normal_at s op
