@@ -6,6 +6,7 @@
   test_cone
   test_cube
   test_cylinder
+  test_group
   test_intersection
   test_light
   test_matrix

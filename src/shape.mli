@@ -4,8 +4,9 @@ type geometry_t =
   | Cylinder of { min : float; max : float; capped : bool }
   | Plane
   | Sphere
+  | Group of t list
 
-type t
+and t
 
 val v : ?material:Material.t -> ?transform:Matrix.t -> geometry_t -> t
 val material : t -> Material.t

@@ -170,7 +170,7 @@ let test_normal_at_capped_single_cone =
     testcases
 
 let suite =
-  "Cylinder tests"
+  "Cone tests"
   >::: [
          "Test ray intersects cone" >::: test_ray_intersects_cone;
          "Test ray parallel to cone" >:: test_ray_parallel_intersects_cone;
