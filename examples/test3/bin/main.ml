@@ -9,8 +9,10 @@ let tick _ =
       (Transformation.rotate_z (Float.pi /. 2.))
   in
   let m = Material.v ~pattern:Pattern.(v ~transform:t (Solid c1)) () in
+  let t = Transformation.rotate_x (-0.5) in
   let s =
-    Shape.(v ~material:m (Cone { min = -1.5; max = 1.5; capped = true }))
+    Shape.(
+      v ~material:m ~transform:t (Cone { min = 0.5; max = 1.5; capped = true }))
   in
 
   let mt =
@@ -25,7 +27,7 @@ let tick _ =
   in
   let p = Shape.(v ~transform:pt ~material:mt Plane) in
 
-  let light_location = Tuple.point 0. 10. 0. in
+  let light_location = Tuple.point 10. 1. 10. in
   let t = Transformation.rotate_x (Float.pi /. 12.) in
   let rotated_m = Matrix.multiply t (Tuple.to_matrix light_location) in
   let rotated_p = Tuple.of_matrix rotated_m in
@@ -35,8 +37,8 @@ let tick _ =
 
   let camera_transform =
     Matrix.multiply
-      (Transformation.translation 0. 0.5 (-3.5))
-      (Transformation.rotate_x 1.0)
+      (Transformation.translation 0. 0.0 (-3.5))
+      (Transformation.rotate_x 0.0)
   in
 
   (camera_transform, w)

@@ -54,8 +54,8 @@ let test_ray_parallel_intersects_cone _ =
   let t1 = 0.35355339059327378637 in
   almost_equal t1 (Intersection.distance (List.nth il 0))
 
-let test_ray_intersects_capped_cone =
-  let c = Shape.(v (Cone { min = -0.5; max = 0.5; capped = true })) in
+let test_ray_intersects_capped_double_cone =
+  let c = Shape.(v (Cone { min = -0.5; max = 2.; capped = true })) in
   let testcases =
     [
       ( "hit 1",
@@ -72,6 +72,36 @@ let test_ray_intersects_capped_cone =
           (Tuple.point 0. 0. (-0.25))
           (Tuple.normalize (Tuple.vector 0. 1. 0.)),
         4 );
+      ( "hit 4",
+        Ray.v (Tuple.point 0. 0. (-1.8))
+          (Tuple.normalize (Tuple.vector 0. 1. 0.)),
+        2 );
+    ]
+  in
+  List.map
+    (fun (name, r, expected_count) ->
+      name >:: fun _ ->
+      let il = Intersection.intersects c r in
+      assert_equal expected_count (List.length il))
+    testcases
+
+let test_ray_intersects_capped_single_cone =
+  let c = Shape.(v (Cone { min = 0.5; max = 2.; capped = true })) in
+  let testcases =
+    [
+      ( "hit 1",
+        Ray.v (Tuple.point 0. 0. (-5.))
+          (Tuple.normalize (Tuple.vector 0. 1. 0.)),
+        0 );
+      ( "hit 3",
+        Ray.v
+          (Tuple.point 0. 0. (-0.25))
+          (Tuple.normalize (Tuple.vector 0. 1. 0.)),
+        2 );
+      ( "hit 4",
+        Ray.v (Tuple.point 0. 0. (-1.8))
+          (Tuple.normalize (Tuple.vector 0. 1. 0.)),
+        2 );
     ]
   in
   List.map
@@ -102,13 +132,55 @@ let test_normal_at =
       assert_bool "is equal" (Tuple.is_equal (Tuple.normalize normal) res))
     testcases
 
+let test_normal_at_capped_double_cone =
+  let c = Shape.(v (Cone { min = -1.; max = 2.; capped = true })) in
+  let testcases =
+    [
+      ("test 1", Tuple.point 0. (-1.) 0., Tuple.vector 0. (-1.) 0.);
+      ("test 2", Tuple.point 0.5 (-1.) 0., Tuple.vector 0. (-1.) 0.);
+      ("test 3", Tuple.point 0. (-1.) 0.5, Tuple.vector 0. (-1.) 0.);
+      ("test 4", Tuple.point 0. 2. 0., Tuple.vector 0. 1. 0.);
+      ("test 5", Tuple.point 0.5 2. 0., Tuple.vector 0. 1. 0.);
+      ("test 6", Tuple.point 0. 2. 0.5, Tuple.vector 0. 1. 0.);
+      ("test 7", Tuple.point 0. 2. 1.5, Tuple.vector 0. 1. 0.);
+    ]
+  in
+  List.map
+    (fun (name, point, normal) ->
+      name >:: fun _ ->
+      let res = Intersection.normal_at c point in
+      assert_bool "is equal" (Tuple.is_equal normal res))
+    testcases
+
+let test_normal_at_capped_single_cone =
+  let c = Shape.(v (Cone { min = 1.; max = 2.; capped = true })) in
+  let testcases =
+    [
+      ("test 1", Tuple.point 0. 1. 0., Tuple.vector 0. (-1.) 0.);
+      ("test 2", Tuple.point 0.5 1. 0., Tuple.vector 0. (-1.) 0.);
+      ("test 3", Tuple.point 0. 1. 0.5, Tuple.vector 0. (-1.) 0.);
+      ("test 4", Tuple.point 0. 2. 0., Tuple.vector 0. 1. 0.);
+    ]
+  in
+  List.map
+    (fun (name, point, normal) ->
+      name >:: fun _ ->
+      let res = Intersection.normal_at c point in
+      assert_bool "is equal" (Tuple.is_equal normal res))
+    testcases
+
 let suite =
   "Cylinder tests"
   >::: [
          "Test ray intersects cone" >::: test_ray_intersects_cone;
          "Test ray parallel to cone" >:: test_ray_parallel_intersects_cone;
-         "Test ray intersects capped cone" >::: test_ray_intersects_capped_cone;
+         "Test ray intersects capped double cone"
+         >::: test_ray_intersects_capped_double_cone;
+         "Test ray intersects capped single cone"
+         >::: test_ray_intersects_capped_single_cone;
          "Test normal at" >::: test_normal_at;
+         "Test normal at capped double" >::: test_normal_at_capped_double_cone;
+         "Test normal at capped single" >::: test_normal_at_capped_single_cone;
        ]
 
 let () = run_test_tt_main suite

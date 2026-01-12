@@ -111,9 +111,9 @@ let local_cone_intersects min max capped s r =
   and c = (ox *. ox) -. (oy *. oy) +. (oz *. oz) in
 
   let il =
-    match Float.abs a < Float.epsilon with
+    match Float.abs a < Float.epsilon *. 100. with
     | true -> (
-        match Float.abs b < Float.epsilon with
+        match Float.abs b < Float.epsilon *. 100. with
         | true -> []
         | false ->
             let t = (0. -. c) /. (2. *. b) in
@@ -190,8 +190,9 @@ let local_cone_normal_at min max _s op =
   let px = Tuple.x op and py = Tuple.y op and pz = Tuple.z op in
   let dist = (px *. px) +. (pz *. pz) in
 
-  if dist < max *. max && py >= max -. Float.epsilon then Tuple.vector 0. 1. 0.
-  else if dist < min *. min && py <= min +. Float.epsilon then
+  if dist < max *. max && py >= max -. (Float.epsilon *. 100.) then
+    Tuple.vector 0. 1. 0.
+  else if dist < min *. min && py <= min +. (Float.epsilon *. 100.) then
     Tuple.vector 0. (-1.) 0.
   else
     let y = Float.sqrt dist in
