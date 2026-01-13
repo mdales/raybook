@@ -14,7 +14,7 @@ and t = {
   transpose_inverse_transform : Matrix.t;
 }
 
-let v ?material ?transform geometry =
+let rec v ?material ?transform geometry =
   let material =
     match material with
     | Some m -> m
@@ -24,6 +24,20 @@ let v ?material ?transform geometry =
     match transform with
     | Some t -> (t, Matrix.inverse t)
     | None -> (Matrix.identity 4, Matrix.identity 4)
+  in
+  let geometry, transform, inverse_transform =
+    match geometry with
+    | Group sl ->
+        (* Transform into global space *)
+        ( Group
+            (List.map
+               (fun s ->
+                 let global_transform = Matrix.multiply transform s.transform in
+                 v ~material:s.material ~transform:global_transform s.geometry)
+               sl),
+          Matrix.identity 4,
+          Matrix.identity 4 )
+    | s -> (s, transform, inverse_transform)
   in
   {
     geometry;

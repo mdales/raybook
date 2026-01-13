@@ -216,7 +216,7 @@ let normal_at s p =
     | Shape.Cylinder { min; max; _ } -> local_cylinder_normal_at min max s op
     | Shape.Plane -> local_plane_normal_at s op
     | Shape.Sphere -> local_sphere_normal_at s op
-    | Shape.Group _ -> failwith "todo"
+    | Shape.Group _ -> failwith "should not happen"
   in
 
   let titm = Shape.transpose_inverse_transform s in
