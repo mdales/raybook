@@ -137,21 +137,25 @@ let local_cone_intersects min max capped s r =
 
   intersect_caps min max capped s r il true
 
-let rec local_group_intersects sl _s r =
-  let il = List.map (fun is -> intersects is r) sl |> List.concat in
-  List.sort (fun a b -> Float.compare (distance a) (distance b)) il
-
-and intersects s r =
-  let transform = Shape.inverse_transform s in
-  let r = Ray.transform r transform in
+let rec intersects s r =
   match Shape.geometry s with
-  | Shape.Cone { min; max; capped } -> local_cone_intersects min max capped s r
-  | Shape.Cube -> local_cube_intersects s r
-  | Shape.Cylinder { min; max; capped } ->
-      local_cylinder_intersects min max capped s r
-  | Shape.Plane -> local_plane_intersects s r
-  | Shape.Sphere -> local_sphere_intersects s r
-  | Shape.Group sl -> local_group_intersects sl s r
+  | Shape.Group sl ->
+      (* Groups have their child shapes in world space *)
+      List.map (fun is -> intersects is r) sl
+      |> List.concat
+      |> List.sort (fun a b -> Float.compare (distance a) (distance b))
+  | _ -> (
+      let transform = Shape.inverse_transform s in
+      let r = Ray.transform r transform in
+      match Shape.geometry s with
+      | Shape.Cone { min; max; capped } ->
+          local_cone_intersects min max capped s r
+      | Shape.Cube -> local_cube_intersects s r
+      | Shape.Cylinder { min; max; capped } ->
+          local_cylinder_intersects min max capped s r
+      | Shape.Plane -> local_plane_intersects s r
+      | Shape.Sphere -> local_sphere_intersects s r
+      | Shape.Group _ -> failwith "should not be reached")
 
 let sort tl = List.sort (fun a b -> Float.compare a.distance b.distance) tl
 

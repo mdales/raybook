@@ -21,33 +21,32 @@ let tick _ =
 
   let sl =
     List.init 7 (fun y ->
-        List.init 9 (fun x ->
-            let fx = Float.of_int x and fy = Float.of_int y in
-            let t =
-              Transformation.translation
-                ((fx *. 4.) -. 12.)
-                ((fy *. 6.) -. 24.)
-                0.
-            in
+        let il =
+          List.init 9 (fun x ->
+              let fx = Float.of_int x in
+              let t = Transformation.translation ((fx *. 4.) -. 12.) 0. 0. in
 
-            let mt =
-              match (x, y) with
-              | 1, 5 ->
-                  Material.v ~ambient:0.15
-                    ~pattern:Pattern.(v (Solid (Colour.v 1. 0.3 0.3)))
-                    ()
-              | 3, 4 ->
-                  Material.v ~ambient:0.15
-                    ~pattern:Pattern.(v (Solid (Colour.v 0.3 1.0 0.3)))
-                    ()
-              | 5, 3 ->
-                  Material.v ~ambient:0.15
-                    ~pattern:Pattern.(v (Solid (Colour.v 0.3 0.3 1.0)))
-                    ()
-              | _ -> mt
-            in
-            gen_group mt t))
-    |> List.concat
+              let mt =
+                match (x, y) with
+                | 1, 5 ->
+                    Material.v ~ambient:0.15
+                      ~pattern:Pattern.(v (Solid (Colour.v 1. 0.3 0.3)))
+                      ()
+                | 3, 4 ->
+                    Material.v ~ambient:0.15
+                      ~pattern:Pattern.(v (Solid (Colour.v 0.3 1.0 0.3)))
+                      ()
+                | 5, 3 ->
+                    Material.v ~ambient:0.15
+                      ~pattern:Pattern.(v (Solid (Colour.v 0.3 0.3 1.0)))
+                      ()
+                | _ -> mt
+              in
+              gen_group mt t)
+        in
+        let fy = Float.of_int y in
+        let t = Transformation.translation 0. ((fy *. 6.) -. 24.) 0. in
+        Shape.(v ~transform:t (Group il)))
   in
 
   let pt =
