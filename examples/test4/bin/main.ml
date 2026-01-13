@@ -1,25 +1,55 @@
 open Raybook
 
-let gen_group (t : Matrix.t) =
-    let body = Shape.(v (Cylinder {min=(-1.);max=1.;capped=false})) in
-    let s1 = Shape.(v ~transform:(Transformation.translation 0. 1. 0.) Sphere) in
-    let s2 = Shape.(v ~transform:(Transformation.translation 0. (-1.) 0.) Sphere) in
-    Shape.(v ~transform:t (Group [s1 ; s2; body]))
+let gen_group m t =
+  let body =
+    Shape.(v ~material:m (Cylinder { min = -1.; max = 1.; capped = false }))
+  in
+  let s1 =
+    Shape.(
+      v ~material:m ~transform:(Transformation.translation 0. 1. 0.) Sphere)
+  in
+  let s2 =
+    Shape.(
+      v ~material:m ~transform:(Transformation.translation 0. (-1.) 0.) Sphere)
+  in
+  Shape.(v ~transform:t (Group [ s1; s2; body ]))
 
 let tick _ =
-
-    let sl = List.init 5 (fun y ->
-        List.init 5 (fun x ->
-            let fx = Float.of_int x
-            and fy = Float.of_int y in
-            let t = Transformation.translation (fx *. 4.) (fy *. 8) 0. in
-            gen_group t
-        )
-    ) |> List.concat in
-
   let mt =
-    Material.v ~ambient:0.1 ~pattern:Pattern.(v (Solid Colour.white)) ()
+    Material.v ~ambient:0.15 ~pattern:Pattern.(v (Solid Colour.white)) ()
   in
+
+  let sl =
+    List.init 7 (fun y ->
+        List.init 9 (fun x ->
+            let fx = Float.of_int x and fy = Float.of_int y in
+            let t =
+              Transformation.translation
+                ((fx *. 4.) -. 12.)
+                ((fy *. 6.) -. 24.)
+                0.
+            in
+
+            let mt =
+              match (x, y) with
+              | 1, 5 ->
+                  Material.v ~ambient:0.15
+                    ~pattern:Pattern.(v (Solid (Colour.v 1. 0.3 0.3)))
+                    ()
+              | 3, 4 ->
+                  Material.v ~ambient:0.15
+                    ~pattern:Pattern.(v (Solid (Colour.v 0.3 1.0 0.3)))
+                    ()
+              | 5, 3 ->
+                  Material.v ~ambient:0.15
+                    ~pattern:Pattern.(v (Solid (Colour.v 0.3 0.3 1.0)))
+                    ()
+              | _ -> mt
+            in
+            gen_group mt t))
+    |> List.concat
+  in
+
   let pt =
     List.fold_left Matrix.multiply (Matrix.identity 4)
       [
@@ -29,7 +59,7 @@ let tick _ =
   in
   let p = Shape.(v ~transform:pt ~material:mt Plane) in
 
-  let light_location = Tuple.point 10. 1. 50. in
+  let light_location = Tuple.point 10. 0. 50. in
   let t = Transformation.rotate_x (Float.pi /. 12.) in
   let rotated_m = Matrix.multiply t (Tuple.to_matrix light_location) in
   let rotated_p = Tuple.of_matrix rotated_m in
@@ -39,7 +69,7 @@ let tick _ =
 
   let camera_transform =
     Matrix.multiply
-      (Transformation.translation 0. 0.0 (-13.5))
+      (Transformation.translation 0. 0.0 (-20.))
       (Transformation.rotate_x 0.0)
   in
 
