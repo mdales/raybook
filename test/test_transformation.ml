@@ -256,6 +256,24 @@ let test_arbitrary_view_transform _ =
   in
   assert_bool "is equal" (Matrix.is_equal expected res)
 
+let test_combine_empty _ =
+  let res = Transformation.combine [] in
+  let expected = Matrix.identity 4 in
+  assert_bool "is equal" (Matrix.is_equal expected res)
+
+let test_combine_single_transform _ =
+  let t = Transformation.translation 1. 2. 3. in
+  let res = Transformation.combine [ t ] in
+  assert_bool "is equal" (Matrix.is_equal t res)
+
+let test_combine_multi_transform _ =
+  let t1 = Transformation.translation 1. 2. 3.
+  and t2 = Transformation.scaling 3. 4. 5.
+  and t3 = Transformation.rotate_x 2. in
+  let res = Transformation.combine [ t1; t2; t3 ] in
+  let expected = Matrix.multiply (Matrix.multiply t3 t2) t1 in
+  assert_bool "is equal" (Matrix.is_equal expected res)
+
 let suite =
   "Transformation tests"
   >::: [
@@ -283,6 +301,9 @@ let suite =
          "Test default view transformation" >:: test_default_view_transform;
          "Test view towards z transformation" >:: test_towards_z_view_transform;
          "Test arbitrary view transformation" >:: test_arbitrary_view_transform;
+         "Test combine empty list" >:: test_combine_empty;
+         "Test combine single transform" >:: test_combine_single_transform;
+         "Test combine multiple transforms" >:: test_combine_multi_transform;
        ]
 
 let () = run_test_tt_main suite

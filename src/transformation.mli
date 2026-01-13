@@ -5,3 +5,4 @@ val rotate_y : float -> Matrix.t
 val rotate_z : float -> Matrix.t
 val shearing : float -> float -> float -> float -> float -> float -> Matrix.t
 val view_transform : Tuple.t -> Tuple.t -> Tuple.t -> Matrix.t
+val combine : Matrix.t list -> Matrix.t

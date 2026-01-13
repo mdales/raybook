@@ -43,14 +43,12 @@ let tick t =
         let scale : Matrix.t = Transformation.scaling 0.15 0.15 0.15 in
         let translate : Matrix.t = Transformation.translation 1.5 0. 0. in
         let rotate_y = Transformation.rotate_y innerangle in
-        let transform =
-          Matrix.multiply rotate_y (Matrix.multiply translate scale)
-        in
+        let transform = Transformation.combine [ scale; translate; rotate_y ] in
         [
-          Shape.v ~material:m ~transform
+          (* Shape.v ~material:m ~transform
             (Shape.Cylinder
-               { min = Float.neg_infinity; max = 0.; capped = true });
-          (* Shape.v ~material:m ~transform  Shape.Sphere *)
+               { min = Float.neg_infinity; max = 0.; capped = true }); *)
+          Shape.v ~material:m ~transform Shape.Sphere;
         ])
   in
   let sll = List.concat slll in

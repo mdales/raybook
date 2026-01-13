@@ -94,7 +94,7 @@ let test_normal_at_within_group _ =
         | _ -> assert_failure "expected inner group")
     | _ -> assert_failure "expected group"
   in
-  let expected_transform = Matrix.multiply (Matrix.multiply t1 t2) t in
+  let expected_transform = Transformation.combine [ t; t2; t1 ] in
   assert_bool "is equal transform"
     (Matrix.is_equal expected_transform (Shape.transform updated_s));
   let res =

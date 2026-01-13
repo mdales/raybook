@@ -98,3 +98,9 @@ let view_transform from_p to_p up_v =
       (0. -. Tuple.z from_p)
   in
   Matrix.multiply orientation t
+
+let combine tl =
+  match tl with
+  | [] -> Matrix.identity 4
+  | hd :: [] -> hd
+  | hd :: tl -> List.fold_left (fun a b -> Matrix.multiply b a) hd tl
