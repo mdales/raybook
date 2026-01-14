@@ -20,12 +20,15 @@ let tick _ =
             ()
         in
 
-        let transform = Transformation.combine [
-          Transformation.scaling 0.05 10.0 0.05;
-          Transformation.rotate_x (Float.pi /. 2.1);
-          Transformation.translation 0. 1. 0.;
-          Transformation.rotate_z innerangle;
-        ] in
+        let transform =
+          Transformation.combine
+            [
+              Transformation.scaling 0.05 10.0 0.05;
+              Transformation.rotate_x (Float.pi /. 2.1);
+              Transformation.translation 0. 1. 0.;
+              Transformation.rotate_z innerangle;
+            ]
+        in
         Shape.v ~material:m ~transform
           (Shape.Cylinder { min = 0.; max = 1.; capped = false }))
   in
@@ -33,10 +36,13 @@ let tick _ =
   let mt =
     Material.v ~ambient:0.1 ~pattern:Pattern.(v (Solid Colour.white)) ()
   in
-  let pt = Transformation.combine [
-    Transformation.rotate_x (Float.pi /. 2.);
-    Transformation.translation 0. 0. (-55.);
-  ] in
+  let pt =
+    Transformation.combine
+      [
+        Transformation.rotate_x (Float.pi /. 2.);
+        Transformation.translation 0. 0. (-55.);
+      ]
+  in
   let p = Shape.(v ~transform:pt ~material:mt Plane) in
 
   let l = Light.v (Tuple.point 0. 0. 0.) (Colour.v 1. 1. 1.) in
