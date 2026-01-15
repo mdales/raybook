@@ -4,6 +4,7 @@ type geometry_t =
   | Cylinder of { min : float; max : float; capped : bool }
   | Plane
   | Sphere
+  | Triangle of (Tuple.t * Tuple.t * Tuple.t)
   | Group of t list
 
 and t = {
@@ -14,6 +15,9 @@ and t = {
   transpose_inverse_transform : Matrix.t;
   min_bounds : Tuple.t;
   max_bounds : Tuple.t;
+  (* valid for triangle only *)
+  edges : (Tuple.t * Tuple.t) option;
+  normal : Tuple.t option;
 }
 
 let corners a b =
@@ -80,6 +84,14 @@ let rec v ?material ?transform geometry =
     | Some t -> (t, Matrix.inverse t)
     | None -> (Matrix.identity 4, Matrix.identity 4)
   in
+  let edges, normal =
+    match geometry with
+    | Triangle (a, b, c) ->
+        let e1 = Tuple.subtract b a and e2 = Tuple.subtract c a in
+        let normal = Tuple.normalize (Tuple.cross e2 e1) in
+        (Some (e1, e2), Some normal)
+    | _ -> (None, None)
+  in
   let geometry, transform, inverse_transform =
     match geometry with
     | Group sl ->
@@ -107,6 +119,24 @@ let rec v ?material ?transform geometry =
     | Plane ->
         ( Tuple.point Float.neg_infinity 0. Float.neg_infinity,
           Tuple.point Float.infinity 0. Float.infinity )
+    | Triangle (a, b, c) ->
+        let ax = Tuple.x a
+        and ay = Tuple.y a
+        and az = Tuple.z a
+        and bx = Tuple.x b
+        and by = Tuple.y b
+        and bz = Tuple.z b
+        and cx = Tuple.x c
+        and cy = Tuple.y c
+        and cz = Tuple.z c in
+        ( Tuple.point
+            (Float.min (Float.min ax bx) cx)
+            (Float.min (Float.min ay by) cy)
+            (Float.min (Float.min az bz) cz),
+          Tuple.point
+            (Float.max (Float.max ax bx) cx)
+            (Float.max (Float.max ay by) cy)
+            (Float.max (Float.max az bz) cz) )
     | Group sl -> group_bounds sl
   in
   {
@@ -117,6 +147,8 @@ let rec v ?material ?transform geometry =
     transpose_inverse_transform = Matrix.transpose inverse_transform;
     min_bounds;
     max_bounds;
+    edges;
+    normal;
   }
 
 let geometry t = t.geometry
@@ -125,3 +157,5 @@ let transform t = t.transform
 let inverse_transform t = t.inverse_transform
 let transpose_inverse_transform t = t.transpose_inverse_transform
 let bounds t = (t.min_bounds, t.max_bounds)
+let edges t = t.edges
+let normal t = t.normal

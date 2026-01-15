@@ -4,6 +4,7 @@ type geometry_t =
   | Cylinder of { min : float; max : float; capped : bool }
   | Plane
   | Sphere
+  | Triangle of (Tuple.t * Tuple.t * Tuple.t)
   | Group of t list
 
 and t
@@ -15,3 +16,5 @@ val inverse_transform : t -> Matrix.t
 val transpose_inverse_transform : t -> Matrix.t
 val geometry : t -> geometry_t
 val bounds : t -> Tuple.t * Tuple.t
+val edges : t -> (Tuple.t * Tuple.t) option
+val normal : t -> Tuple.t option

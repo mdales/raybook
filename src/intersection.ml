@@ -154,6 +154,26 @@ let local_cone_intersects min max capped s r =
 
   intersect_caps min max capped s r il true
 
+let local_triangle_intersects (p1, _, _) s r =
+  let e1, e2 = Option.get (Shape.edges s) in
+  let d = Ray.direction r in
+  let dir_cross_e2 = Tuple.cross d e2 in
+  let det = Tuple.dot e1 dir_cross_e2 in
+  if Float.abs det < Float.epsilon then []
+  else
+    let f = 1. /. det in
+    let o = Ray.origin r in
+    let p1_to_origin = Tuple.subtract o p1 in
+    let u = f *. Tuple.dot p1_to_origin dir_cross_e2 in
+    if u < 0. || u > 1. then []
+    else
+      let origin_cross_e1 = Tuple.cross p1_to_origin e1 in
+      let vv = f *. Tuple.dot d origin_cross_e1 in
+      if vv < 0. || vv +. u > 1. then []
+      else
+        let t = f *. Tuple.dot e2 origin_cross_e1 in
+        [ v s t ]
+
 let rec intersects s r =
   match Shape.geometry s with
   | Shape.Group sl -> (
@@ -175,6 +195,7 @@ let rec intersects s r =
           local_cylinder_intersects min max capped s r
       | Shape.Plane -> local_plane_intersects s r
       | Shape.Sphere -> local_sphere_intersects s r
+      | Shape.Triangle c -> local_triangle_intersects c s r
       | Shape.Group _ -> failwith "should not be reached")
 
 let sort tl = List.sort (fun a b -> Float.compare a.distance b.distance) tl
@@ -240,6 +261,7 @@ let normal_at s p =
     | Shape.Cylinder { min; max; _ } -> local_cylinder_normal_at min max s op
     | Shape.Plane -> local_plane_normal_at s op
     | Shape.Sphere -> local_sphere_normal_at s op
+    | Shape.Triangle _ -> Option.get (Shape.normal s)
     | Shape.Group _ -> failwith "should not happen"
   in
 
