@@ -1,5 +1,6 @@
 (tests
  (names
+  test_bounds
   test_camera
   test_canvas
   test_colour

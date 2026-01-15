@@ -14,3 +14,4 @@ val transform : t -> Matrix.t
 val inverse_transform : t -> Matrix.t
 val transpose_inverse_transform : t -> Matrix.t
 val geometry : t -> geometry_t
+val bounds : t -> Tuple.t * Tuple.t

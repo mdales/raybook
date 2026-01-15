@@ -4,6 +4,33 @@ let v shape distance = { shape; distance }
 let distance t = t.distance
 let shape t = t.shape
 
+let cube_axis_check ?(lower = -1.) ?(upper = 1.) o d =
+  let tmin_enum = lower -. o and tmax_enum = upper -. o in
+  let tmin, tmax =
+    if Float.abs d > Float.epsilon then (tmin_enum /. d, tmax_enum /. d)
+    else
+      (* this gives them the correct sign *)
+      (tmin_enum *. Float.infinity, tmax_enum *. Float.infinity)
+  in
+  if tmin > tmax then (tmax, tmin) else (tmin, tmax)
+
+let bounds_intersects s r =
+  let minb, maxb = Shape.bounds s in
+  let o = Ray.origin r and d = Ray.direction r in
+  let xmin, xmax =
+    cube_axis_check ~lower:(Tuple.x minb) ~upper:(Tuple.x maxb) (Tuple.x o)
+      (Tuple.x d)
+  and ymin, ymax =
+    cube_axis_check ~lower:(Tuple.y minb) ~upper:(Tuple.y maxb) (Tuple.y o)
+      (Tuple.y d)
+  and zmin, zmax =
+    cube_axis_check ~lower:(Tuple.z minb) ~upper:(Tuple.z maxb) (Tuple.z o)
+      (Tuple.z d)
+  in
+  let tmin = Float.max (Float.max xmin ymin) zmin
+  and tmax = Float.min (Float.min xmax ymax) zmax in
+  if tmin < tmax then true else false
+
 let local_sphere_intersects s r =
   let sphere_to_ray = Tuple.subtract (Ray.origin r) (Tuple.point 0. 0. 0.) in
   let a = Tuple.dot (Ray.direction r) (Ray.direction r) in
@@ -25,16 +52,6 @@ let local_plane_intersects s r =
     let origin_y = Tuple.y (Ray.origin r) in
     let t = (0. -. origin_y) /. direction_y in
     [ v s t ]
-
-let cube_axis_check o d =
-  let tmin_enum = -1. -. o and tmax_enum = 1. -. o in
-  let tmin, tmax =
-    if Float.abs d > Float.epsilon then (tmin_enum /. d, tmax_enum /. d)
-    else
-      (* this gives them the correct sign *)
-      (tmin_enum *. Float.infinity, tmax_enum *. Float.infinity)
-  in
-  if tmin > tmax then (tmax, tmin) else (tmin, tmax)
 
 let local_cube_intersects s r =
   let o = Ray.origin r and d = Ray.direction r in
@@ -139,11 +156,14 @@ let local_cone_intersects min max capped s r =
 
 let rec intersects s r =
   match Shape.geometry s with
-  | Shape.Group sl ->
-      (* Groups have their child shapes in world space *)
-      List.map (fun is -> intersects is r) sl
-      |> List.concat
-      |> List.sort (fun a b -> Float.compare (distance a) (distance b))
+  | Shape.Group sl -> (
+      match bounds_intersects s r with
+      | false -> []
+      | true ->
+          (* Groups have their child shapes in world space *)
+          List.map (fun is -> intersects is r) sl
+          |> List.concat
+          |> List.sort (fun a b -> Float.compare (distance a) (distance b)))
   | _ -> (
       let transform = Shape.inverse_transform s in
       let r = Ray.transform r transform in

@@ -47,18 +47,20 @@ let tick t =
   in
   let p = Shape.(v ~transform:pt ~material:mt Plane) in
 
-  let ft = Float.of_int t
-  and fc = Float.of_int frame_count in
-  let light_angle = (Float.pi *. 2. *. ft) /. fc in
-  let intensity =  1. in
+  let ft = Float.of_int t and fc = Float.of_int frame_count in
+  let light_angle = Float.pi *. 2. *. ft /. fc in
+  let intensity = 1. in
   (* ((cos light_angle) *. 0.7) +. 0.3 in *)
-  let lp = (Tuple.point 0. 4. (-2.)) in
+  let lp = Tuple.point 0. 4. (-2.) in
   let lpm = Tuple.to_matrix lp in
-  let light_transform = Transformation.combine [
-    (* Transformation.translation 0. 0. ((sin light_angle) *. 3.); *)
-    Transformation.rotate_y light_angle;
-    Transformation.scaling 4. 1. 1.;
-  ] in
+  let light_transform =
+    Transformation.combine
+      [
+        (* Transformation.translation 0. 0. ((sin light_angle) *. 3.); *)
+        Transformation.rotate_y light_angle;
+        Transformation.scaling 4. 1. 1.;
+      ]
+  in
   let ulpm = Matrix.multiply light_transform lpm in
   let ulp = Tuple.of_matrix ulpm in
 
@@ -74,17 +76,15 @@ let tick t =
   (camera_transform, w)
 
 let () =
-  let c =  Canvas.v (576, 324) in
+  let c = Canvas.v (576, 324) in
   let r = Render.v c in
-  for idx = 0 to (frame_count - 1 ) do
+  for idx = 0 to frame_count - 1 do
     let ct, world = tick idx in
     let camera =
-      Camera.v ~transform:ct
-        (Canvas.dimensions c)
-        (Float.pi *. 70. /. 180.)
+      Camera.v ~transform:ct (Canvas.dimensions c) (Float.pi *. 70. /. 180.)
     in
     Render.render r camera world;
     Render.wait_for_completion r;
     let filename = Printf.sprintf "frame_%d.png" idx in
-    Canvas.save_png c filename;
+    Canvas.save_png c filename
   done
