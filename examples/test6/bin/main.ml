@@ -1,6 +1,6 @@
 open Raybook
 
-let frame_count = 12
+let frame_count = 96
 
 let tick t =
   let count = 9 in
@@ -76,7 +76,7 @@ let tick t =
   (camera_transform, w)
 
 let () =
-  let c = Canvas.v (576, 324) in
+  let c =  Canvas.v (576 * 2, 324 * 2) in
   let r = Render.v c in
   for idx = 0 to frame_count - 1 do
     let ct, world = tick idx in
@@ -85,6 +85,6 @@ let () =
     in
     Render.render r camera world;
     Render.wait_for_completion r;
-    let filename = Printf.sprintf "frame_%d.png" idx in
+    let filename = Printf.sprintf "frame_%03d.png" idx in
     Canvas.save_png c filename
   done
