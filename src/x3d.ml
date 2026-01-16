@@ -1,5 +1,21 @@
 open Ezxmlm
 
+let chunks n lst =
+  if n <= 0 then raise (Invalid_argument "Chunk size must be 1 or more");
+  let rec loop acc stash lst =
+    match lst with
+    | [] when stash = [] -> Result.Ok (List.rev acc)
+    | [] -> Result.Error "List not divisible by chunk size"
+    | hd :: tl -> (
+      let stash = hd :: stash in
+      let acc, stash = match (List.length stash) = n with
+      | true -> (List.rev stash) :: acc, []
+      | false -> acc, stash
+      in
+      loop acc stash tl
+    )
+  in loop [] [] lst
+
 let of_file filename =
   let shapes =
     In_channel.with_open_text filename (fun c ->

@@ -203,8 +203,7 @@ let test_reflected_colour_on_reflective_surface _ =
   let comps = Precomputed.v i r [ i ] in
   let res = World.reflected_colour w comps in
   let expected =
-    Colour.v 00.19033059654055548005 0.23791324567569432924
-      0.14274794740541657534
+    Colour.v 0.19033059654434483776 0.23791324568043104026 0.14274794740825860750
   in
   assert_bool "is equal" (Colour.is_equal expected res)
 
@@ -221,8 +220,7 @@ let test_shader_hit_on_reflective_surface _ =
   let comps = Precomputed.v i r [ i ] in
   let res = World.shader_hit w comps in
   let expected =
-    Colour.v 0.85257168739730504470 0.90015433653244381063
-      0.80498903826216605673
+    Colour.v 0.85257168740109434690 0.90015433653718057716 0.80498903826500811665
   in
   assert_bool "is equal" (Colour.is_equal expected res)
 
@@ -306,8 +304,7 @@ let test_refracted_colour _ =
   let comps = Precomputed.v i r il in
   let res = World.refracted_colour ~count:5 w comps in
   let expected =
-    Colour.v 0.00000000000000000000 0.99888470374667837071
-      0.04721597844915045167
+    Colour.v 0.00000000000000000000 0.99888470374636340043 0.04721597845581321923
   in
   assert_bool "is equal" (Colour.is_equal expected res)
 
@@ -334,8 +331,7 @@ let test_shader_hit_with_refraction _ =
   let comps = Precomputed.v i r [ i ] in
   let res = World.shader_hit ~count:5 w comps in
   let expected =
-    Colour.v 0.93642538898150140536 0.68642538898150140536
-      0.68642538898150140536
+    Colour.v 0.93642538898150140536 0.68642538898150140536 0.68642538898150140536
   in
   assert_bool "is equal" (Colour.is_equal expected res)
 
@@ -361,8 +357,7 @@ let test_shader_hit_with_relective_transparent_model _ =
   let comps = Precomputed.v i r [ i ] in
   let res = World.shader_hit ~count:5 w comps in
   let expected =
-    Colour.v 0.93391514055019775320 0.69643422629373807897
-      0.69243069136884338732
+    Colour.v 0.93391514055035718123 0.69643422629393736401 0.69243069136896295834
   in
   assert_bool "is equal" (Colour.is_equal expected res)
 

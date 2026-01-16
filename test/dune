@@ -20,5 +20,6 @@
   test_transformation
   test_triangle
   test_tuple
-  test_world)
+  test_world
+  test_x3d)
  (libraries raybook ounit2))

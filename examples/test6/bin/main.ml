@@ -76,7 +76,7 @@ let tick t =
   (camera_transform, w)
 
 let () =
-  let c =  Canvas.v (576 * 2, 324 * 2) in
+  let c = Canvas.v (576 * 2, 324 * 2) in
   let r = Render.v c in
   for idx = 0 to frame_count - 1 do
     let ct, world = tick idx in
