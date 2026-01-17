@@ -1,20 +1,39 @@
 open Ezxmlm
 
+(* let ( >>= ) = Result.bind *)
+let ( >|= ) v f = Result.map f v
+
 let chunks n lst =
-  if n <= 0 then raise (Invalid_argument "Chunk size must be 1 or more");
-  let rec loop acc stash lst =
-    match lst with
-    | [] when stash = [] -> Result.Ok (List.rev acc)
-    | [] -> Result.Error "List not divisible by chunk size"
-    | hd :: tl -> (
-      let stash = hd :: stash in
-      let acc, stash = match (List.length stash) = n with
-      | true -> (List.rev stash) :: acc, []
-      | false -> acc, stash
-      in
-      loop acc stash tl
-    )
-  in loop [] [] lst
+  if n <= 0 then Result.Error "Chunk size must be 1 or more"
+  else
+    let rec loop acc stash lst =
+      match lst with
+      | [] when stash = [] -> Result.Ok (List.rev acc)
+      | [] -> Result.Error "List not divisible by chunk size"
+      | hd :: tl ->
+          let stash = hd :: stash in
+          let acc, stash =
+            match List.length stash = n with
+            | true -> (List.rev stash :: acc, [])
+            | false -> (acc, stash)
+          in
+          loop acc stash tl
+    in
+    loop [] [] lst
+
+let parse_points s =
+  String.split_on_char ' ' s |> List.map float_of_string |> chunks 3
+  >|= List.map (fun c ->
+      match c with
+      | [ x; y; z ] -> Tuple.point x y z
+      | _ -> failwith "should do better error checking here as to why")
+
+let parse_colours s =
+  String.split_on_char ' ' s |> List.map float_of_string |> chunks 4
+  >|= List.map (fun c ->
+      match c with
+      | [ r; g; b; _ ] -> Colour.v r g b
+      | _ -> failwith "chunk should have failed before we get here")
 
 let of_file filename =
   let shapes =
@@ -37,37 +56,19 @@ let of_file filename =
 
                   let coord_attrs, _ = member_with_attr "Coordinate" inode in
                   let pointStr = List.assoc ("", "point") coord_attrs in
-                  let pointsRaw =
-                    String.split_on_char ' ' pointStr
-                    |> List.map float_of_string
-                  in
-                  let rec pointloop acc vals =
-                    match vals with
-                    | [] -> acc
-                    | x :: y :: z :: tl ->
-                        pointloop (Tuple.point x y z :: acc) tl
-                    | _ -> failwith "unexpected remainder"
-                  in
                   let points =
-                    pointloop [] pointsRaw |> List.rev |> Array.of_list
+                    match parse_points pointStr with
+                    | Result.Ok pl -> Array.of_list pl
+                    | Result.Error msg -> failwith msg
                   in
 
                   let cols =
                     try
                       let col_attrs, _ = member_with_attr "ColorRGBA" inode in
                       let colsStr = List.assoc ("", "color") col_attrs in
-                      let channel_vals =
-                        String.split_on_char ' ' colsStr
-                        |> List.map float_of_string
-                      in
-                      let rec colloop acc vals =
-                        match vals with
-                        | [] -> acc
-                        | r :: g :: b :: _a :: tl ->
-                            colloop (Colour.v r g b :: acc) tl
-                        | _ -> failwith "colour count wrong"
-                      in
-                      colloop [] channel_vals |> List.rev
+                      match parse_colours colsStr with
+                      | Result.Ok cl -> cl
+                      | Result.Error _ -> []
                     with Tag_not_found _ -> []
                   in
 

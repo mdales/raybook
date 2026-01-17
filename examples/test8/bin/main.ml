@@ -9,22 +9,19 @@ let tick shapes _t =
 
   let plane_m =
     Material.v ~reflectivity:0.5
-      ~pattern:
-        Pattern.(
-          v
-            (Cubes (Colour.white, Colour.v 0.5 0.5 0.5)))
+      ~pattern:Pattern.(v (Cubes (Colour.white, Colour.v 0.5 0.5 0.5)))
       ()
   in
   let p = Shape.(v ~material:plane_m Plane) in
 
-
   let w = World.v l (p :: shapes) in
 
   let ct =
-    Transformation.combine [
-    Transformation.rotate_y (Float.pi /. 6.);
-    Transformation.translation 0. (-0.5) (-2.)
-    ]
+    Transformation.combine
+      [
+        Transformation.rotate_y (Float.pi /. 6.);
+        Transformation.translation 0. (-0.5) (-2.);
+      ]
   in
 
   (ct, w)
