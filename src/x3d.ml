@@ -35,7 +35,18 @@ let parse_colours s =
       | [ r; g; b; _ ] -> Colour.v r g b
       | _ -> failwith "chunk should have failed before we get here")
 
-let of_file filename =
+let of_file ?material ?transform filename =
+  let vmaterial: Material.t =
+    match material with
+    | Some m -> m
+    | None -> Material.v ~pattern:Pattern.(v (Solid Colour.white)) ()
+  in
+  let vtransform: Matrix.t  =
+    match transform with
+    | Some t -> t
+    | None -> Matrix.identity 4
+  in
+
   let shapes =
     In_channel.with_open_text filename (fun c ->
         let _, xml = from_channel c in
@@ -97,7 +108,7 @@ let of_file filename =
                                       [],
                                       tl )
                                 | [] ->
-                                    ( Shape.(v (Triangle (x, y, z))) :: acc,
+                                    ( Shape.(v ~material:vmaterial (Triangle (x, y, z))) :: acc,
                                       [],
                                       [] ))
                             | _ -> failwith "Polygon wrong shape"
@@ -106,7 +117,7 @@ let of_file filename =
                         polyloop acc stash cols tl
                   in
                   let sl = polyloop [] [] cols coordIndex in
-                  Some Shape.(v (Group sl))
+                  Some Shape.(v ~transform:vtransform (Group sl))
                 with Tag_not_found _ -> None)
               shapes
           in
