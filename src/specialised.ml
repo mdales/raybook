@@ -110,3 +110,18 @@ let minor t =
         determinant s)
   in
   { t with data }
+
+let invertible t = not (Float.abs (determinant t) < Float.epsilon)
+
+let inverse t =
+  if not (invertible t) then raise (Invalid_argument "Matrix not invertible");
+  if t.height <> t.width then
+    raise (Invalid_argument "Can only calculate inverse on square matrices");
+  let c = cofactor t in
+  let d = determinant t in
+  let data =
+    Array.init (t.width * t.height) (fun idx ->
+        let i = idx mod t.width and j = idx / t.width in
+        c.data.((i * c.width) + j) /. d)
+  in
+  { t with data }

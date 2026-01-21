@@ -14,10 +14,10 @@ val submatrix : t -> int * int -> t
 val determinant : t -> float
 val minor : t -> t
 val cofactor : t -> t
-(* val invertible : t -> bool
+val invertible : t -> bool
 val inverse : t -> t
 
-val x : t -> float
+(* val x : t -> float
 val y : t -> float
 val z : t -> float
 val is_point : t -> bool
