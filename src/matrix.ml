@@ -19,11 +19,11 @@ let dimensions t =
   | height -> (height, Array.length t.(0))
 
 let cell t (y, x) =
-  if x < 0 then raise (Invalid_argument "Invalid x");
-  if y < 0 then raise (Invalid_argument "Invalid y");
+  if x < 0 then raise (Invalid_argument (Printf.sprintf "Invalid x: %d" x));
+  if y < 0 then raise (Invalid_argument (Printf.sprintf "Invalid y: %d" y));
   let h, w = dimensions t in
-  if x >= w then raise (Invalid_argument "Invalid x");
-  if y >= h then raise (Invalid_argument "Invalid y");
+  if x >= w then raise (Invalid_argument (Printf.sprintf "Invalid x: %d" x));
+  if y >= h then raise (Invalid_argument (Printf.sprintf "Invalid y: %d" y));
   t.(y).(x)
 
 let is_equal t o =

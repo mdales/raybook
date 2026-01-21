@@ -16,6 +16,7 @@
   test_plane
   test_precomputed
   test_ray
+  test_specialised
   test_sphere
   test_transformation
   test_triangle
