@@ -36,15 +36,13 @@ let parse_colours s =
       | _ -> failwith "chunk should have failed before we get here")
 
 let of_file ?material ?transform filename =
-  let vmaterial: Material.t =
+  let vmaterial : Material.t =
     match material with
     | Some m -> m
     | None -> Material.v ~pattern:Pattern.(v (Solid Colour.white)) ()
   in
-  let vtransform: Matrix.t  =
-    match transform with
-    | Some t -> t
-    | None -> Matrix.identity 4
+  let vtransform : Matrix.t =
+    match transform with Some t -> t | None -> Matrix.identity 4
   in
 
   let shapes =
@@ -108,7 +106,10 @@ let of_file ?material ?transform filename =
                                       [],
                                       tl )
                                 | [] ->
-                                    ( Shape.(v ~material:vmaterial (Triangle (x, y, z))) :: acc,
+                                    ( Shape.(
+                                        v ~material:vmaterial
+                                          (Triangle (x, y, z)))
+                                      :: acc,
                                       [],
                                       [] ))
                             | _ -> failwith "Polygon wrong shape"
