@@ -55,12 +55,12 @@ let () =
   let models_files =
     [
       "examples/chess/Chess/rook white.x3d";
-      "examples/chess/Chess/knight white.x3d";
+      "examples/chess/Chess/knight black.x3d";
       "examples/chess/Chess/bishop white.x3d";
       "examples/chess/Chess/king white.x3d";
       "examples/chess/Chess/queen white.x3d";
       "examples/chess/Chess/bishop white.x3d";
-      "examples/chess/Chess/knight white.x3d";
+      "examples/chess/Chess/knight black.x3d";
       "examples/chess/Chess/rook white.x3d";
     ]
   in
@@ -112,7 +112,7 @@ let () =
                 (0. -. Specialised.z a
                 -. ((Specialised.z b -. Specialised.z a) /. 2.));
               Transformation.scaling scaling scaling scaling;
-              Transformation.rotate_y (Float.pi /. -2.);
+              Transformation.rotate_y (Float.pi /. 2.);
               Transformation.translation (-0.5 +. i) 0. (-0.5);
             ]
         in
@@ -154,7 +154,6 @@ let () =
                 (0. -. Specialised.z a
                 -. ((Specialised.z b -. Specialised.z a) /. 2.));
               Transformation.scaling scaling scaling scaling;
-              Transformation.rotate_y (Float.pi /. -2.);
               Transformation.translation (-0.5 +. Float.of_int (7 - i)) 0. 0.5;
             ]
         in
@@ -170,7 +169,7 @@ let () =
   in
   let team2 = Shape.(v ~transform:t2t (Group (models @ pawns))) in
 
-  Sdl.run (800, 500) (tick (p :: team2 :: team1 :: board_tiles))
+  Sdl.run (5760 / 2, 3240 / 2) (tick (p :: team2 :: team1 :: board_tiles))
 
 (* let c = Canvas.v (576, 324) in
   let r = Render.v c in
