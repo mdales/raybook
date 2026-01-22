@@ -11,8 +11,8 @@ let of_matrix m =
 
 let of_tuple t = of_matrix (Tuple.to_matrix t)
 let of_array a = of_matrix (Matrix.v a)
-let of_point x y z = { width = 1; height = 4; data = [| x; y; z; 1. |] }
-let of_vector x y z = { width = 1; height = 4; data = [| x; y; z; 0. |] }
+let point x y z = { width = 1; height = 4; data = [| x; y; z; 1. |] }
+let vector x y z = { width = 1; height = 4; data = [| x; y; z; 0. |] }
 let identity () = of_matrix (Matrix.identity 4)
 
 let cell t (y, x) =
@@ -125,3 +125,92 @@ let inverse t =
         c.data.((i * c.width) + j) /. d)
   in
   { t with data }
+
+let x t =
+  if t.width <> 1 && t.height <> 4 then
+    raise (Invalid_argument "Matrix not a tuple");
+  t.data.(0)
+
+let y t =
+  if t.width <> 1 && t.height <> 4 then
+    raise (Invalid_argument "Matrix not a tuple");
+  t.data.(1)
+
+let z t =
+  if t.width <> 1 && t.height <> 4 then
+    raise (Invalid_argument "Matrix not a tuple");
+  t.data.(2)
+
+let is_point t =
+  if t.width <> 1 && t.height <> 4 then
+    raise (Invalid_argument "Matrix not a tuple");
+  Float.abs (1. -. t.data.(3)) < Float.epsilon
+
+let is_vector t =
+  if t.width <> 1 && t.height <> 4 then
+    raise (Invalid_argument "Matrix not a tuple");
+  Float.abs t.data.(3) < Float.epsilon
+
+let add t o =
+  if t.width <> 1 && t.height <> 4 then
+    raise (Invalid_argument "Matrix not a tuple");
+  if o.width <> 1 && o.height <> 4 then
+    raise (Invalid_argument "Matrix not a tuple");
+  let data = Array.map2 (fun a b -> a +. b) t.data o.data in
+  (* Check W? *)
+  { t with data }
+
+let subtract t o =
+  if t.width <> 1 && t.height <> 4 then
+    raise (Invalid_argument "Matrix not a tuple");
+  if o.width <> 1 && o.height <> 4 then
+    raise (Invalid_argument "Matrix not a tuple");
+  let data = Array.map2 (fun a b -> a -. b) t.data o.data in
+  (* Check W? *)
+  { t with data }
+
+let negate t =
+  (* Check W? *)
+  let data = Array.map (fun a -> 0. -. a) t.data in
+  { t with data }
+
+let fmultiply t n =
+  (* Check W? *)
+  let data = Array.map (fun a -> a *. n) t.data in
+  { t with data }
+
+let fdivide t n =
+  (* Check W? *)
+  let data = Array.map (fun a -> a /. n) t.data in
+  { t with data }
+
+let magnitude t =
+  (* Check W? *)
+  Float.sqrt (Array.fold_left (fun acc n -> acc +. (n *. n)) 0. t.data)
+
+let normalize t =
+  (* Check W? *)
+  let m = magnitude t in
+  if m = 0. then t else fdivide t m
+
+let dot t o =
+  if t.width <> 1 && t.height <> 4 then
+    raise (Invalid_argument "Matrix not a tuple");
+  if o.width <> 1 && o.height <> 4 then
+    raise (Invalid_argument "Matrix not a tuple");
+  (t.data.(0) *. o.data.(0))
+  +. (t.data.(1) *. o.data.(1))
+  +. (t.data.(2) *. o.data.(2))
+
+let cross t o =
+  if t.width <> 1 && t.height <> 4 then
+    raise (Invalid_argument "Matrix not a tuple");
+  if o.width <> 1 && o.height <> 4 then
+    raise (Invalid_argument "Matrix not a tuple");
+  let data = Array.init (t.height * t.width) (fun _ -> 0.) in
+  data.(0) <- (t.data.(1) *. o.data.(2)) -. (t.data.(2) *. o.data.(1));
+  data.(1) <- (t.data.(2) *. o.data.(0)) -. (t.data.(0) *. o.data.(2));
+  data.(2) <- (t.data.(0) *. o.data.(1)) -. (t.data.(1) *. o.data.(0));
+  { t with data }
+
+let reflect v n = subtract v (fmultiply n (2. *. dot v n))

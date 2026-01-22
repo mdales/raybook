@@ -3,8 +3,8 @@ type t
 val of_matrix : Matrix.t -> t
 val of_tuple : Tuple.t -> t
 val of_array : float array array -> t
-val of_point : float -> float -> float -> t
-val of_vector : float -> float -> float -> t
+val point : float -> float -> float -> t
+val vector : float -> float -> float -> t
 val cell : t -> int * int -> float
 val is_equal : t -> t -> bool
 val multiply : t -> t -> t
@@ -16,8 +16,7 @@ val minor : t -> t
 val cofactor : t -> t
 val invertible : t -> bool
 val inverse : t -> t
-
-(* val x : t -> float
+val x : t -> float
 val y : t -> float
 val z : t -> float
 val is_point : t -> bool
@@ -31,4 +30,4 @@ val magnitude : t -> float
 val normalize : t -> t
 val dot : t -> t -> float
 val cross : t -> t -> t
-val reflect : t -> t -> t *)
+val reflect : t -> t -> t

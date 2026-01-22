@@ -43,7 +43,7 @@ let test_create_specialised_of_matrix_4x4 _ =
   almost_equal 16.5 (Specialised.cell res (3, 2))
 
 let test_create_specialised_point _ =
-  let res = Specialised.of_point 1. 2. 3. in
+  let res = Specialised.point 1. 2. 3. in
   almost_equal 1. (Specialised.cell res (0, 0));
   almost_equal 2. (Specialised.cell res (1, 0));
   almost_equal 3. (Specialised.cell res (2, 0));
@@ -57,7 +57,7 @@ let test_create_specialised_point_of_tuple _ =
   almost_equal 1. (Specialised.cell res (3, 0))
 
 let test_create_specialised_vector _ =
-  let res = Specialised.of_vector 1. 2. 3. in
+  let res = Specialised.vector 1. 2. 3. in
   almost_equal 1. (Specialised.cell res (0, 0));
   almost_equal 2. (Specialised.cell res (1, 0));
   almost_equal 3. (Specialised.cell res (2, 0));
@@ -93,9 +93,9 @@ let test_multiply_by_tuple _ =
     |]
   in
   let a1 = Specialised.of_array data1 in
-  let t = Specialised.of_point 1. 2. 3. in
+  let t = Specialised.point 1. 2. 3. in
   let res = Specialised.multiply a1 t in
-  let expected = Specialised.of_point 18. 24. 33. in
+  let expected = Specialised.point 18. 24. 33. in
   assert_bool "is equal" (Specialised.is_equal expected res)
 
 let test_multiply_matrix_with_identity _ =
@@ -114,7 +114,7 @@ let test_multiply_matrix_with_identity _ =
 
 let test_multiply_identity_by_tuple _ =
   let a1 = Specialised.identity () in
-  let t = Specialised.of_point 1. 2. 3. in
+  let t = Specialised.point 1. 2. 3. in
   let res = Specialised.multiply a1 t in
   assert_bool "is equal" (Specialised.is_equal t res)
 
@@ -374,6 +374,120 @@ let test_multiply_by_inverse _ =
   let res = Specialised.multiply c ib in
   assert_bool "is equal" (Specialised.is_equal res a)
 
+let test_sum_point_and_vector _ =
+  let a1 = Specialised.point 3.0 (-2.0) 5.0
+  and a2 = Specialised.vector (-2.0) 3.0 1.0 in
+  let res = Specialised.add a1 a2 in
+  let expected = Specialised.point 1.0 1.0 6.0 in
+  assert_bool "is equal" (Specialised.is_equal expected res)
+
+let test_sum_vector_and_vector _ =
+  let a1 = Specialised.vector 3.0 (-2.0) 5.0
+  and a2 = Specialised.vector (-2.0) 3.0 1.0 in
+  let res = Specialised.add a1 a2 in
+  let expected = Specialised.vector 1.0 1.0 6.0 in
+  assert_bool "is equal" (Specialised.is_equal expected res)
+
+let test_sub_point_and_point _ =
+  let a1 = Specialised.point 3. 2. 1. and a2 = Specialised.point 5. 6. 7. in
+  let res = Specialised.subtract a1 a2 in
+  let expected = Specialised.vector (-2.) (-4.) (-6.) in
+  assert_bool "is equal" (Specialised.is_equal expected res)
+
+let test_sub_point_and_vector _ =
+  let a1 = Specialised.point 3. 2. 1. and a2 = Specialised.vector 5. 6. 7. in
+  let res = Specialised.subtract a1 a2 in
+  let expected = Specialised.point (-2.) (-4.) (-6.) in
+  assert_bool "is equal" (Specialised.is_equal expected res)
+
+let test_sub_vector_and_vector _ =
+  let a1 = Specialised.vector 3. 2. 1. and a2 = Specialised.vector 5. 6. 7. in
+  let res = Specialised.subtract a1 a2 in
+  let expected = Specialised.vector (-2.) (-4.) (-6.) in
+  assert_bool "is equal" (Specialised.is_equal expected res)
+
+let test_negate_vector _ =
+  let a = Specialised.vector (-1.) 2. (-3.) in
+  let res = Specialised.negate a in
+  let expected = Specialised.vector 1. (-2.) 3. in
+  assert_bool "is equal" (Specialised.is_equal expected res)
+
+let test_multiply_vector _ =
+  let a = Specialised.vector 1. (-2.) 3. in
+  let res = Specialised.fmultiply a 3.5 in
+  let expected = Specialised.vector 3.5 (-7.) 10.5 in
+  assert_bool "is equal" (Specialised.is_equal expected res)
+
+let test_divide_vector _ =
+  let a = Specialised.vector 1. (-2.) 3. in
+  let res = Specialised.fdivide a 2. in
+  let expected = Specialised.vector 0.5 (-1.) 1.5 in
+  assert_bool "is equal" (Specialised.is_equal expected res)
+
+let test_magnitude_of_vector_positive _ =
+  let a = Specialised.vector 1. 2. 3. in
+  let res = Specialised.magnitude a in
+  let expected = Float.sqrt 14. in
+  almost_equal expected res
+
+let test_magnitude_of_vector_negative _ =
+  let a = Specialised.vector (-1.) (-2.) (-3.) in
+  let res = Specialised.magnitude a in
+  let expected = Float.sqrt 14. in
+  almost_equal expected res
+
+let test_normalize_vector_1 _ =
+  let a = Specialised.vector 4. 0. 0. in
+  let res = Specialised.normalize a in
+  let expected = Specialised.vector 1. 0. 0. in
+  assert_bool "is equal" (Specialised.is_equal expected res)
+
+let test_normalize_vector_2 _ =
+  let a = Specialised.vector 1. 2. 3. in
+  let res = Specialised.normalize a in
+  let mag = Float.sqrt 14. in
+  let expected = Specialised.vector (1. /. mag) (2. /. mag) (3. /. mag) in
+  assert_bool "is equal" (Specialised.is_equal expected res)
+
+let test_magnitude_of_normalized_vector _ =
+  let a = Specialised.vector 1. 2. 3. in
+  let norm = Specialised.normalize a in
+  let res = Specialised.magnitude norm in
+  let expected = 1. in
+  almost_equal expected res
+
+let test_dot_vector_with_vector _ =
+  let a1 = Specialised.vector 1. 2. 3. and a2 = Specialised.vector 2. 3. 4. in
+  let res = Specialised.dot a1 a2 in
+  let expected = 20. in
+  almost_equal expected res
+
+let test_cross_vector_with_vector_1 _ =
+  let a1 = Specialised.vector 1. 2. 3. and a2 = Specialised.vector 2. 3. 4. in
+  let res = Specialised.cross a1 a2 in
+  let expected = Specialised.vector (-1.) 2. (-1.) in
+  assert_bool "is equal" (Specialised.is_equal expected res)
+
+let test_cross_vector_with_vector_2 _ =
+  let a1 = Specialised.vector 1. 2. 3. and a2 = Specialised.vector 2. 3. 4. in
+  let res = Specialised.cross a2 a1 in
+  let expected = Specialised.vector 1. (-2.) 1. in
+  assert_bool "is equal" (Specialised.is_equal expected res)
+
+let test_reflect_45_degrees _ =
+  let v = Specialised.vector 1. (-1.) 0. and n = Specialised.vector 0. 1. 0. in
+  let res = Specialised.reflect v n in
+  let expected = Specialised.vector 1. 1. 0. in
+  assert_bool "is equal" (Specialised.is_equal expected res)
+
+let test_refect_slanted_surface _ =
+  let v = Specialised.vector 0. (-1.) 0. in
+  let x = Float.sqrt 2. /. 2. in
+  let n = Specialised.vector x x 0. in
+  let res = Specialised.reflect v n in
+  let expected = Specialised.vector 1. 0. 0. in
+  assert_bool "is equal" (Specialised.is_equal expected res)
+
 let suite =
   "Specialised tests"
   >::: [
@@ -405,6 +519,42 @@ let suite =
          "Test inverse 4x4 2" >:: test_inverse_4x4_2;
          "Test inverse 4x4 3" >:: test_inverse_4x4_3;
          "Test multiply by inverse" >:: test_multiply_by_inverse;
+         "Test point plus vector" >:: test_sum_point_and_vector;
+         "Test vector plus vector" >:: test_sum_vector_and_vector;
+         (* "Test point plus point" >:: test_sum_point_and_point; *)
+         "Test point sub point" >:: test_sub_point_and_point;
+         "Test point sub vector" >:: test_sub_point_and_vector;
+         "Test vector sub vector" >:: test_sub_vector_and_vector;
+         (* "Test vector sub point" >:: test_sub_vector_and_point; *)
+         "Test negate vector" >:: test_negate_vector;
+         (* "Test negate point" >:: test_negate_point; *)
+         "Test multiply vector" >:: test_multiply_vector;
+         (* "Test multiply point" >:: test_multiply_point; *)
+         "Test divide vector" >:: test_divide_vector;
+         (* "Test divide point" >:: test_divide_point; *)
+         "Test magnitude of positive vector"
+         >:: test_magnitude_of_vector_positive;
+         "Test magnitude of negative vector"
+         >:: test_magnitude_of_vector_negative;
+         (* "Test magnitude of point" >:: test_magnitude_of_point; *)
+         "Test normalize vector 1" >:: test_normalize_vector_1;
+         "Test normalize vector 2" >:: test_normalize_vector_2;
+         (* "Test normalize point" >:: test_normalize_point; *)
+         "Test magnitied of normalized vector"
+         >:: test_magnitude_of_normalized_vector;
+         "Test dot of vector with vector" >:: test_dot_vector_with_vector;
+         (* "Test dot of vector with point" >:: test_dot_vector_with_point;
+             "Test dot of point with vector" >:: test_dot_point_with_vector;
+             "Test dot of point with point" >:: test_dot_point_with_point; *)
+         "Test cross of vector with vector 1"
+         >:: test_cross_vector_with_vector_1;
+         "Test cross of vector with vector 2"
+         >:: test_cross_vector_with_vector_2;
+         (* "Test cross of vector with point" >:: test_cross_vector_with_point;
+             "Test cross of point with vector" >:: test_cross_point_with_vector;
+             "Test cross of point with point" >:: test_cross_point_with_point; *)
+         "Test reflect tuple at 45 degrees" >:: test_reflect_45_degrees;
+         "Test reflect tuple on slanted surface" >:: test_refect_slanted_surface;
        ]
 
 let () = run_test_tt_main suite
