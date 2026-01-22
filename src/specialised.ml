@@ -22,12 +22,12 @@ let cell t (y, x) =
   t.data.(index)
 
 let is_equal t o =
-  let rec loop idx a b =
+  let rec equal_loop idx a b =
     let r = Float.abs (a.(idx) -. b.(idx)) < Float.epsilon *. 10. in
-    if r then if idx = 0 then true else loop (idx - 1) a b else false
+    if r then if idx = 0 then true else equal_loop (idx - 1) a b else false
   in
   t.width = o.width && t.height = o.height
-  && loop ((t.width * t.height) - 1) t.data o.data
+  && equal_loop ((t.width * t.height) - 1) t.data o.data
 
 let multiply a b =
   if a.width != b.height then
@@ -35,13 +35,13 @@ let multiply a b =
   let data =
     Array.init (a.height * b.width) (fun idx ->
         let x = idx mod b.width and y = idx / b.width in
-        let rec loop index acc =
+        let rec multiply_loop index acc =
           let v1 = a.data.((y * a.width) + index)
           and v2 = b.data.((index * b.width) + x) in
           let acc = acc +. (v1 *. v2) in
-          match index with 0 -> acc | _ -> loop (index - 1) acc
+          match index with 0 -> acc | _ -> multiply_loop (index - 1) acc
         in
-        loop (a.width - 1) 0.)
+        multiply_loop (a.width - 1) 0.)
   in
   { width = b.width; height = a.height; data }
 
@@ -77,11 +77,11 @@ let rec determinant t =
   | 2 -> (t.data.(0) *. t.data.(3)) -. (t.data.(2) *. t.data.(1))
   | _ ->
       let c = cofactor t in
-      let rec loop acc idx =
+      let rec determinant_loop acc idx =
         let acc = acc +. (t.data.(idx) *. cell c (0, idx)) in
-        match idx with 0 -> acc | _ -> loop acc (idx - 1)
+        match idx with 0 -> acc | _ -> determinant_loop acc (idx - 1)
       in
-      loop 0. (t.width - 1)
+      determinant_loop 0. (t.width - 1)
 
 and cofactor t =
   if t.height <> t.width then
