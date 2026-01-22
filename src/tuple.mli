@@ -13,8 +13,8 @@ val is_equal : t -> t -> bool
 val add : t -> t -> t
 val subtract : t -> t -> t
 val negate : t -> t
-val multiply : t -> float -> t
-val divide : t -> float -> t
+val fmultiply : t -> float -> t
+val fdivide : t -> float -> t
 val magnitude : t -> float
 val normalize : t -> t
 val dot : t -> t -> float

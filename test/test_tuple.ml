@@ -88,26 +88,26 @@ let test_negate_point _ =
 
 let test_multiply_vector _ =
   let a = Tuple.vector 1. (-2.) 3. in
-  let res = Tuple.multiply a 3.5 in
+  let res = Tuple.fmultiply a 3.5 in
   let expected = Tuple.vector 3.5 (-7.) 10.5 in
   assert_bool "is equal" (Tuple.is_equal expected res)
 
 let test_multiply_point _ =
   let a = Tuple.point (-1.) 2. (-3.) in
   assert_raises (Invalid_argument "Cannot multiply point") (fun () ->
-      let _ = Tuple.multiply a 3.5 in
+      let _ = Tuple.fmultiply a 3.5 in
       ())
 
 let test_divide_vector _ =
   let a = Tuple.vector 1. (-2.) 3. in
-  let res = Tuple.divide a 2. in
+  let res = Tuple.fdivide a 2. in
   let expected = Tuple.vector 0.5 (-1.) 1.5 in
   assert_bool "is equal" (Tuple.is_equal expected res)
 
 let test_divide_point _ =
   let a = Tuple.point (-1.) 2. (-3.) in
   assert_raises (Invalid_argument "Cannot divide point") (fun () ->
-      let _ = Tuple.divide a 2. in
+      let _ = Tuple.fdivide a 2. in
       ())
 
 let test_magnitude_of_vector_positive _ =

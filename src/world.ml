@@ -88,9 +88,9 @@ and refracted_colour ?(count = 1) w c =
             let cos_t = Float.sqrt (1. -. sin2_t) in
             let direction =
               Tuple.subtract
-                (Tuple.multiply (Precomputed.normalv c)
+                (Tuple.fmultiply (Precomputed.normalv c)
                    ((n_ratio *. cos_i) -. cos_t))
-                (Tuple.multiply (Precomputed.eyev c) n_ratio)
+                (Tuple.fmultiply (Precomputed.eyev c) n_ratio)
             in
             let refracted_ray = Ray.v (Precomputed.under_point c) direction in
             let col = colour_at ~count w refracted_ray in

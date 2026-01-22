@@ -54,12 +54,12 @@ let negate t =
   | Vector -> subtract (vector 0. 0. 0.) t
   | Point -> raise (Invalid_argument "Cannot negate point")
 
-let multiply t n =
+let fmultiply t n =
   match t.w with
   | Vector -> { x = t.x *. n; y = t.y *. n; z = t.z *. n; w = t.w }
   | Point -> raise (Invalid_argument "Cannot multiply point")
 
-let divide t n =
+let fdivide t n =
   match t.w with
   | Vector -> { x = t.x /. n; y = t.y /. n; z = t.z /. n; w = t.w }
   | Point -> raise (Invalid_argument "Cannot divide point")
@@ -125,5 +125,5 @@ let of_matrix m =
 
 let reflect v n =
   match (v.w, n.w) with
-  | Vector, Vector -> subtract v (multiply n (2. *. dot v n))
+  | Vector, Vector -> subtract v (fmultiply n (2. *. dot v n))
   | _ -> raise (Invalid_argument "Cannot use points in dot product")
