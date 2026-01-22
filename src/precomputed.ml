@@ -1,12 +1,12 @@
 type t = {
   distance : float;
   shape : Shape.t;
-  point : Tuple.t;
-  over_point : Tuple.t;
-  under_point : Tuple.t;
-  eyev : Tuple.t;
-  normalv : Tuple.t;
-  reflectv : Tuple.t;
+  point : Specialised.t;
+  over_point : Specialised.t;
+  under_point : Specialised.t;
+  eyev : Specialised.t;
+  normalv : Specialised.t;
+  reflectv : Specialised.t;
   inside : bool;
   n1 : float;
   n2 : float;
@@ -74,18 +74,20 @@ let v i r il =
   let shape = Intersection.shape i in
   let point = Ray.position r distance in
   let normalv = Intersection.normal_at shape point in
-  let eyev = Tuple.negate (Ray.direction r) in
+  let eyev = Specialised.negate (Ray.direction r) in
   let inside, normalv =
-    if Tuple.dot normalv eyev < 0. then (true, Tuple.negate normalv)
+    if Specialised.dot normalv eyev < 0. then (true, Specialised.negate normalv)
     else (false, normalv)
   in
   let over_point =
-    Tuple.add point (Tuple.fmultiply normalv (Float.epsilon *. 100000.))
+    Specialised.add point
+      (Specialised.fmultiply normalv (Float.epsilon *. 100000.))
   in
   let under_point =
-    Tuple.subtract point (Tuple.fmultiply normalv (Float.epsilon *. 100000.))
+    Specialised.subtract point
+      (Specialised.fmultiply normalv (Float.epsilon *. 100000.))
   in
-  let reflectv = Tuple.reflect (Ray.direction r) normalv in
+  let reflectv = Specialised.reflect (Ray.direction r) normalv in
   let n1, n2 = calc_n1_n2 i il in
   {
     distance;
@@ -113,7 +115,7 @@ let reflectv t = t.reflectv
 let n_pair t = (t.n1, t.n2)
 
 let schlick t =
-  let cosp = Tuple.dot t.eyev t.normalv in
+  let cosp = Specialised.dot t.eyev t.normalv in
 
   let res, cosy =
     match t.n1 > t.n2 with

@@ -25,7 +25,7 @@ let parse_points s =
   String.split_on_char ' ' s |> List.map float_of_string |> chunks 3
   >|= List.map (fun c ->
       match c with
-      | [ x; y; z ] -> Tuple.point x y z
+      | [ x; y; z ] -> Specialised.point x y z
       | _ -> failwith "should do better error checking here as to why")
 
 let parse_colours s =
@@ -41,8 +41,8 @@ let of_file ?material ?transform filename =
     | Some m -> m
     | None -> Material.v ~pattern:Pattern.(v (Solid Colour.white)) ()
   in
-  let vtransform : Matrix.t =
-    match transform with Some t -> t | None -> Matrix.identity 4
+  let vtransform : Specialised.t =
+    match transform with Some t -> t | None -> Specialised.identity ()
   in
 
   let shapes =

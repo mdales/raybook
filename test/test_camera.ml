@@ -11,7 +11,7 @@ let test_create_camera _ =
   assert_equal (160, 120) (Camera.dimensions res);
   assert_equal (Float.pi /. 2.) (Camera.field_of_view res);
   assert_bool "is equal"
-    (Matrix.is_equal (Matrix.identity 4) (Camera.transform res))
+    (Specialised.is_equal (Specialised.identity ()) (Camera.transform res))
 
 let test_landscape_camera _ =
   let res = Camera.v (200, 125) (Float.pi /. 2.) in
@@ -24,36 +24,39 @@ let test_portrait_camera _ =
 let test_ray_for_origin _ =
   let c = Camera.v (201, 101) (Float.pi /. 2.) in
   let res = Camera.ray_for_pixel c (100, 50) in
-  let expected_origin = Tuple.point 0. 0. 0.
-  and expected_direction = Tuple.vector 0. 0. (-1.) in
-  assert_bool "is equal" (Tuple.is_equal expected_origin (Ray.origin res));
-  assert_bool "is equal" (Tuple.is_equal expected_direction (Ray.direction res))
+  let expected_origin = Specialised.point 0. 0. 0.
+  and expected_direction = Specialised.vector 0. 0. (-1.) in
+  assert_bool "is equal" (Specialised.is_equal expected_origin (Ray.origin res));
+  assert_bool "is equal"
+    (Specialised.is_equal expected_direction (Ray.direction res))
 
 let test_ray_for_corner _ =
   let c = Camera.v (201, 101) (Float.pi /. 2.) in
   let res = Camera.ray_for_pixel c (0, 0) in
-  let expected_origin = Tuple.point 0. 0. 0.
+  let expected_origin = Specialised.point 0. 0. 0.
   and expected_direction =
-    Tuple.vector 0.66518642611945077991 0.33259321305972538996
+    Specialised.vector 0.66518642611945077991 0.33259321305972538996
       (-0.66851235825004806657)
   in
-  assert_bool "is equala" (Tuple.is_equal expected_origin (Ray.origin res));
+  assert_bool "is equala"
+    (Specialised.is_equal expected_origin (Ray.origin res));
   assert_bool "is equalb"
-    (Tuple.is_equal expected_direction (Ray.direction res))
+    (Specialised.is_equal expected_direction (Ray.direction res))
 
 let test_ray_for_transform _ =
   let t =
-    Matrix.multiply
+    Specialised.multiply
       (Transformation.rotate_y (Float.pi /. 4.))
       (Transformation.translation 0. (-2.) 5.)
   in
   let c = Camera.v ~transform:t (201, 101) (Float.pi /. 2.) in
   let res = Camera.ray_for_pixel c (100, 50) in
   let x = Float.sqrt 2. /. 2. in
-  let expected_origin = Tuple.point 0. 2. (-5.)
-  and expected_direction = Tuple.vector x 0. (0. -. x) in
-  assert_bool "is equal" (Tuple.is_equal expected_origin (Ray.origin res));
-  assert_bool "is equal" (Tuple.is_equal expected_direction (Ray.direction res))
+  let expected_origin = Specialised.point 0. 2. (-5.)
+  and expected_direction = Specialised.vector x 0. (0. -. x) in
+  assert_bool "is equal" (Specialised.is_equal expected_origin (Ray.origin res));
+  assert_bool "is equal"
+    (Specialised.is_equal expected_direction (Ray.direction res))
 
 let suite =
   "Camera tests"

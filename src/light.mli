@@ -1,16 +1,16 @@
 type t
 
-val v : Tuple.t -> Colour.t -> t
-val position : t -> Tuple.t
+val v : Specialised.t -> Colour.t -> t
+val position : t -> Specialised.t
 val intensity : t -> Colour.t
 
 val lighting :
   light:t ->
   shape:Shape.t ->
-  eye:Tuple.t ->
-  normal:Tuple.t ->
+  eye:Specialised.t ->
+  normal:Specialised.t ->
   material:Material.t ->
-  point:Tuple.t ->
+  point:Specialised.t ->
   shadow:bool ->
   unit ->
   Colour.t

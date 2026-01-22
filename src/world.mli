@@ -8,4 +8,4 @@ val shader_hit : ?count:int -> t -> Precomputed.t -> Colour.t
 val colour_at : ?count:int -> t -> Ray.t -> Colour.t
 val reflected_colour : ?count:int -> t -> Precomputed.t -> Colour.t
 val refracted_colour : ?count:int -> t -> Precomputed.t -> Colour.t
-val is_shadowed : t -> Tuple.t -> bool
+val is_shadowed : t -> Specialised.t -> bool

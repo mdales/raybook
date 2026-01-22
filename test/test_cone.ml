@@ -15,18 +15,21 @@ let test_ray_intersects_cone =
   let testcases =
     [
       ( "test 1",
-        Ray.v (Tuple.point 0. 0. (-5.))
-          (Tuple.normalize (Tuple.vector 0. 0. 1.)),
+        Ray.v
+          (Specialised.point 0. 0. (-5.))
+          (Specialised.normalize (Specialised.vector 0. 0. 1.)),
         5.,
         5. );
       ( "test 2",
-        Ray.v (Tuple.point 0. 0. (-5.))
-          (Tuple.normalize (Tuple.vector 1. 1. 1.)),
+        Ray.v
+          (Specialised.point 0. 0. (-5.))
+          (Specialised.normalize (Specialised.vector 1. 1. 1.)),
         8.66025401549264373102,
         8.66025406019612731257 );
       ( "test 3",
-        Ray.v (Tuple.point 1. 1. (-5.))
-          (Tuple.normalize (Tuple.vector (-0.5) (-1.) 1.)),
+        Ray.v
+          (Specialised.point 1. 1. (-5.))
+          (Specialised.normalize (Specialised.vector (-0.5) (-1.) 1.)),
         4.55005567935635113486,
         49.44994432064366662871 );
     ]
@@ -47,7 +50,9 @@ let test_ray_parallel_intersects_cone _ =
         (Cone { min = Float.neg_infinity; max = Float.infinity; capped = false }))
   in
   let r =
-    Ray.v (Tuple.point 0. 0. (-1.)) (Tuple.normalize (Tuple.vector 0. 1. 1.))
+    Ray.v
+      (Specialised.point 0. 0. (-1.))
+      (Specialised.normalize (Specialised.vector 0. 1. 1.))
   in
   let il = Intersection.intersects c r in
   assert_equal 1 (List.length il);
@@ -59,22 +64,24 @@ let test_ray_intersects_capped_double_cone =
   let testcases =
     [
       ( "hit 1",
-        Ray.v (Tuple.point 0. 0. (-5.))
-          (Tuple.normalize (Tuple.vector 0. 1. 0.)),
+        Ray.v
+          (Specialised.point 0. 0. (-5.))
+          (Specialised.normalize (Specialised.vector 0. 1. 0.)),
         0 );
       ( "hit 2",
         Ray.v
-          (Tuple.point 0. 0. (-0.25))
-          (Tuple.normalize (Tuple.vector 0. 1. 1.)),
+          (Specialised.point 0. 0. (-0.25))
+          (Specialised.normalize (Specialised.vector 0. 1. 1.)),
         2 );
       ( "hit 3",
         Ray.v
-          (Tuple.point 0. 0. (-0.25))
-          (Tuple.normalize (Tuple.vector 0. 1. 0.)),
+          (Specialised.point 0. 0. (-0.25))
+          (Specialised.normalize (Specialised.vector 0. 1. 0.)),
         4 );
       ( "hit 4",
-        Ray.v (Tuple.point 0. 0. (-1.8))
-          (Tuple.normalize (Tuple.vector 0. 1. 0.)),
+        Ray.v
+          (Specialised.point 0. 0. (-1.8))
+          (Specialised.normalize (Specialised.vector 0. 1. 0.)),
         2 );
     ]
   in
@@ -90,17 +97,19 @@ let test_ray_intersects_capped_single_cone =
   let testcases =
     [
       ( "hit 1",
-        Ray.v (Tuple.point 0. 0. (-5.))
-          (Tuple.normalize (Tuple.vector 0. 1. 0.)),
+        Ray.v
+          (Specialised.point 0. 0. (-5.))
+          (Specialised.normalize (Specialised.vector 0. 1. 0.)),
         0 );
       ( "hit 3",
         Ray.v
-          (Tuple.point 0. 0. (-0.25))
-          (Tuple.normalize (Tuple.vector 0. 1. 0.)),
+          (Specialised.point 0. 0. (-0.25))
+          (Specialised.normalize (Specialised.vector 0. 1. 0.)),
         2 );
       ( "hit 4",
-        Ray.v (Tuple.point 0. 0. (-1.8))
-          (Tuple.normalize (Tuple.vector 0. 1. 0.)),
+        Ray.v
+          (Specialised.point 0. 0. (-1.8))
+          (Specialised.normalize (Specialised.vector 0. 1. 0.)),
         2 );
     ]
   in
@@ -120,53 +129,56 @@ let test_normal_at =
   let x = Float.sqrt 2. *. -1. in
   let testcases =
     [
-      ("test 1", Tuple.point 0. 0. 0., Tuple.vector 0. 0. 0.);
-      ("test 2", Tuple.point 1. 1. 1., Tuple.vector 1. x 1.);
-      ("test 3", Tuple.point (-1.) (-1.) 0., Tuple.vector (-1.) 1. 0.);
+      ("test 1", Specialised.point 0. 0. 0., Specialised.vector 0. 0. 0.);
+      ("test 2", Specialised.point 1. 1. 1., Specialised.vector 1. x 1.);
+      ( "test 3",
+        Specialised.point (-1.) (-1.) 0.,
+        Specialised.vector (-1.) 1. 0. );
     ]
   in
   List.map
     (fun (name, point, normal) ->
       name >:: fun _ ->
       let res = Intersection.normal_at c point in
-      assert_bool "is equal" (Tuple.is_equal (Tuple.normalize normal) res))
+      assert_bool "is equal"
+        (Specialised.is_equal (Specialised.normalize normal) res))
     testcases
 
 let test_normal_at_capped_double_cone =
   let c = Shape.(v (Cone { min = -1.; max = 2.; capped = true })) in
   let testcases =
     [
-      ("test 1", Tuple.point 0. (-1.) 0., Tuple.vector 0. (-1.) 0.);
-      ("test 2", Tuple.point 0.5 (-1.) 0., Tuple.vector 0. (-1.) 0.);
-      ("test 3", Tuple.point 0. (-1.) 0.5, Tuple.vector 0. (-1.) 0.);
-      ("test 4", Tuple.point 0. 2. 0., Tuple.vector 0. 1. 0.);
-      ("test 5", Tuple.point 0.5 2. 0., Tuple.vector 0. 1. 0.);
-      ("test 6", Tuple.point 0. 2. 0.5, Tuple.vector 0. 1. 0.);
-      ("test 7", Tuple.point 0. 2. 1.5, Tuple.vector 0. 1. 0.);
+      ("test 1", Specialised.point 0. (-1.) 0., Specialised.vector 0. (-1.) 0.);
+      ("test 2", Specialised.point 0.5 (-1.) 0., Specialised.vector 0. (-1.) 0.);
+      ("test 3", Specialised.point 0. (-1.) 0.5, Specialised.vector 0. (-1.) 0.);
+      ("test 4", Specialised.point 0. 2. 0., Specialised.vector 0. 1. 0.);
+      ("test 5", Specialised.point 0.5 2. 0., Specialised.vector 0. 1. 0.);
+      ("test 6", Specialised.point 0. 2. 0.5, Specialised.vector 0. 1. 0.);
+      ("test 7", Specialised.point 0. 2. 1.5, Specialised.vector 0. 1. 0.);
     ]
   in
   List.map
     (fun (name, point, normal) ->
       name >:: fun _ ->
       let res = Intersection.normal_at c point in
-      assert_bool "is equal" (Tuple.is_equal normal res))
+      assert_bool "is equal" (Specialised.is_equal normal res))
     testcases
 
 let test_normal_at_capped_single_cone =
   let c = Shape.(v (Cone { min = 1.; max = 2.; capped = true })) in
   let testcases =
     [
-      ("test 1", Tuple.point 0. 1. 0., Tuple.vector 0. (-1.) 0.);
-      ("test 2", Tuple.point 0.5 1. 0., Tuple.vector 0. (-1.) 0.);
-      ("test 3", Tuple.point 0. 1. 0.5, Tuple.vector 0. (-1.) 0.);
-      ("test 4", Tuple.point 0. 2. 0., Tuple.vector 0. 1. 0.);
+      ("test 1", Specialised.point 0. 1. 0., Specialised.vector 0. (-1.) 0.);
+      ("test 2", Specialised.point 0.5 1. 0., Specialised.vector 0. (-1.) 0.);
+      ("test 3", Specialised.point 0. 1. 0.5, Specialised.vector 0. (-1.) 0.);
+      ("test 4", Specialised.point 0. 2. 0., Specialised.vector 0. 1. 0.);
     ]
   in
   List.map
     (fun (name, point, normal) ->
       name >:: fun _ ->
       let res = Intersection.normal_at c point in
-      assert_bool "is equal" (Tuple.is_equal normal res))
+      assert_bool "is equal" (Specialised.is_equal normal res))
     testcases
 
 let suite =

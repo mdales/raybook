@@ -4,17 +4,17 @@ type geometry_t =
   | Cylinder of { min : float; max : float; capped : bool }
   | Plane
   | Sphere
-  | Triangle of (Tuple.t * Tuple.t * Tuple.t)
+  | Triangle of (Specialised.t * Specialised.t * Specialised.t)
   | Group of t list
 
 and t
 
-val v : ?material:Material.t -> ?transform:Matrix.t -> geometry_t -> t
+val v : ?material:Material.t -> ?transform:Specialised.t -> geometry_t -> t
 val material : t -> Material.t
-val transform : t -> Matrix.t
-val inverse_transform : t -> Matrix.t
-val transpose_inverse_transform : t -> Matrix.t
+val transform : t -> Specialised.t
+val inverse_transform : t -> Specialised.t
+val transpose_inverse_transform : t -> Specialised.t
 val geometry : t -> geometry_t
-val bounds : t -> Tuple.t * Tuple.t
-val edges : t -> (Tuple.t * Tuple.t) option
-val normal : t -> Tuple.t option
+val bounds : t -> Specialised.t * Specialised.t
+val edges : t -> (Specialised.t * Specialised.t) option
+val normal : t -> Specialised.t option

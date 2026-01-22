@@ -16,16 +16,17 @@ let test_ray_intersects_infinite_cylinder =
   let testcases =
     [
       ( "Tangent",
-        Ray.v (Tuple.point 1. 0. (-5.)) (Tuple.vector 0. 0. 1.),
+        Ray.v (Specialised.point 1. 0. (-5.)) (Specialised.vector 0. 0. 1.),
         5.,
         5. );
       ( "perpendicular strike",
-        Ray.v (Tuple.point 0. 0.0 (-5.)) (Tuple.vector 0. 0. 1.),
+        Ray.v (Specialised.point 0. 0.0 (-5.)) (Specialised.vector 0. 0. 1.),
         4.,
         6. );
       ( "angled strike",
-        Ray.v (Tuple.point 0.5 0. (-5.))
-          (Tuple.normalize (Tuple.vector 0.1 1. 1.)),
+        Ray.v
+          (Specialised.point 0.5 0. (-5.))
+          (Specialised.normalize (Specialised.vector 0.1 1. 1.)),
         6.80798191702731436692,
         7.08872343937886739695 );
     ]
@@ -44,25 +45,29 @@ let test_ray_intersects_capped_cylinder =
   let testcases =
     [
       ( "hit 1",
-        Ray.v (Tuple.point 0. 3. 0.)
-          (Tuple.normalize (Tuple.vector 0. (-1.) 0.)),
+        Ray.v
+          (Specialised.point 0. 3. 0.)
+          (Specialised.normalize (Specialised.vector 0. (-1.) 0.)),
         2 );
       ( "hit 2",
-        Ray.v (Tuple.point 0. 3. (-2.))
-          (Tuple.normalize (Tuple.vector 0. (-1.) 2.)),
+        Ray.v
+          (Specialised.point 0. 3. (-2.))
+          (Specialised.normalize (Specialised.vector 0. (-1.) 2.)),
         2 );
       ( "hit 3",
-        Ray.v (Tuple.point 0. 4. (-2.))
-          (Tuple.normalize (Tuple.vector 0. (-1.) 1.)),
+        Ray.v
+          (Specialised.point 0. 4. (-2.))
+          (Specialised.normalize (Specialised.vector 0. (-1.) 1.)),
         2 );
       ( "hit 4",
-        Ray.v (Tuple.point 0. 0. (-2.))
-          (Tuple.normalize (Tuple.vector 0. 1. 2.)),
+        Ray.v
+          (Specialised.point 0. 0. (-2.))
+          (Specialised.normalize (Specialised.vector 0. 1. 2.)),
         2 );
       ( "hit 5",
         Ray.v
-          (Tuple.point 0. (-1.) (-2.))
-          (Tuple.normalize (Tuple.vector 0. 1. 1.)),
+          (Specialised.point 0. (-1.) (-2.))
+          (Specialised.normalize (Specialised.vector 0. 1. 1.)),
         2 );
     ]
   in
@@ -78,13 +83,25 @@ let test_ray_intersects_constrained_cylinder =
   let testcases =
     [
       ( "hit 1",
-        Ray.v (Tuple.point 0. 1.5 0.) (Tuple.normalize (Tuple.vector 0.1 1. 0.)),
+        Ray.v
+          (Specialised.point 0. 1.5 0.)
+          (Specialised.normalize (Specialised.vector 0.1 1. 0.)),
         0 );
-      ("hit 2", Ray.v (Tuple.point 0. 3. (-5.)) (Tuple.vector 0. 0. 1.), 0);
-      ("hit 3", Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.), 0);
-      ("hit 4", Ray.v (Tuple.point 0. 2. (-5.)) (Tuple.vector 0. 0. 1.), 0);
-      ("hit 5", Ray.v (Tuple.point 0. 1. (-5.)) (Tuple.vector 0. 0. 1.), 0);
-      ("hit 6", Ray.v (Tuple.point 0. 1.5 (-2.)) (Tuple.vector 0. 0. 1.), 2);
+      ( "hit 2",
+        Ray.v (Specialised.point 0. 3. (-5.)) (Specialised.vector 0. 0. 1.),
+        0 );
+      ( "hit 3",
+        Ray.v (Specialised.point 0. 0. (-5.)) (Specialised.vector 0. 0. 1.),
+        0 );
+      ( "hit 4",
+        Ray.v (Specialised.point 0. 2. (-5.)) (Specialised.vector 0. 0. 1.),
+        0 );
+      ( "hit 5",
+        Ray.v (Specialised.point 0. 1. (-5.)) (Specialised.vector 0. 0. 1.),
+        0 );
+      ( "hit 6",
+        Ray.v (Specialised.point 0. 1.5 (-2.)) (Specialised.vector 0. 0. 1.),
+        2 );
     ]
   in
   List.map
@@ -103,11 +120,14 @@ let test_ray_misses_cylinder =
   in
   let testcases =
     [
-      ("aligned on edge", Ray.v (Tuple.point 1. 0. 0.) (Tuple.vector 0. 1. 0.));
-      ("inside along axis", Ray.v (Tuple.point 0. 0. 0.) (Tuple.vector 0. 1. 0.));
+      ( "aligned on edge",
+        Ray.v (Specialised.point 1. 0. 0.) (Specialised.vector 0. 1. 0.) );
+      ( "inside along axis",
+        Ray.v (Specialised.point 0. 0. 0.) (Specialised.vector 0. 1. 0.) );
       ( "outside/away",
-        Ray.v (Tuple.point 0. 0. (-5.))
-          (Tuple.normalize (Tuple.vector 1. 1. 1.)) );
+        Ray.v
+          (Specialised.point 0. 0. (-5.))
+          (Specialised.normalize (Specialised.vector 1. 1. 1.)) );
     ]
   in
   List.map
@@ -126,36 +146,44 @@ let test_normal_at =
   in
   let testcases =
     [
-      ("normal +ve x face", Tuple.point 1. 0. 0., Tuple.vector 1. 0. 0.);
-      ("normal -ve x face", Tuple.point 0. 5. (-1.), Tuple.vector 0. 0. (-1.));
-      ("normal +ve z face", Tuple.point 0. (-2.) 1., Tuple.vector 0. 0. 1.);
-      ("normal -ve z face", Tuple.point (-1.) 1. 0., Tuple.vector (-1.) 0. 0.);
+      ( "normal +ve x face",
+        Specialised.point 1. 0. 0.,
+        Specialised.vector 1. 0. 0. );
+      ( "normal -ve x face",
+        Specialised.point 0. 5. (-1.),
+        Specialised.vector 0. 0. (-1.) );
+      ( "normal +ve z face",
+        Specialised.point 0. (-2.) 1.,
+        Specialised.vector 0. 0. 1. );
+      ( "normal -ve z face",
+        Specialised.point (-1.) 1. 0.,
+        Specialised.vector (-1.) 0. 0. );
     ]
   in
   List.map
     (fun (name, point, normal) ->
       name >:: fun _ ->
       let res = Intersection.normal_at c point in
-      assert_bool "is equal" (Tuple.is_equal normal res))
+      assert_bool "is equal" (Specialised.is_equal normal res))
     testcases
 
 let test_normal_at_capped =
   let c = Shape.(v (Cylinder { min = 1.; max = 2.; capped = true })) in
   let testcases =
     [
-      ("test 1", Tuple.point 0. 1. 0., Tuple.vector 0. (-1.) 0.);
-      ("test 2", Tuple.point 0.5 1. 0., Tuple.vector 0. (-1.) 0.);
-      ("test 3", Tuple.point 0. 1. 0.5, Tuple.vector 0. (-1.) 0.);
-      ("test 4", Tuple.point 0. 2. 0., Tuple.vector 0. 1. 0.);
-      ("test 5", Tuple.point 0.5 2. 0., Tuple.vector 0. 1. 0.);
-      ("test 6", Tuple.point 0. 2. 0.5, Tuple.vector 0. 1. 0.);
+      ("test 1", Specialised.point 0. 1. 0., Specialised.vector 0. (-1.) 0.);
+      ("test 2", Specialised.point 0.5 1. 0., Specialised.vector 0. (-1.) 0.);
+      ("test 3", Specialised.point 0. 1. 0.5, Specialised.vector 0. (-1.) 0.);
+      ("test 4", Specialised.point 0. 2. 0., Specialised.vector 0. 1. 0.);
+      ("test 5", Specialised.point 0.5 2. 0., Specialised.vector 0. 1. 0.);
+      ("test 6", Specialised.point 0. 2. 0.5, Specialised.vector 0. 1. 0.);
     ]
   in
   List.map
     (fun (name, point, normal) ->
       name >:: fun _ ->
       let res = Intersection.normal_at c point in
-      assert_bool "is equal" (Tuple.is_equal normal res))
+      assert_bool "is equal" (Specialised.is_equal normal res))
     testcases
 
 let suite =

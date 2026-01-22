@@ -14,41 +14,44 @@ let test_create_plane_defaults _ =
     Material.v ~pattern:Pattern.(v (Solid expected_colour)) ()
   in
   assert_equal expected_material (Shape.material s);
-  let ident = Matrix.identity 4 in
-  assert_bool "is equal" (Matrix.is_equal ident (Shape.transform s));
-  assert_bool "is equal" (Matrix.is_equal ident (Shape.inverse_transform s));
+  let ident = Specialised.identity () in
+  assert_bool "is equal" (Specialised.is_equal ident (Shape.transform s));
   assert_bool "is equal"
-    (Matrix.is_equal ident (Shape.transpose_inverse_transform s))
+    (Specialised.is_equal ident (Shape.inverse_transform s));
+  assert_bool "is equal"
+    (Specialised.is_equal ident (Shape.transpose_inverse_transform s))
 
 let test_plane_normal _ =
   let s = Shape.v Shape.Plane in
   let samples =
     [
-      Tuple.point 0. 0. 0.; Tuple.point 10. 0. (-10.); Tuple.point (-5.) 0. 150.;
+      Specialised.point 0. 0. 0.;
+      Specialised.point 10. 0. (-10.);
+      Specialised.point (-5.) 0. 150.;
     ]
   in
   List.iter
     (fun p ->
       let res = Intersection.normal_at s p in
-      let expected = Tuple.vector 0. 1. 0. in
-      assert_bool "is equal" (Tuple.is_equal expected res))
+      let expected = Specialised.vector 0. 1. 0. in
+      assert_bool "is equal" (Specialised.is_equal expected res))
     samples
 
 let test_plane_vs_parallel_ray _ =
   let s = Shape.v Shape.Plane in
-  let r = Ray.v (Tuple.point 0. 10. 0.) (Tuple.vector 0. 0. 1.) in
+  let r = Ray.v (Specialised.point 0. 10. 0.) (Specialised.vector 0. 0. 1.) in
   let res = Intersection.intersects s r in
   assert_equal 0 (List.length res)
 
 let test_plane_vs_coplanar_ray _ =
   let s = Shape.v Shape.Plane in
-  let r = Ray.v (Tuple.point 0. 0. 0.) (Tuple.vector 0. 0. 1.) in
+  let r = Ray.v (Specialised.point 0. 0. 0.) (Specialised.vector 0. 0. 1.) in
   let res = Intersection.intersects s r in
   assert_equal 0 (List.length res)
 
 let test_intersect_plane_from_above _ =
   let s = Shape.v Shape.Plane in
-  let r = Ray.v (Tuple.point 0. 1. 0.) (Tuple.vector 0. (-1.) 0.) in
+  let r = Ray.v (Specialised.point 0. 1. 0.) (Specialised.vector 0. (-1.) 0.) in
   let res = Intersection.intersects s r in
   assert_equal 1 (List.length res);
   let hit = List.hd res in
@@ -57,7 +60,7 @@ let test_intersect_plane_from_above _ =
 
 let test_intersect_plane_from_below _ =
   let s = Shape.v Shape.Plane in
-  let r = Ray.v (Tuple.point 0. (-1.) 0.) (Tuple.vector 0. 1. 0.) in
+  let r = Ray.v (Specialised.point 0. (-1.) 0.) (Specialised.vector 0. 1. 0.) in
   let res = Intersection.intersects s r in
   assert_equal 1 (List.length res);
   let hit = List.hd res in

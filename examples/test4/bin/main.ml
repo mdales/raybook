@@ -50,7 +50,7 @@ let tick _ =
   in
 
   let pt =
-    List.fold_left Matrix.multiply (Matrix.identity 4)
+    List.fold_left Specialised.multiply (Specialised.identity ())
       [
         Transformation.translation 0. 0. (-0.);
         Transformation.rotate_x (Float.pi /. 2.);
@@ -58,16 +58,15 @@ let tick _ =
   in
   let p = Shape.(v ~transform:pt ~material:mt Plane) in
 
-  let light_location = Tuple.point 10. 0. 50. in
+  let light_location = Specialised.point 10. 0. 50. in
   let t = Transformation.rotate_x (Float.pi /. 12.) in
-  let rotated_m = Matrix.multiply t (Tuple.to_matrix light_location) in
-  let rotated_p = Tuple.of_matrix rotated_m in
+  let rotated_p = Specialised.multiply t light_location in
   let l = Light.v rotated_p (Colour.v 1. 1. 1.) in
 
   let w = World.v l (p :: sl) in
 
   let camera_transform =
-    Matrix.multiply
+    Specialised.multiply
       (Transformation.translation 0. 0.0 (-20.))
       (Transformation.rotate_x 0.0)
   in

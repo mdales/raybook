@@ -1,6 +1,6 @@
 open Tsdl
 
-type tick_func = int -> Matrix.t * World.t
+type tick_func = int -> Specialised.t * World.t
 
 let ( >>= ) = Result.bind
 let ( >|= ) v f = Result.map f v

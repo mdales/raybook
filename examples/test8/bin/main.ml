@@ -5,7 +5,7 @@ open Raybook
 let tick shapes _t =
   (* let ft = Float.of_int t in *)
   (* let angle = Float.pi *. 2. *. ft /. Float.of_int frame_count in *)
-  let l = Light.v (Tuple.point 10. 10. 10.) (Colour.v 1. 1. 1.) in
+  let l = Light.v (Specialised.point 10. 10. 10.) (Colour.v 1. 1. 1.) in
 
   let plane_m =
     Material.v ~reflectivity:0.5

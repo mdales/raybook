@@ -1,7 +1,7 @@
 type t
 
-val v : Tuple.t -> Tuple.t -> t
-val origin : t -> Tuple.t
-val direction : t -> Tuple.t
-val position : t -> float -> Tuple.t
-val transform : t -> Matrix.t -> t
+val v : Specialised.t -> Specialised.t -> t
+val origin : t -> Specialised.t
+val direction : t -> Specialised.t
+val position : t -> float -> Specialised.t
+val transform : t -> Specialised.t -> t

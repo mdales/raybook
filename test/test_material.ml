@@ -30,11 +30,11 @@ let test_create_material_non_defaults _ =
 let test_eye_between_light_and_material _ =
   let p = Pattern.(v (Solid Colour.white)) in
   let material = Material.v ~pattern:p () in
-  let point = Tuple.point 0. 0. 0. in
+  let point = Specialised.point 0. 0. 0. in
 
-  let eye = Tuple.vector 0. 0. (-1.) in
-  let normal = Tuple.vector 0. 0. (-1.) in
-  let light = Light.v (Tuple.point 0. 0. (-10.)) Colour.white in
+  let eye = Specialised.vector 0. 0. (-1.) in
+  let normal = Specialised.vector 0. 0. (-1.) in
+  let light = Light.v (Specialised.point 0. 0. (-10.)) Colour.white in
   let shadow = false in
   let shape = Shape.(v Sphere) in
 
@@ -46,12 +46,12 @@ let test_eye_between_light_and_material _ =
 
 let test_eye_45_degrees_from_light_and_material _ =
   let material = Material.v ~pattern:Pattern.(v (Solid Colour.white)) () in
-  let point = Tuple.point 0. 0. 0. in
+  let point = Specialised.point 0. 0. 0. in
 
   let x = Float.sqrt 2. /. 2. in
-  let eye = Tuple.vector 0. x (0. -. x) in
-  let normal = Tuple.vector 0. 0. (-1.) in
-  let light = Light.v (Tuple.point 0. 0. (-10.)) Colour.white in
+  let eye = Specialised.vector 0. x (0. -. x) in
+  let normal = Specialised.vector 0. 0. (-1.) in
+  let light = Light.v (Specialised.point 0. 0. (-10.)) Colour.white in
   let shadow = false in
   let shape = Shape.(v Sphere) in
 
@@ -63,13 +63,13 @@ let test_eye_45_degrees_from_light_and_material _ =
 
 let test_light_45_degrees_from_eye_and_material _ =
   let material = Material.v ~pattern:Pattern.(v (Solid Colour.white)) () in
-  let point = Tuple.point 0. 0. 0. in
+  let point = Specialised.point 0. 0. 0. in
 
   let x = Float.sqrt 2. /. 2. in
   let y = 0.1 +. (0.9 *. x) in
-  let eye = Tuple.vector 0. 0. (-1.) in
-  let normal = Tuple.vector 0. 0. (-1.) in
-  let light = Light.v (Tuple.point 0. 10. (-10.)) Colour.white in
+  let eye = Specialised.vector 0. 0. (-1.) in
+  let normal = Specialised.vector 0. 0. (-1.) in
+  let light = Light.v (Specialised.point 0. 10. (-10.)) Colour.white in
   let shadow = false in
   let shape = Shape.(v Sphere) in
 
@@ -81,13 +81,13 @@ let test_light_45_degrees_from_eye_and_material _ =
 
 let test_eye_and_light_45_degrees_from_material _ =
   let material = Material.v ~pattern:Pattern.(v (Solid Colour.white)) () in
-  let point = Tuple.point 0. 0. 0. in
+  let point = Specialised.point 0. 0. 0. in
 
   let x = Float.sqrt 2. /. 2. in
   let y = 0.1 +. (0.9 *. x) +. 0.9 in
-  let eye = Tuple.vector 0. (0. -. x) (0. -. x) in
-  let normal = Tuple.vector 0. 0. (-1.) in
-  let light = Light.v (Tuple.point 0. 10. (-10.)) Colour.white in
+  let eye = Specialised.vector 0. (0. -. x) (0. -. x) in
+  let normal = Specialised.vector 0. 0. (-1.) in
+  let light = Light.v (Specialised.point 0. 10. (-10.)) Colour.white in
   let shadow = false in
   let shape = Shape.(v Sphere) in
 
@@ -99,11 +99,11 @@ let test_eye_and_light_45_degrees_from_material _ =
 
 let test_material_between_light_and_eye _ =
   let material = Material.v ~pattern:Pattern.(v (Solid Colour.white)) () in
-  let point = Tuple.point 0. 0. 0. in
+  let point = Specialised.point 0. 0. 0. in
 
-  let eye = Tuple.vector 0. 0. (-1.) in
-  let normal = Tuple.vector 0. 0. (-1.) in
-  let light = Light.v (Tuple.point 0. 0. 10.) Colour.white in
+  let eye = Specialised.vector 0. 0. (-1.) in
+  let normal = Specialised.vector 0. 0. (-1.) in
+  let light = Light.v (Specialised.point 0. 0. 10.) Colour.white in
   let shadow = false in
   let shape = Shape.(v Sphere) in
 
@@ -115,11 +115,11 @@ let test_material_between_light_and_eye _ =
 
 let test_surface_in_shadow _ =
   let material = Material.v ~pattern:Pattern.(v (Solid Colour.white)) () in
-  let point = Tuple.point 0. 0. 0. in
+  let point = Specialised.point 0. 0. 0. in
 
-  let eye = Tuple.vector 0. 0. (-1.) in
-  let normal = Tuple.vector 0. 0. (-1.) in
-  let light = Light.v (Tuple.point 0. 0. (-10.)) Colour.white in
+  let eye = Specialised.vector 0. 0. (-1.) in
+  let normal = Specialised.vector 0. 0. (-1.) in
+  let light = Light.v (Specialised.point 0. 0. (-10.)) Colour.white in
   let shadow = true in
   let shape = Shape.(v Sphere) in
 
@@ -135,18 +135,18 @@ let test_lighting_with_pattern _ =
     Material.v ~pattern:p ~ambient:1. ~diffuse:0. ~specular:0. ~shininess:0. ()
   in
 
-  let eye = Tuple.vector 0. 0. (-1.) in
-  let normal = Tuple.vector 0. 0. (-1.) in
-  let light = Light.v (Tuple.point 0. 0. (-10.)) Colour.white in
+  let eye = Specialised.vector 0. 0. (-1.) in
+  let normal = Specialised.vector 0. 0. (-1.) in
+  let light = Light.v (Specialised.point 0. 0. (-10.)) Colour.white in
   let shadow = false in
   let shape = Shape.(v Sphere) in
 
-  let p1 = Tuple.point 0.9 0. 0. in
+  let p1 = Specialised.point 0.9 0. 0. in
   let res1 =
     Light.lighting ~shape ~material:m ~point:p1 ~eye ~normal ~light ~shadow ()
   in
   assert_bool "is equal" (Colour.is_equal Colour.white res1);
-  let p2 = Tuple.point 1.1 0. 0. in
+  let p2 = Specialised.point 1.1 0. 0. in
   let res2 =
     Light.lighting ~shape ~material:m ~point:p2 ~eye ~normal ~light ~shadow ()
   in

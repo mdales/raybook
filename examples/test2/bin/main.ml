@@ -45,7 +45,7 @@ let tick _ =
   in
   let p = Shape.(v ~transform:pt ~material:mt Plane) in
 
-  let l = Light.v (Tuple.point 0. 0. 0.) (Colour.v 1. 1. 1.) in
+  let l = Light.v (Specialised.point 0. 0. 0.) (Colour.v 1. 1. 1.) in
 
   let w = World.v l (p :: sl) in
 

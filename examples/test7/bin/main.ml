@@ -9,7 +9,7 @@ let tick ships t =
   let c1 = Colour.v 1. 0.7 0.1 in
   let c2 = Colour.v 0.9 0.6 0.1 in
   let t =
-    Matrix.multiply
+    Specialised.multiply
       (Transformation.scaling 0.1 0.1 0.1)
       (Transformation.rotate_z (Float.pi /. 2.))
   in
@@ -24,7 +24,7 @@ let tick ships t =
   let m = Material.v ~pattern:Pattern.(v ~transform:t (Stripes (c1, c2))) () in
   let planet = Shape.(v ~transform:tp ~material:m Sphere) in
 
-  let l = Light.v (Tuple.point 100. 100. 100.) (Colour.v 1. 1. 1.) in
+  let l = Light.v (Specialised.point 100. 100. 100.) (Colour.v 1. 1. 1.) in
   let w = World.v l (planet :: ships) in
 
   let ct =

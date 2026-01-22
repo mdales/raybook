@@ -7,7 +7,7 @@ let translation x y z =
       [| 0.; 0.; 0.; 1. |];
     |]
   in
-  Matrix.v data
+  Specialised.of_array data
 
 let scaling x y z =
   let data =
@@ -18,7 +18,7 @@ let scaling x y z =
       [| 0.; 0.; 0.; 1. |];
     |]
   in
-  Matrix.v data
+  Specialised.of_array data
 
 let rotate_x r =
   let data =
@@ -29,7 +29,7 @@ let rotate_x r =
       [| 0.; 0.; 0.; 1. |];
     |]
   in
-  Matrix.v data
+  Specialised.of_array data
 
 let rotate_y r =
   let data =
@@ -40,7 +40,7 @@ let rotate_y r =
       [| 0.; 0.; 0.; 1. |];
     |]
   in
-  Matrix.v data
+  Specialised.of_array data
 
 let rotate_z r =
   let data =
@@ -51,7 +51,7 @@ let rotate_z r =
       [| 0.; 0.; 0.; 1. |];
     |]
   in
-  Matrix.v data
+  Specialised.of_array data
 
 let shearing xy xz yx yz zx zy =
   let data =
@@ -62,29 +62,34 @@ let shearing xy xz yx yz zx zy =
       [| 0.; 0.; 0.; 1. |];
     |]
   in
-  Matrix.v data
+  Specialised.of_array data
 
 let view_transform from_p to_p up_v =
-  if not (Tuple.is_point from_p) then
+  if not (Specialised.is_point from_p) then
     raise (Invalid_argument "From must be a point");
-  if not (Tuple.is_point to_p) then
+  if not (Specialised.is_point to_p) then
     raise (Invalid_argument "To must be a point");
-  if not (Tuple.is_vector up_v) then
+  if not (Specialised.is_vector up_v) then
     raise (Invalid_argument "Up must be a vector");
-  let forward = Tuple.normalize (Tuple.subtract to_p from_p) in
-  let upn = Tuple.normalize up_v in
-  let left = Tuple.cross forward upn in
-  let true_up = Tuple.cross left forward in
+  let forward = Specialised.normalize (Specialised.subtract to_p from_p) in
+  let upn = Specialised.normalize up_v in
+  let left = Specialised.cross forward upn in
+  let true_up = Specialised.cross left forward in
 
   let orientation =
-    Matrix.v
+    Specialised.of_array
       [|
-        [| Tuple.x left; Tuple.y left; Tuple.z left; 0. |];
-        [| Tuple.x true_up; Tuple.y true_up; Tuple.z true_up; 0. |];
+        [| Specialised.x left; Specialised.y left; Specialised.z left; 0. |];
         [|
-          0. -. Tuple.x forward;
-          0. -. Tuple.y forward;
-          0. -. Tuple.z forward;
+          Specialised.x true_up;
+          Specialised.y true_up;
+          Specialised.z true_up;
+          0.;
+        |];
+        [|
+          0. -. Specialised.x forward;
+          0. -. Specialised.y forward;
+          0. -. Specialised.z forward;
           0.;
         |];
         [| 0.; 0.; 0.; 1. |];
@@ -93,14 +98,14 @@ let view_transform from_p to_p up_v =
 
   let t =
     translation
-      (0. -. Tuple.x from_p)
-      (0. -. Tuple.y from_p)
-      (0. -. Tuple.z from_p)
+      (0. -. Specialised.x from_p)
+      (0. -. Specialised.y from_p)
+      (0. -. Specialised.z from_p)
   in
-  Matrix.multiply orientation t
+  Specialised.multiply orientation t
 
 let combine tl =
   match tl with
-  | [] -> Matrix.identity 4
+  | [] -> Specialised.identity ()
   | hd :: [] -> hd
-  | hd :: tl -> List.fold_left (fun a b -> Matrix.multiply b a) hd tl
+  | hd :: tl -> List.fold_left (fun a b -> Specialised.multiply b a) hd tl

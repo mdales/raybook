@@ -40,12 +40,12 @@ let tick _ =
       ()
   in
   let pt =
-    List.fold_left Matrix.multiply (Matrix.identity 4)
+    List.fold_left Specialised.multiply (Specialised.identity ())
       [ Transformation.translation 0. (-1.) 0. ]
   in
   let p = Shape.(v ~transform:pt ~material:mt Plane) in
 
-  let l = Light.v (Tuple.point 0. 4. (-2.)) (Colour.v 1. 1. 1.) in
+  let l = Light.v (Specialised.point 0. 4. (-2.)) (Colour.v 1. 1. 1.) in
 
   let w = World.v l (p :: sl) in
 

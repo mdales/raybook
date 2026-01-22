@@ -1,7 +1,7 @@
-type t = { position : Tuple.t; intensity : Colour.t }
+type t = { position : Specialised.t; intensity : Colour.t }
 
 let v position intensity =
-  if not (Tuple.is_point position) then
+  if not (Specialised.is_point position) then
     raise (Invalid_argument "Position must be a point");
   { position; intensity }
 
@@ -12,14 +12,14 @@ let lighting ~light ~shape ~eye ~normal ~material ~point ~shadow () =
   let pattern = Material.pattern material in
 
   (* move to object space to get the colour *)
-  let pm = Tuple.to_matrix point in
-  let opm = Matrix.multiply (Shape.inverse_transform shape) pm in
-  let op = Tuple.of_matrix opm in
+  let op = Specialised.multiply (Shape.inverse_transform shape) point in
 
   let raw_colour = Pattern.colour_at pattern op in
 
   let effective_colour = Colour.multiply raw_colour (intensity light) in
-  let lightv = Tuple.normalize (Tuple.subtract (position light) point) in
+  let lightv =
+    Specialised.normalize (Specialised.subtract (position light) point)
+  in
 
   let ambient_colour =
     Colour.fmultiply effective_colour (Material.ambient material)
@@ -28,7 +28,7 @@ let lighting ~light ~shape ~eye ~normal ~material ~point ~shadow () =
   match shadow with
   | true -> ambient_colour
   | false ->
-      let light_dot_normal = Tuple.dot lightv normal in
+      let light_dot_normal = Specialised.dot lightv normal in
 
       let black = Colour.black in
 
@@ -42,9 +42,9 @@ let lighting ~light ~shape ~eye ~normal ~material ~point ~shadow () =
       let specular =
         if light_dot_normal < 0. then black
         else
-          let negative_lightv = Tuple.negate lightv in
-          let reflectv = Tuple.reflect negative_lightv normal in
-          let reflect_dot_eye = Tuple.dot reflectv eye in
+          let negative_lightv = Specialised.negate lightv in
+          let reflectv = Specialised.reflect negative_lightv normal in
+          let reflect_dot_eye = Specialised.dot reflectv eye in
 
           if reflect_dot_eye < 0. then black
           else

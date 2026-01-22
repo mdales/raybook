@@ -26,7 +26,7 @@ let test_create_sphere_with_material _ =
   assert_equal material rm
 
 let test_intersect_at_two_points _ =
-  let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
+  let r = Ray.v (Specialised.point 0. 0. (-5.)) (Specialised.vector 0. 0. 1.) in
   let s = Shape.(v Sphere) in
   let xs = Intersection.intersects s r in
   match xs with
@@ -36,7 +36,7 @@ let test_intersect_at_two_points _ =
   | _ -> assert_bool "no intersects" false
 
 let test_intersect_at_tangent _ =
-  let r = Ray.v (Tuple.point 0. 1. (-5.)) (Tuple.vector 0. 0. 1.) in
+  let r = Ray.v (Specialised.point 0. 1. (-5.)) (Specialised.vector 0. 0. 1.) in
   let s = Shape.(v Sphere) in
   let xs = Intersection.intersects s r in
   match xs with
@@ -46,13 +46,13 @@ let test_intersect_at_tangent _ =
   | _ -> assert_bool "no intersects" false
 
 let test_no_intersect _ =
-  let r = Ray.v (Tuple.point 0. 2. (-5.)) (Tuple.vector 0. 0. 1.) in
+  let r = Ray.v (Specialised.point 0. 2. (-5.)) (Specialised.vector 0. 0. 1.) in
   let s = Shape.(v Sphere) in
   let xs = Intersection.intersects s r in
   match xs with [] -> () | _ -> assert_bool "expected no answer" false
 
 let test_ray_inside_sphere _ =
-  let r = Ray.v (Tuple.point 0. 0. 0.) (Tuple.vector 0. 0. 1.) in
+  let r = Ray.v (Specialised.point 0. 0. 0.) (Specialised.vector 0. 0. 1.) in
   let s = Shape.(v Sphere) in
   let xs = Intersection.intersects s r in
   match xs with
@@ -62,7 +62,7 @@ let test_ray_inside_sphere _ =
   | _ -> assert_bool "no intersects" false
 
 let test_ray_behind_sphere _ =
-  let r = Ray.v (Tuple.point 0. 0. 5.) (Tuple.vector 0. 0. 1.) in
+  let r = Ray.v (Specialised.point 0. 0. 5.) (Specialised.vector 0. 0. 1.) in
   let s = Shape.(v Sphere) in
   let xs = Intersection.intersects s r in
   match xs with
@@ -74,17 +74,17 @@ let test_ray_behind_sphere _ =
 let test_default_transform _ =
   let s = Shape.(v Sphere) in
   let res = Shape.transform s in
-  let expected = Matrix.identity 4 in
-  assert_bool "is equal" (Matrix.is_equal expected res)
+  let expected = Specialised.identity () in
+  assert_bool "is equal" (Specialised.is_equal expected res)
 
 let test_set_transform _ =
   let t = Transformation.translation 2. 3. 4. in
   let s = Shape.v ~transform:t Shape.Sphere in
   let res = Shape.transform s in
-  assert_bool "is equal" (Matrix.is_equal t res)
+  assert_bool "is equal" (Specialised.is_equal t res)
 
 let test_scaled_sphere_intersection _ =
-  let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
+  let r = Ray.v (Specialised.point 0. 0. (-5.)) (Specialised.vector 0. 0. 1.) in
   let t = Transformation.scaling 2. 2. 2. in
   let s = Shape.v ~transform:t Shape.Sphere in
   let xs = Intersection.intersects s r in
@@ -95,7 +95,7 @@ let test_scaled_sphere_intersection _ =
   | _ -> assert_bool "no intersects" false
 
 let test_translated_sphere_intersection _ =
-  let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
+  let r = Ray.v (Specialised.point 0. 0. (-5.)) (Specialised.vector 0. 0. 1.) in
   let t = Transformation.translation 5. 0. 0. in
   let s = Shape.v ~transform:t Shape.Sphere in
   let xs = Intersection.intersects s r in
@@ -103,56 +103,56 @@ let test_translated_sphere_intersection _ =
 
 let test_normal_at_x_axis _ =
   let s = Shape.(v Sphere) in
-  let p = Tuple.point 1. 0. 0. in
+  let p = Specialised.point 1. 0. 0. in
   let res = Intersection.normal_at s p in
-  let expected = Tuple.vector 1. 0. 0. in
-  assert_bool "is equal" (Tuple.is_equal expected res)
+  let expected = Specialised.vector 1. 0. 0. in
+  assert_bool "is equal" (Specialised.is_equal expected res)
 
 let test_normal_at_y_axis _ =
   let s = Shape.(v Sphere) in
-  let p = Tuple.point 0. 1. 0. in
+  let p = Specialised.point 0. 1. 0. in
   let res = Intersection.normal_at s p in
-  let expected = Tuple.vector 0. 1. 0. in
-  assert_bool "is equal" (Tuple.is_equal expected res)
+  let expected = Specialised.vector 0. 1. 0. in
+  assert_bool "is equal" (Specialised.is_equal expected res)
 
 let test_normal_at_z_axis _ =
   let s = Shape.(v Sphere) in
-  let p = Tuple.point 0. 0. 1. in
+  let p = Specialised.point 0. 0. 1. in
   let res = Intersection.normal_at s p in
-  let expected = Tuple.vector 0. 0. 1. in
-  assert_bool "is equal" (Tuple.is_equal expected res)
+  let expected = Specialised.vector 0. 0. 1. in
+  assert_bool "is equal" (Specialised.is_equal expected res)
 
 let test_normal_at_off_axis _ =
   let v = Float.sqrt 3. /. 3. in
   let s = Shape.(v Sphere) in
-  let p = Tuple.point v v v in
+  let p = Specialised.point v v v in
   let res = Intersection.normal_at s p in
-  let expected = Tuple.vector v v v in
-  assert_bool "is equal" (Tuple.is_equal expected res);
-  let normal_res = Tuple.normalize res in
-  assert_bool "is equal" (Tuple.is_equal res normal_res)
+  let expected = Specialised.vector v v v in
+  assert_bool "is equal" (Specialised.is_equal expected res);
+  let normal_res = Specialised.normalize res in
+  assert_bool "is equal" (Specialised.is_equal res normal_res)
 
 let test_normal_at_on_translated_sphere _ =
   let t = Transformation.translation 0. 1. 0. in
   let s = Shape.v ~transform:t Shape.Sphere in
   let v = Float.sqrt 2. /. 2. in
-  let p = Tuple.point 0. (1. +. v) (0. -. v) in
+  let p = Specialised.point 0. (1. +. v) (0. -. v) in
   let res = Intersection.normal_at s p in
-  let expected = Tuple.vector 0. v (-1. *. v) in
-  assert_bool "is equal" (Tuple.is_equal expected res)
+  let expected = Specialised.vector 0. v (-1. *. v) in
+  assert_bool "is equal" (Specialised.is_equal expected res)
 
 let test_normal_at_on_tranformed_sphere _ =
   let st = Transformation.scaling 1. 0.5 1.
   and rt = Transformation.rotate_z (Float.pi /. 5.) in
-  let t = Matrix.multiply st rt in
+  let t = Specialised.multiply st rt in
   let s = Shape.v ~transform:t Shape.Sphere in
   let v = Float.sqrt 2. /. 2. in
-  let p = Tuple.point 0. v (-1. *. v) in
+  let p = Specialised.point 0. v (-1. *. v) in
   let res = Intersection.normal_at s p in
   let expected =
-    Tuple.vector 0. (4. /. Float.sqrt 17.) (-1. /. Float.sqrt 17.)
+    Specialised.vector 0. (4. /. Float.sqrt 17.) (-1. /. Float.sqrt 17.)
   in
-  assert_bool "is equal" (Tuple.is_equal expected res)
+  assert_bool "is equal" (Specialised.is_equal expected res)
 
 let suite =
   "Sphere tests"

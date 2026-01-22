@@ -4,7 +4,7 @@ let tick _ =
   let c1 = Colour.v 1. 0.7 0.1 in
   (* let c2 = Colour.v 0.9 0.6 0.1 in *)
   let t =
-    Matrix.multiply
+    Specialised.multiply
       (Transformation.scaling 0.1 0.1 0.1)
       (Transformation.rotate_z (Float.pi /. 2.))
   in
@@ -19,7 +19,7 @@ let tick _ =
     Material.v ~ambient:0.1 ~pattern:Pattern.(v (Solid Colour.white)) ()
   in
   let pt =
-    List.fold_left Matrix.multiply (Matrix.identity 4)
+    List.fold_left Specialised.multiply (Specialised.identity ())
       [
         Transformation.translation 0. 0. (-55.);
         Transformation.rotate_x (Float.pi /. 2.);
@@ -27,16 +27,15 @@ let tick _ =
   in
   let p = Shape.(v ~transform:pt ~material:mt Plane) in
 
-  let light_location = Tuple.point 10. 1. 10. in
+  let light_location = Specialised.point 10. 1. 10. in
   let t = Transformation.rotate_x (Float.pi /. 12.) in
-  let rotated_m = Matrix.multiply t (Tuple.to_matrix light_location) in
-  let rotated_p = Tuple.of_matrix rotated_m in
+  let rotated_p = Specialised.multiply t light_location in
   let l = Light.v rotated_p (Colour.v 1. 1. 1.) in
 
   let w = World.v l [ s; p ] in
 
   let camera_transform =
-    Matrix.multiply
+    Specialised.multiply
       (Transformation.translation 0. 0.0 (-3.5))
       (Transformation.rotate_x 0.0)
   in

@@ -4,38 +4,38 @@ type geometry_t =
   | Cylinder of { min : float; max : float; capped : bool }
   | Plane
   | Sphere
-  | Triangle of (Tuple.t * Tuple.t * Tuple.t)
+  | Triangle of (Specialised.t * Specialised.t * Specialised.t)
   | Group of t list
 
 and t = {
   geometry : geometry_t;
   material : Material.t;
-  transform : Matrix.t;
-  inverse_transform : Matrix.t;
-  transpose_inverse_transform : Matrix.t;
-  min_bounds : Tuple.t;
-  max_bounds : Tuple.t;
+  transform : Specialised.t;
+  inverse_transform : Specialised.t;
+  transpose_inverse_transform : Specialised.t;
+  min_bounds : Specialised.t;
+  max_bounds : Specialised.t;
   (* valid for triangle only *)
-  edges : (Tuple.t * Tuple.t) option;
-  normal : Tuple.t option;
+  edges : (Specialised.t * Specialised.t) option;
+  normal : Specialised.t option;
 }
 
 let corners a b =
-  let ax = Tuple.x a
-  and ay = Tuple.y a
-  and az = Tuple.z a
-  and bx = Tuple.x b
-  and by = Tuple.y b
-  and bz = Tuple.z b in
+  let ax = Specialised.x a
+  and ay = Specialised.y a
+  and az = Specialised.z a
+  and bx = Specialised.x b
+  and by = Specialised.y b
+  and bz = Specialised.z b in
   [
     a;
     b;
-    Tuple.point ax ay bz;
-    Tuple.point ax by az;
-    Tuple.point bx ay az;
-    Tuple.point bx by az;
-    Tuple.point bx ay bz;
-    Tuple.point ax by bz;
+    Specialised.point ax ay bz;
+    Specialised.point ax by az;
+    Specialised.point bx ay az;
+    Specialised.point bx by az;
+    Specialised.point bx ay bz;
+    Specialised.point ax by bz;
   ]
 
 let group_bounds sl =
@@ -44,19 +44,16 @@ let group_bounds sl =
       (fun s ->
         let minb, maxb = (s.min_bounds, s.max_bounds) in
         let all_corners = corners minb maxb in
-        List.map
-          (fun p ->
-            let pm = Tuple.to_matrix p in
-            let nm = Matrix.multiply s.transform pm in
-            Tuple.of_matrix nm)
-          all_corners)
+        List.map (fun p -> Specialised.multiply s.transform p) all_corners)
       sl
     |> List.concat
   in
   let minx, miny, minz, maxx, maxy, maxz =
     List.fold_left
       (fun (minx, miny, minz, maxx, maxy, maxz) p ->
-        let x = Tuple.x p and y = Tuple.y p and z = Tuple.z p in
+        let x = Specialised.x p
+        and y = Specialised.y p
+        and z = Specialised.z p in
         ( Float.min x minx,
           Float.min y miny,
           Float.min z minz,
@@ -71,7 +68,7 @@ let group_bounds sl =
         Float.neg_infinity )
       limits
   in
-  (Tuple.point minx miny minz, Tuple.point maxx maxy maxz)
+  (Specialised.point minx miny minz, Specialised.point maxx maxy maxz)
 
 let rec v ?material ?transform geometry =
   let material =
@@ -81,14 +78,14 @@ let rec v ?material ?transform geometry =
   in
   let transform, inverse_transform =
     match transform with
-    | Some t -> (t, Matrix.inverse t)
-    | None -> (Matrix.identity 4, Matrix.identity 4)
+    | Some t -> (t, Specialised.inverse t)
+    | None -> (Specialised.identity (), Specialised.identity ())
   in
   let edges, normal =
     match geometry with
     | Triangle (a, b, c) ->
-        let e1 = Tuple.subtract b a and e2 = Tuple.subtract c a in
-        let normal = Tuple.normalize (Tuple.cross e2 e1) in
+        let e1 = Specialised.subtract b a and e2 = Specialised.subtract c a in
+        let normal = Specialised.normalize (Specialised.cross e2 e1) in
         (Some (e1, e2), Some normal)
     | _ -> (None, None)
   in
@@ -99,41 +96,44 @@ let rec v ?material ?transform geometry =
         ( Group
             (List.map
                (fun s ->
-                 let global_transform = Matrix.multiply transform s.transform in
+                 let global_transform =
+                   Specialised.multiply transform s.transform
+                 in
                  v ~material:s.material ~transform:global_transform s.geometry)
                sl),
-          Matrix.identity 4,
-          Matrix.identity 4 )
+          Specialised.identity (),
+          Specialised.identity () )
     | s -> (s, transform, inverse_transform)
   in
   (* this has to be second as groups are evaluated in world space *)
   let min_bounds, max_bounds =
     match geometry with
-    | Sphere | Cube -> (Tuple.point (-1.) (-1.) (-1.), Tuple.point 1. 1. 1.)
+    | Sphere | Cube ->
+        (Specialised.point (-1.) (-1.) (-1.), Specialised.point 1. 1. 1.)
     | Cylinder { min; max; _ } ->
-        (Tuple.point (-1.) min (-1.), Tuple.point 1. max 1.)
+        (Specialised.point (-1.) min (-1.), Specialised.point 1. max 1.)
     | Cone { min; max; _ } ->
         let radius = Float.max (Float.abs min) (Float.abs max) in
-        ( Tuple.point (0. -. radius) min (0. -. radius),
-          Tuple.point radius max radius )
+        ( Specialised.point (0. -. radius) min (0. -. radius),
+          Specialised.point radius max radius )
     | Plane ->
-        ( Tuple.point Float.neg_infinity 0. Float.neg_infinity,
-          Tuple.point Float.infinity 0. Float.infinity )
+        ( Specialised.point Float.neg_infinity 0. Float.neg_infinity,
+          Specialised.point Float.infinity 0. Float.infinity )
     | Triangle (a, b, c) ->
-        let ax = Tuple.x a
-        and ay = Tuple.y a
-        and az = Tuple.z a
-        and bx = Tuple.x b
-        and by = Tuple.y b
-        and bz = Tuple.z b
-        and cx = Tuple.x c
-        and cy = Tuple.y c
-        and cz = Tuple.z c in
-        ( Tuple.point
+        let ax = Specialised.x a
+        and ay = Specialised.y a
+        and az = Specialised.z a
+        and bx = Specialised.x b
+        and by = Specialised.y b
+        and bz = Specialised.z b
+        and cx = Specialised.x c
+        and cy = Specialised.y c
+        and cz = Specialised.z c in
+        ( Specialised.point
             (Float.min (Float.min ax bx) cx)
             (Float.min (Float.min ay by) cy)
             (Float.min (Float.min az bz) cz),
-          Tuple.point
+          Specialised.point
             (Float.max (Float.max ax bx) cx)
             (Float.max (Float.max ay by) cy)
             (Float.max (Float.max az bz) cz) )
@@ -144,7 +144,7 @@ let rec v ?material ?transform geometry =
     material;
     transform;
     inverse_transform;
-    transpose_inverse_transform = Matrix.transpose inverse_transform;
+    transpose_inverse_transform = Specialised.transpose inverse_transform;
     min_bounds;
     max_bounds;
     edges;

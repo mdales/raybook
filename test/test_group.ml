@@ -3,7 +3,7 @@ open OUnit2
 
 let test_intersect_with_empty_group _ =
   let g = Shape.(v (Group [])) in
-  let r = Ray.v (Tuple.point 0. 0. 0.) (Tuple.vector 0. 0. 1.) in
+  let r = Ray.v (Specialised.point 0. 0. 0.) (Specialised.vector 0. 0. 1.) in
   let il = Intersection.intersects g r in
   assert_equal [] il
 
@@ -14,7 +14,7 @@ let test_intersect_with_nonempty_group _ =
   let t3 = Transformation.translation 5. 0. 0. in
   let s3 = Shape.(v ~transform:t3 Sphere) in
   let g = Shape.(v (Group [ s1; s2; s3 ])) in
-  let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
+  let r = Ray.v (Specialised.point 0. 0. (-5.)) (Specialised.vector 0. 0. 1.) in
   let il = Intersection.intersects g r in
   assert_equal 4 (List.length il);
   assert_equal s2 (Intersection.shape (List.nth il 0));
@@ -27,7 +27,9 @@ let test_intersect_transformed_group _ =
   let s = Shape.(v ~transform:ts Sphere) in
   let tg = Transformation.scaling 2. 2. 2. in
   let g = Shape.(v ~transform:tg (Group [ s ])) in
-  let r = Ray.v (Tuple.point 10. 0. (-10.)) (Tuple.vector 0. 0. 1.) in
+  let r =
+    Ray.v (Specialised.point 10. 0. (-10.)) (Specialised.vector 0. 0. 1.)
+  in
   let il = Intersection.intersects g r in
   assert_equal 2 (List.length il)
 
@@ -44,12 +46,12 @@ let test_group_item_moved_to_world_space _ =
     | _ -> assert_failure "expected group"
   in
   let res = Shape.transform updated_s in
-  assert_bool "is equal" (Matrix.is_equal t res);
+  assert_bool "is equal" (Specialised.is_equal t res);
   let v = Float.sqrt 2. /. 2. in
-  let p = Tuple.point 0. (1. +. v) (0. -. v) in
+  let p = Specialised.point 0. (1. +. v) (0. -. v) in
   let res = Intersection.normal_at updated_s p in
-  let expected = Tuple.vector 0. v (-1. *. v) in
-  assert_bool "is equal" (Tuple.is_equal expected res)
+  let expected = Specialised.vector 0. v (-1. *. v) in
+  assert_bool "is equal" (Specialised.is_equal expected res)
 
 let test_group_item_moved_to_world_space_both_transformed _ =
   (* Note the rotate on a sphere is nothing if done first *)
@@ -66,13 +68,13 @@ let test_group_item_moved_to_world_space_both_transformed _ =
     | _ -> assert_failure "expected group"
   in
   let res = Shape.transform updated_s in
-  let expected_t = Matrix.multiply tg ts in
-  assert_bool "is equal" (Matrix.is_equal expected_t res);
+  let expected_t = Specialised.multiply tg ts in
+  assert_bool "is equal" (Specialised.is_equal expected_t res);
   let v = Float.sqrt 2. /. 2. in
-  let p = Tuple.point 0. (1. +. v) (0. -. v) in
+  let p = Specialised.point 0. (1. +. v) (0. -. v) in
   let res = Intersection.normal_at updated_s p in
-  let expected = Tuple.vector 0. v (-1. *. v) in
-  assert_bool "is equal" (Tuple.is_equal expected res)
+  let expected = Specialised.vector 0. v (-1. *. v) in
+  assert_bool "is equal" (Specialised.is_equal expected res)
 
 let test_normal_at_within_group _ =
   let t = Transformation.translation 5. 0. 0. in
@@ -96,15 +98,15 @@ let test_normal_at_within_group _ =
   in
   let expected_transform = Transformation.combine [ t; t2; t1 ] in
   assert_bool "is equal transform"
-    (Matrix.is_equal expected_transform (Shape.transform updated_s));
+    (Specialised.is_equal expected_transform (Shape.transform updated_s));
   let res =
-    Intersection.normal_at updated_s (Tuple.point 1.7321 1.1547 (-5.5774))
+    Intersection.normal_at updated_s (Specialised.point 1.7321 1.1547 (-5.5774))
   in
   let expected =
-    Tuple.vector 0.28570368184140720880 0.42854315178114094076
+    Specialised.vector 0.28570368184140720880 0.42854315178114094076
       (-0.85716052944810172676)
   in
-  assert_bool "is equal normal" (Tuple.is_equal expected res)
+  assert_bool "is equal normal" (Specialised.is_equal expected res)
 
 let suite =
   "Group tests"

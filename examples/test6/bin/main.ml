@@ -42,7 +42,7 @@ let tick t =
       ()
   in
   let pt =
-    List.fold_left Matrix.multiply (Matrix.identity 4)
+    List.fold_left Specialised.multiply (Specialised.identity ())
       [ Transformation.translation 0. (-1.) 0. ]
   in
   let p = Shape.(v ~transform:pt ~material:mt Plane) in
@@ -51,8 +51,7 @@ let tick t =
   let light_angle = Float.pi *. 2. *. ft /. fc in
   let intensity = 1. in
   (* ((cos light_angle) *. 0.7) +. 0.3 in *)
-  let lp = Tuple.point 0. 4. (-2.) in
-  let lpm = Tuple.to_matrix lp in
+  let lp = Specialised.point 0. 4. (-2.) in
   let light_transform =
     Transformation.combine
       [
@@ -61,8 +60,7 @@ let tick t =
         Transformation.scaling 4. 1. 1.;
       ]
   in
-  let ulpm = Matrix.multiply light_transform lpm in
-  let ulp = Tuple.of_matrix ulpm in
+  let ulp = Specialised.multiply light_transform lp in
 
   let l = Light.v ulp (Colour.v intensity intensity intensity) in
 

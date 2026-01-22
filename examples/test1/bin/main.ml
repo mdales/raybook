@@ -8,7 +8,7 @@ let tick t =
   let c1 = Colour.v 1. 0.7 0.1 in
   let c2 = Colour.v 0.9 0.6 0.1 in
   let t =
-    Matrix.multiply
+    Specialised.multiply
       (Transformation.scaling 0.1 0.1 0.1)
       (Transformation.rotate_z (Float.pi /. 2.))
   in
@@ -17,10 +17,9 @@ let tick t =
 
   let cl = [ Shape.(v ~material:m Sphere) ] in
 
-  let light_location = Tuple.point 0. 10. 0. in
+  let light_location = Specialised.point 0. 10. 0. in
   let t = Transformation.rotate_x angle in
-  let rotated_m = Matrix.multiply t (Tuple.to_matrix light_location) in
-  let rotated_p = Tuple.of_matrix rotated_m in
+  let rotated_p = Specialised.multiply t light_location in
 
   let count = 18 in
   let slll : Shape.t list list =
@@ -40,8 +39,8 @@ let tick t =
             ~pattern:Pattern.(v (Solid c))
             ()
         in
-        let scale : Matrix.t = Transformation.scaling 0.15 0.15 0.15 in
-        let translate : Matrix.t = Transformation.translation 1.5 0. 0. in
+        let scale = Transformation.scaling 0.15 0.15 0.15 in
+        let translate = Transformation.translation 1.5 0. 0. in
         let rotate_y = Transformation.rotate_y innerangle in
         let transform = Transformation.combine [ scale; translate; rotate_y ] in
         [
@@ -79,7 +78,7 @@ let tick t =
   let w = World.v l (plane :: (sll @ cl)) in
 
   let camera_transform =
-    Matrix.multiply
+    Specialised.multiply
       (Transformation.translation 0. 0.5 (-3.5))
       (Transformation.rotate_x 0.2)
   in
@@ -92,7 +91,7 @@ let tick t =
     ]
   in *)
   (* let camera_transform =
-    List.fold_left Matrix.multiply (Matrix.identity 4) ctl
+    List.fold_left Specialised.multiply (Specialised.identity ()) ctl
   in *)
 
   (camera_transform, w)

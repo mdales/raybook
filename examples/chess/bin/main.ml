@@ -5,7 +5,7 @@ open Raybook
 let tick shapes _t =
   (* let ft = Float.of_int t in *)
   (* let angle = Float.pi *. 2. *. ft /. Float.of_int frame_count in *)
-  let l = Light.v (Tuple.point 3. 5. 3.) (Colour.v 1. 1. 1.) in
+  let l = Light.v (Specialised.point 3. 5. 3.) (Colour.v 1. 1. 1.) in
 
   let w = World.v l shapes in
 
@@ -92,7 +92,7 @@ let () =
     List.fold_left
       (fun acc s ->
         let a, b = Shape.bounds s in
-        let scaling = 1. /. (Tuple.y b -. Tuple.y a) in
+        let scaling = 1. /. (Specialised.y b -. Specialised.y a) in
         if scaling > acc then scaling else acc)
       0. models
   in
@@ -106,9 +106,11 @@ let () =
           Transformation.combine
             [
               Transformation.translation
-                (0. -. Tuple.x a -. ((Tuple.x b -. Tuple.x a) /. 2.))
-                (0. -. Tuple.y a)
-                (0. -. Tuple.z a -. ((Tuple.z b -. Tuple.z a) /. 2.));
+                (0. -. Specialised.x a
+                -. ((Specialised.x b -. Specialised.x a) /. 2.))
+                (0. -. Specialised.y a)
+                (0. -. Specialised.z a
+                -. ((Specialised.z b -. Specialised.z a) /. 2.));
               Transformation.scaling scaling scaling scaling;
               Transformation.rotate_y (Float.pi /. -2.);
               Transformation.translation (-0.5 +. i) 0. (-0.5);
@@ -146,9 +148,11 @@ let () =
           Transformation.combine
             [
               Transformation.translation
-                (0. -. Tuple.x a -. ((Tuple.x b -. Tuple.x a) /. 2.))
-                (0. -. Tuple.y a)
-                (0. -. Tuple.z a -. ((Tuple.z b -. Tuple.z a) /. 2.));
+                (0. -. Specialised.x a
+                -. ((Specialised.x b -. Specialised.x a) /. 2.))
+                (0. -. Specialised.y a)
+                (0. -. Specialised.z a
+                -. ((Specialised.z b -. Specialised.z a) /. 2.));
               Transformation.scaling scaling scaling scaling;
               Transformation.rotate_y (Float.pi /. -2.);
               Transformation.translation (-0.5 +. Float.of_int (7 - i)) 0. 0.5;

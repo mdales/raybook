@@ -2,8 +2,8 @@ type t = {
   hsize : int;
   vsize : int;
   field_of_view : float;
-  transform : Matrix.t;
-  inverse_transform : Matrix.t;
+  transform : Specialised.t;
+  inverse_transform : Specialised.t;
   half_width : float;
   half_height : float;
   pixel_size : float;
@@ -12,8 +12,8 @@ type t = {
 let v ?transform (hsize, vsize) field_of_view =
   let transform, inverse_transform =
     match transform with
-    | None -> (Matrix.identity 4, Matrix.identity 4)
-    | Some t -> (t, Matrix.inverse t)
+    | None -> (Specialised.identity (), Specialised.identity ())
+    | Some t -> (t, Specialised.inverse t)
   in
   if hsize <= 0 then
     raise (Invalid_argument "Horizontal size must be greater than 0");
@@ -50,12 +50,10 @@ let ray_for_pixel t (x, y) =
   let world_x = t.half_width -. xoffset
   and world_y = t.half_height -. yoffset in
 
-  let point = Tuple.point world_x world_y (-1.) in
-  let origin = Tuple.point 0. 0. 0. in
+  let point = Specialised.point world_x world_y (-1.) in
+  let origin = Specialised.point 0. 0. 0. in
 
-  let pixelm = Matrix.multiply t.inverse_transform (Tuple.to_matrix point) in
-  let pixelp = Tuple.of_matrix pixelm in
-  let originm = Matrix.multiply t.inverse_transform (Tuple.to_matrix origin) in
-  let originp = Tuple.of_matrix originm in
-  let direction = Tuple.normalize (Tuple.subtract pixelp originp) in
+  let pixelp = Specialised.multiply t.inverse_transform point in
+  let originp = Specialised.multiply t.inverse_transform origin in
+  let direction = Specialised.normalize (Specialised.subtract pixelp originp) in
   Ray.v originp direction

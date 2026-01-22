@@ -9,11 +9,12 @@ let intersect w r =
   |> List.concat |> Intersection.sort
 
 let is_shadowed w p =
-  if not (Tuple.is_point p) then
+  if not (Specialised.is_point p) then
     raise (Invalid_argument "Tuple should be a point");
   let light_position = Light.position w.light in
-  let v = Tuple.subtract light_position p in
-  let distance = Tuple.magnitude v and direction = Tuple.normalize v in
+  let v = Specialised.subtract light_position p in
+  let distance = Specialised.magnitude v
+  and direction = Specialised.normalize v in
   let r = Ray.v p direction in
   let il = intersect w r in
   match Intersection.hit il with
@@ -81,16 +82,18 @@ and refracted_colour ?(count = 1) w c =
       | _ ->
           let n1, n2 = Precomputed.n_pair c in
           let n_ratio = n1 /. n2 in
-          let cos_i = Tuple.dot (Precomputed.eyev c) (Precomputed.normalv c) in
+          let cos_i =
+            Specialised.dot (Precomputed.eyev c) (Precomputed.normalv c)
+          in
           let sin2_t = n_ratio *. n_ratio *. (1. -. (cos_i *. cos_i)) in
           if sin2_t > 1. then Colour.black
           else
             let cos_t = Float.sqrt (1. -. sin2_t) in
             let direction =
-              Tuple.subtract
-                (Tuple.fmultiply (Precomputed.normalv c)
+              Specialised.subtract
+                (Specialised.fmultiply (Precomputed.normalv c)
                    ((n_ratio *. cos_i) -. cos_t))
-                (Tuple.fmultiply (Precomputed.eyev c) n_ratio)
+                (Specialised.fmultiply (Precomputed.eyev c) n_ratio)
             in
             let refracted_ray = Ray.v (Precomputed.under_point c) direction in
             let col = colour_at ~count w refracted_ray in

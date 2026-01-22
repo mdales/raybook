@@ -7,7 +7,7 @@ let almost_equal a b =
     (Float.abs (a -. b) < Float.epsilon)
 
 let test_create_world _ =
-  let l = Light.v (Tuple.point 10. 10. 10.) (Colour.v 0.2 0.3 0.4)
+  let l = Light.v (Specialised.point 10. 10. 10.) (Colour.v 0.2 0.3 0.4)
   and sl = [ Shape.(v Sphere) ] in
   let w = World.v l sl in
   assert_equal l (World.light w);
@@ -17,7 +17,7 @@ let default_test_world ?(lighting = None) ?(ambient_high = false)
     ?(more_shapes = []) () =
   let l =
     match lighting with
-    | None -> Light.v (Tuple.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.)
+    | None -> Light.v (Specialised.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.)
     | Some l -> l
   in
   let p = Pattern.(v (Solid (Colour.v 0.8 1.0 0.6))) in
@@ -43,7 +43,7 @@ let test_default_world _ =
 
 let test_intersect_world_with_ray _ =
   let w = default_test_world () in
-  let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
+  let r = Ray.v (Specialised.point 0. 0. (-5.)) (Specialised.vector 0. 0. 1.) in
   let res = World.intersect w r in
   assert_equal 4 (List.length res);
   almost_equal 4. (Intersection.distance (List.nth res 0));
@@ -58,9 +58,9 @@ let test_intersect_single_plane_from_above _ =
       ~transparency:0.5 ~refractive_index:1.5 ()
   in
   let floor = Shape.(v ~material:m1 Plane) in
-  let l = Light.v (Tuple.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.) in
+  let l = Light.v (Specialised.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.) in
   let w = World.v l [ floor ] in
-  let r = Ray.v (Tuple.point 0. 1. 0.) (Tuple.vector 0. (-1.) 0.) in
+  let r = Ray.v (Specialised.point 0. 1. 0.) (Specialised.vector 0. (-1.) 0.) in
   let il = World.intersect w r in
   assert_equal 1 (List.length il);
   let i = List.hd il in
@@ -78,9 +78,9 @@ let test_intersect_single_plane_from_below _ =
       ~transparency:0.5 ~refractive_index:1.5 ()
   in
   let floor = Shape.(v ~material:m1 Plane) in
-  let l = Light.v (Tuple.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.) in
+  let l = Light.v (Specialised.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.) in
   let w = World.v l [ floor ] in
-  let r = Ray.v (Tuple.point 0. (-1.) 0.) (Tuple.vector 0. 1. 0.) in
+  let r = Ray.v (Specialised.point 0. (-1.) 0.) (Specialised.vector 0. 1. 0.) in
   let il = World.intersect w r in
   assert_equal 1 (List.length il);
   let i = List.hd il in
@@ -94,7 +94,7 @@ let test_intersect_single_plane_from_below _ =
 let test_shading_outside_intersection _ =
   let w = default_test_world () in
   let s = List.nth (World.shapes w) 0 in
-  let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
+  let r = Ray.v (Specialised.point 0. 0. (-5.)) (Specialised.vector 0. 0. 1.) in
   let i = Intersection.v s 4. in
   let c = Precomputed.v i r [ i ] in
   let res = World.shader_hit w c in
@@ -104,10 +104,12 @@ let test_shading_outside_intersection _ =
   assert_bool "is equal" (Colour.is_equal expected res)
 
 let test_shading_inside_intersection _ =
-  let lighting = Some (Light.v (Tuple.point 0. 0.25 0.) (Colour.v 1. 1. 1.)) in
+  let lighting =
+    Some (Light.v (Specialised.point 0. 0.25 0.) (Colour.v 1. 1. 1.))
+  in
   let w = default_test_world ~lighting () in
   let s = List.nth (World.shapes w) 1 in
-  let r = Ray.v (Tuple.point 0. 0. 0.) (Tuple.vector 0. 0. 1.) in
+  let r = Ray.v (Specialised.point 0. 0. 0.) (Specialised.vector 0. 0. 1.) in
   let i = Intersection.v s 0.5 in
   let c = Precomputed.v i r [ i ] in
   let res = World.shader_hit w c in
@@ -120,13 +122,13 @@ let test_shading_inside_intersection _ =
 
 let test_colour_at_misses _ =
   let w = default_test_world () in
-  let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 1. 0.) in
+  let r = Ray.v (Specialised.point 0. 0. (-5.)) (Specialised.vector 0. 1. 0.) in
   let res = World.colour_at w r in
   assert_bool "is equal" (Colour.is_equal (Colour.v 0. 0. 0.) res)
 
 let test_colour_at_hits _ =
   let w = default_test_world () in
-  let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
+  let r = Ray.v (Specialised.point 0. 0. (-5.)) (Specialised.vector 0. 0. 1.) in
   let res = World.colour_at w r in
   let expected =
     Colour.v 0.380661193081034355 0.475826491351292957 0.285495894810775752
@@ -135,7 +137,9 @@ let test_colour_at_hits _ =
 
 let test_colour_at_hits_in_between _ =
   let w = default_test_world ~ambient_high:true () in
-  let r = Ray.v (Tuple.point 0. 0. 0.75) (Tuple.vector 0. 0. (-1.)) in
+  let r =
+    Ray.v (Specialised.point 0. 0. 0.75) (Specialised.vector 0. 0. (-1.))
+  in
   let res = World.colour_at w r in
   let expected = Colour.v 1. 1. 1. in
   assert_bool "is equal" (Colour.is_equal expected res)
@@ -143,38 +147,38 @@ let test_colour_at_hits_in_between _ =
 let test_shadow_scenario_1 _ =
   (* Nothing is colinear *)
   let w = default_test_world () in
-  let p = Tuple.point 0. 10. 0. in
+  let p = Specialised.point 0. 10. 0. in
   let res = World.is_shadowed w p in
   assert_equal false res
 
 let test_shadow_scenario_2 _ =
   (* object betweek point and light *)
   let w = default_test_world () in
-  let p = Tuple.point 10. (-10.) 10. in
+  let p = Specialised.point 10. (-10.) 10. in
   let res = World.is_shadowed w p in
   assert_equal true res
 
 let test_shadow_scenario_3 _ =
   (* object behind light *)
   let w = default_test_world () in
-  let p = Tuple.point (-20.) 20. (-20.) in
+  let p = Specialised.point (-20.) 20. (-20.) in
   let res = World.is_shadowed w p in
   assert_equal false res
 
 let test_shadow_scenario_4 _ =
   (* object behind point *)
   let w = default_test_world () in
-  let p = Tuple.point (-2.) 2. (-2.) in
+  let p = Specialised.point (-2.) 2. (-2.) in
   let res = World.is_shadowed w p in
   assert_equal false res
 
 let test_shader_hit_is_given_intersection_in_shadow _ =
-  let l = Light.v (Tuple.point 0. 0. (-10.)) (Colour.v 1. 1. 1.) in
+  let l = Light.v (Specialised.point 0. 0. (-10.)) (Colour.v 1. 1. 1.) in
   let s1 = Shape.(v Sphere) in
   let t2 = Transformation.translation 0. 0. 10. in
   let s2 = Shape.v ~transform:t2 Shape.Sphere in
   let w = World.v l [ s1; s2 ] in
-  let r = Ray.v (Tuple.point 0. 0. 5.) (Tuple.vector 0. 0. 1.) in
+  let r = Ray.v (Specialised.point 0. 0. 5.) (Specialised.vector 0. 0. 1.) in
   let i = Intersection.v s2 4. in
   let comps = Precomputed.v i r [ i ] in
   let res = World.shader_hit w comps in
@@ -183,7 +187,7 @@ let test_shader_hit_is_given_intersection_in_shadow _ =
 
 let test_reflected_colour_on_non_reflective_surface _ =
   let w = default_test_world ~ambient_high:true () in
-  let r = Ray.v (Tuple.point 0. 0. 0.) (Tuple.vector 0. 0. 1.) in
+  let r = Ray.v (Specialised.point 0. 0. 0.) (Specialised.vector 0. 0. 1.) in
   let s = List.nth (World.shapes w) 1 in
   let i = Intersection.v s 1. in
   let comps = Precomputed.v i r [ i ] in
@@ -198,7 +202,9 @@ let test_reflected_colour_on_reflective_surface _ =
   let p = Shape.(v ~transform:t ~material:m Plane) in
   let w = default_test_world ~more_shapes:[ p ] () in
   let x = Float.sqrt 2. /. 2. in
-  let r = Ray.v (Tuple.point 0. 0. (-2.)) (Tuple.vector 0. (0. -. x) x) in
+  let r =
+    Ray.v (Specialised.point 0. 0. (-2.)) (Specialised.vector 0. (0. -. x) x)
+  in
   let i = Intersection.v p x in
   let comps = Precomputed.v i r [ i ] in
   let res = World.reflected_colour w comps in
@@ -216,7 +222,9 @@ let test_shader_hit_on_reflective_surface _ =
   let p = Shape.(v ~transform:t ~material:m Plane) in
   let w = default_test_world ~more_shapes:[ p ] () in
   let x = Float.sqrt 2. /. 2. in
-  let r = Ray.v (Tuple.point 0. 0. (-2.)) (Tuple.vector 0. (0. -. x) x) in
+  let r =
+    Ray.v (Specialised.point 0. 0. (-2.)) (Specialised.vector 0. (0. -. x) x)
+  in
   let i = Intersection.v p x in
   let comps = Precomputed.v i r [ i ] in
   let res = World.shader_hit w comps in
@@ -234,16 +242,16 @@ let test_reflection_between_parallel_surfaces_terminates _ =
   let p1 = Shape.(v ~transform:t1 ~material:m1 Plane) in
   let t2 = Transformation.translation 0. (-1.) 0. in
   let p2 = Shape.(v ~transform:t2 ~material:m1 Plane) in
-  let l = Light.v (Tuple.point 0. 0. 0.) Colour.white in
+  let l = Light.v (Specialised.point 0. 0. 0.) Colour.white in
   let w = World.v l [ p1; p2 ] in
-  let r = Ray.v (Tuple.point 0. 0. 0.) (Tuple.vector 0. 1. 0.) in
+  let r = Ray.v (Specialised.point 0. 0. 0.) (Specialised.vector 0. 1. 0.) in
   let _ = World.colour_at w r in
   ()
 
 let test_refracted_colour_on_opaque_surface _ =
   let w = default_test_world () in
   let s = List.hd (World.shapes w) in
-  let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
+  let r = Ray.v (Specialised.point 0. 0. (-5.)) (Specialised.vector 0. 0. 1.) in
   let il = [ Intersection.v s 4.; Intersection.v s 6. ] in
   let comps = Precomputed.v (List.hd il) r il in
   let res = World.refracted_colour ~count:1 w comps in
@@ -257,10 +265,10 @@ let test_refracted_colour_on_recurrsion_limit _ =
       ~transparency:1. ~refractive_index:1.5 ()
   in
   let s = Shape.(v ~material:m Sphere) in
-  let l = Light.v (Tuple.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.) in
+  let l = Light.v (Specialised.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.) in
   let w = World.v l [ s ] in
   let s = List.hd (World.shapes w) in
-  let r = Ray.v (Tuple.point 0. 0. (-5.)) (Tuple.vector 0. 0. 1.) in
+  let r = Ray.v (Specialised.point 0. 0. (-5.)) (Specialised.vector 0. 0. 1.) in
   let il = [ Intersection.v s 4.; Intersection.v s 6. ] in
   let comps = Precomputed.v (List.hd il) r il in
   let res = World.refracted_colour ~count:0 w comps in
@@ -274,10 +282,10 @@ let test_total_internal_reflection _ =
       ~transparency:1. ~refractive_index:1.5 ()
   in
   let s = Shape.(v ~material:m Sphere) in
-  let l = Light.v (Tuple.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.) in
+  let l = Light.v (Specialised.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.) in
   let w = World.v l [ s ] in
   let x = Float.sqrt 2. /. 2. in
-  let r = Ray.v (Tuple.point 0. 0. x) (Tuple.vector 0. 1. 0.) in
+  let r = Ray.v (Specialised.point 0. 0. x) (Specialised.vector 0. 1. 0.) in
   let il = [ Intersection.v s (0. -. x); Intersection.v s x ] in
   let comps = Precomputed.v (List.nth il 1) r il in
   let res = World.refracted_colour ~count:1 w comps in
@@ -298,9 +306,9 @@ let test_refracted_colour _ =
       ~transparency:1. ~refractive_index:1.5 ()
   in
   let b = Shape.(v ~material:m2 ~transform:t Sphere) in
-  let l = Light.v (Tuple.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.) in
+  let l = Light.v (Specialised.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.) in
   let w = World.v l [ a; b ] in
-  let r = Ray.v (Tuple.point 0. 0. 0.1) (Tuple.vector 0. 1. 0.) in
+  let r = Ray.v (Specialised.point 0. 0. 0.1) (Specialised.vector 0. 1. 0.) in
   let il = World.intersect w r in
   let i = List.nth il 2 in
   let comps = Precomputed.v i r il in
@@ -326,10 +334,12 @@ let test_shader_hit_with_refraction _ =
   in
   let t2 = Transformation.translation 0. (-3.5) (-0.5) in
   let ball = Shape.(v ~material:m2 ~transform:t2 Sphere) in
-  let l = Light.v (Tuple.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.) in
+  let l = Light.v (Specialised.point (-10.) 10. (-10.)) (Colour.v 1. 1. 1.) in
   let w = World.v l [ floor; ball ] in
   let x = Float.sqrt 2. /. 2. in
-  let r = Ray.v (Tuple.point 0. 0. (-3.)) (Tuple.vector 0. (0. -. x) x) in
+  let r =
+    Ray.v (Specialised.point 0. 0. (-3.)) (Specialised.vector 0. (0. -. x) x)
+  in
   let i = Intersection.v floor (Float.sqrt 2.) in
   let comps = Precomputed.v i r [ i ] in
   let res = World.shader_hit ~count:5 w comps in
@@ -356,7 +366,9 @@ let test_shader_hit_with_relective_transparent_model _ =
   let ball = Shape.(v ~material:m2 ~transform:t2 Sphere) in
   let w = default_test_world ~more_shapes:[ floor; ball ] () in
   let x = Float.sqrt 2. /. 2. in
-  let r = Ray.v (Tuple.point 0. 0. (-3.)) (Tuple.vector 0. (0. -. x) x) in
+  let r =
+    Ray.v (Specialised.point 0. 0. (-3.)) (Specialised.vector 0. (0. -. x) x)
+  in
   let i = Intersection.v floor (Float.sqrt 2.) in
   let comps = Precomputed.v i r [ i ] in
   let res = World.shader_hit ~count:5 w comps in
