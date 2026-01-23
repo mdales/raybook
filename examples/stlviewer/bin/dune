@@ -1,0 +1,4 @@
+(executable
+ (public_name stlviewer)
+ (name main)
+ (libraries raybook stl))
