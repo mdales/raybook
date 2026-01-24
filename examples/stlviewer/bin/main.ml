@@ -22,15 +22,17 @@ let tick shapes _t =
         Transformation.rotate_y (Float.pi /. 6.);
         Transformation.translation 0. (-0.5) (-2.);
         Transformation.rotate_x 0.4;
-        Transformation.translation 0. (-0.5) (0.);
+        Transformation.translation 0. (-0.5) 0.;
       ]
   in
 
   (ct, w)
 
 let stl_to_ray stl_file =
-    let triangles = Stl.triangles stl_file in
-    let shapes = List.map (fun t ->
+  let triangles = Stl.triangles stl_file in
+  let shapes =
+    List.map
+      (fun t ->
         let v1, v2, v3 = Stl.Triangle.vertices t in
         let x, y, z = v1 in
         let p1 = Specialised.point x y z in
@@ -40,21 +42,31 @@ let stl_to_ray stl_file =
         let p3 = Specialised.point x y z in
 
         let s = Shape.(v (Triangle (p1, p2, p3))) in
-        s
-    ) triangles in
+        s)
+      triangles
+  in
 
-    let t = Transformation.scaling 0.002 0.002 0.002 in
-    let g = Shape.(v ~transform:t (Group shapes)) in
-    g
+  (* this is stupid, we need a better API here. I make a group
+    just to get the bounds then make another group with the transform *)
+  let g = Shape.(v (Group shapes)) in
+  let minm, maxm = Shape.bounds g in
+  let xdiff = Specialised.x maxm -. Specialised.x minm
+  and ydiff = Specialised.y maxm -. Specialised.y minm
+  and zdiff = Specialised.z maxm -. Specialised.z minm in
+  let maxdiff = max (max xdiff ydiff) zdiff in
+  let scale = 1. /. maxdiff in
+
+  let t = Transformation.scaling scale scale scale in
+  let g = Shape.(v ~transform:t (Group shapes)) in
+  g
 
 let () =
-  match (Stl.of_file (Sys.argv.(1))) with
+  match Stl.of_file Sys.argv.(1) with
   | Result.Error msg -> failwith msg
-  | Result.Ok stl_file -> (
-    let s = stl_to_ray stl_file in
-    let shapes = [s] in
-    Sdl.run (500, 500) (tick shapes)
-)
+  | Result.Ok stl_file ->
+      let s = stl_to_ray stl_file in
+      let shapes = [ s ] in
+      Sdl.run (500, 500) (tick shapes)
 
 (* let c = Canvas.v (576, 324) in
   let r = Render.v c in
